@@ -1,0 +1,183 @@
+/* You can add global styles to this file, and also import other style files */
+
+.timepicker-overlay {
+    z-index: 1100 !important;
+  }
+  
+  .timepicker-backdrop-overlay {
+    z-index: 1100 !important;
+  }
+  
+body {
+    margin: 0;
+    background-color: #F9F9F9;
+    position: relative;
+}
+
+html, body { height: 100%; width: 100%; margin: 0; font-family: "Poppins", sans-serif; }
+
+/* .default-container {
+    display: flex;
+    height: fit-content;
+    width: 400px;
+    margin: 20px auto;
+    background-color: white;
+    align-items: center;
+    justify-content: center;
+    border-top: 20px solid #337D98 !important;
+    text-align: center;
+    flex-direction: column;
+    padding: 15px;
+    position: relative;
+    font-size: 1em;
+    border-radius: 10px;
+} */
+
+
+.mat-form-field {
+    width: 80%;
+    height: 45px;
+    display: block;
+    margin: auto;
+    margin-top: 22px;
+    padding: 0;
+    font-size: 12px;
+}
+
+.mat-form-field-wrapper {
+    height: 50px !important;
+}
+
+.mat-form-field-subscript-wrapper {
+    margin-top: 2px !important;
+}
+
+
+.mat-error {
+    margin-top: -1.2px;
+    margin-left: -1px;
+    font-size: 11px;
+}
+
+
+.mat-icon {
+    font-family: 'Material Icons'; 
+}
+
+.mat-snack-bar-container {
+    color: white;
+}
+
+.mat-simple-snackbar-action button {
+    color: white;
+}
+
+/* ::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
+    padding: 0px;
+} */
+.mat-form-field-prefix {
+    top: 1px !important;
+}
+
+.conf-button {
+    background-color: #1E4A5A !important;
+    color: white;
+    font-weight: 400 !important;
+    font-size: 14px;
+    padding: 0px 30px !important;
+    margin-top: 25px !important;
+    border-radius: 5px;
+ }
+/* CUSTOM SCROLLBAR
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+    
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #ffffff; 
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #DCDCDC; 
+    border-radius: 2px;
+    height: 20px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #afafaf; 
+  }
+
+label.star::before{
+    text-shadow: none !important;
+} 
+
+
+ /* COLORS */
+
+ .blue {
+    color: #26547c !important;
+ }
+
+ .dark-blue {
+    color: #1e4363;
+ }
+
+ .white {
+    color: white;
+ }
+
+ .dark-gray { 
+    color: #B1B1B1 !important;
+ }
+
+ .orange {
+    color: #EC9A29 !important;
+}
+
+.black {
+    color: #383838 !important;
+}
+
+.red {
+    color: #ef476f !important;
+}
+
+.green {
+    color: #06d6a0 !important;
+}
+
+.back-dark-blue {
+    background-color: #1e4363 !important;
+}
+
+.back-orange {
+    background-color: #EC9A29 !important;
+}
+
+.back-red {
+    background-color: #ef476f !important;
+}
+
+.back-green {
+    background-color: #06d6a0 !important;
+}
+
+.back-darker-gray {
+    background-color: #DCDCDC !important;
+}
+
+.back-blue {
+    background-color: #26547c !important;
+}
+ 
+ 
+.border {
+    border: 1px solid #E6E6E6;
+    border-radius: 10px;
+}
