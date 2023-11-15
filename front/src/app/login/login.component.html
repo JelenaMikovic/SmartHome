@@ -1,0 +1,28 @@
+<div id="login-container">
+    <div id="form-container">
+        <h1 class="title dark-gray">Welcome back</h1>
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+            <mat-form-field >
+                <mat-label>Email</mat-label>
+                <input matInput type="email" name="email" formControlName="email" />
+                <mat-error *ngIf="loginForm.get('email')?.errors?.['required']">entering email is required</mat-error>
+                <mat-error *ngIf="loginForm.get('email')?.errors?.['email']">invalid email format</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Password</mat-label>
+                <mat-icon id="eye-icon" matSuffix (click)="isVisible = !isVisible">{{isVisible ? 'visibility' : 'visibility_off'}}</mat-icon>
+                <input matInput [type]="isVisible? 'text' : 'password'" name="password" formControlName="password" />
+                <mat-error *ngIf="loginForm.get('password')?.errors?.['required']">entering password is required</mat-error>
+            </mat-form-field>
+            <mat-checkbox color="primary">Remember me</mat-checkbox>
+        </form>
+        <button class="conf-button" mat-raised-button (click)="login()">Log In</button>
+        <a id="forgotten-password-ref" [routerLink]="['/forgot-password']">Forgot password?</a>
+        <p>
+            New to LaCasaDeSmart? <a id="register-ref" [routerLink]="['/register']">Register!</a>
+        </p>
+    </div>
+    <div id="img-container">
+        <img src="../../assets/vectors/login.svg">
+    </div>
+</div>

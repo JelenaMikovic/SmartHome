@@ -1,0 +1,134 @@
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@use '@angular/material' as mat;
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core();
+
+$blue: (
+    50: #92a9bd,
+    100: #7c98b0,
+    200: #6787a3,
+    300: #517696,
+    400: #3b6589,
+    500: #26547c,
+    600: #224b6f,
+    700: #1e4363,
+    800: #16324a,
+    900: #132a3e,
+    A100: #7c98b0,
+    A200: #6787a3,
+    A400: #3b6589,
+    A700: #1e4363,
+    contrast: (
+        50: black,
+        100: black,
+        200: black,
+        300: black,
+        400: black,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        A100: black,
+        A200: black,
+        A400: black,
+        A700: white,
+    )
+);
+
+$green: (
+    50: #cdf6ec,
+    100: #9beed9,
+    200: #69e6c6,
+    300: #37deb3,
+    400: #1edaa9,
+    500: #06d6a0,
+    600: #05c090,
+    700: #04ab80,
+    800: #049570,
+    900: #025540,
+    A100: #9beed9,
+    A200: #69e6c6,
+    A400: #1edaa9,
+    A700: #04ab80,
+    contrast: (
+        50: black,
+        100: black,
+        200: black,
+        300: black,
+        400: black,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        A100: black,
+        A200: black,
+        A400: black,
+        A700: white,
+    )
+);
+
+$red: (
+    50: #edd2d1,
+    100: #f7a3b7,
+    200: #f590a8,
+    300: #f26b8b,
+    400: #f0587d,
+    500: #ef476f,
+    600: #d73f63,
+    700: #bf3858,
+    800: #8f2a42,
+    900: #772337,
+    A100: #f7a3b7,
+    A200: #f590a8,
+    A400: #f0587d,
+    A700: #bf3858,
+    contrast: (
+        50: black,
+        100: black,
+        200: black,
+        300: black,
+        400: black,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        A100: black,
+        A200: black,
+        A400: black,
+        A700: white,
+    )
+);
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$LeCasaDeSmart-primary: mat.define-palette($blue);
+$LeCasaDeSmart-accent: mat.define-palette($green);
+
+// The warn palette is optional (defaults to red).
+$LeCasaDeSmart-warn: mat.define-palette($red);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$LeCasaDeSmart-theme: mat.define-light-theme((
+  color: (
+    primary: $LeCasaDeSmart-primary,
+    accent: $LeCasaDeSmart-accent,
+    warn: $LeCasaDeSmart-warn,
+  )
+));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($LeCasaDeSmart-theme);
+
