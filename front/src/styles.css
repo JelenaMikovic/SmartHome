@@ -7,14 +7,28 @@
   .timepicker-backdrop-overlay {
     z-index: 1100 !important;
   }
-  
-body {
-    margin: 0;
-    background-color: #F9F9F9;
-    position: relative;
-}
+
 
 html, body { height: 100%; width: 100%; margin: 0; font-family: "Poppins", sans-serif; }
+
+html, body { height: 100%; }
+body { 
+    margin: 0; font-family: 'Poppins', sans-serif;
+    position: relative;
+    padding: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), url("./assets/background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; 
+}
+
+.title {
+    margin-top: 0px;
+    font-weight: 700;
+    font-size: 1.7em;
+    margin-bottom: 0px;
+}
 
 /* .default-container {
     display: flex;
@@ -80,13 +94,13 @@ html, body { height: 100%; width: 100%; margin: 0; font-family: "Poppins", sans-
 }
 
 .conf-button {
-    background-color: #1E4A5A !important;
+    background-color: #06d6a0 !important;
     color: white;
     font-weight: 400 !important;
     font-size: 14px;
     padding: 0px 30px !important;
     margin-top: 25px !important;
-    border-radius: 5px;
+    border-radius: 15px !important;
  }
 /* CUSTOM SCROLLBAR
 
@@ -133,7 +147,7 @@ label.star::before{
  }
 
  .dark-gray { 
-    color: #B1B1B1 !important;
+    color: #555555 !important;
  }
 
  .orange {

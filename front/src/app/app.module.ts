@@ -18,10 +18,12 @@ import { NgxStarRatingModule } from 'ngx-star-rating';
 import { CdTimerModule } from 'angular-cd-timer';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
