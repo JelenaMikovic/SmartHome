@@ -1,0 +1,33 @@
+#container {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    
+}
+
+.container-rows {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px auto;
+}
+
+.container-column {
+    display: block !important;
+}
+
+.logged {
+    grid-template-columns: 330px auto;
+    grid-template-rows: 1fr;
+}
+
+#main-content {
+    /* width: 100%; */
+    height: 100%;
+    position: relative;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+
+@media screen and (max-width: 900px) {
+}

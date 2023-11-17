@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { NavbarService } from './../services/navbar.service';
+import { Component, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,22 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'LeCasaDeSmart';
+
+  title = "Le Casa De Smart";
+  loggedIn: boolean = true; 
+  sideVisible: Boolean = false;
+  smallScreen: boolean = window.innerWidth < 900;
+
+  constructor(private navbarService: NavbarService) {
+    this.navbarService.getSideVisible().subscribe(value => {
+      this.sideVisible = value;
+    })
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.smallScreen = window.innerWidth < 900;
+  }
+
+
 }

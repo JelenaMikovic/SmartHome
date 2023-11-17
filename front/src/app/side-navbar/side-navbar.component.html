@@ -1,0 +1,29 @@
+<nav class="navbar back-white" id="navbar-smaller">
+    <div class="container">
+        <div class="navbar-header">
+            <div class="logo-container-mini">
+                <img class="logo-img" src="../../assets/logo.png" alt="La Casa De Smart">
+            </div>
+            <button class="navbar-toggler" data-toggle="side-navbar-container">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+            </button>
+        </div>  
+    </div>
+</nav>
+<div id="side-navbar-container">
+    <div id="close-btn" (click)="close()">
+        <i class="fa fa-plus"></i>
+    </div>
+    <div class="logo-container">
+        <img class="logo-img" src="../../assets/logo.png" alt="La Casa De Smart">
+    </div>
+    <div class="nav-item">
+        <i class="fa-solid fa-home" style="cursor: pointer"></i>
+        <p>Properties</p>
+    </div>
+    <div id="logout-container">
+        <button id="logout-btn" class="outline-btn" (click)="logout()">Logout</button>
+    </div>
+</div>
