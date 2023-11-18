@@ -1,0 +1,49 @@
+<div class="choose-device-container basic-container">
+    <div class="close-btn" (click)="close()">
+        <i class="fa fa-plus"></i>
+    </div>
+    <div class="title-container">
+        <p class="title light-blue">Choose device type</p>
+        <hr>
+    </div>
+    <div id="cards" class="row">
+        <div class="card column" (click)="handleClick('AmbientSensor')" [ngClass]="!this.itemClicked['AmbientSensor'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-temperature-high icon"></i>
+            <p>Ambient sensor</p>
+        </div>
+        <div class="card column" (click)="handleClick('AC')" [ngClass]="!this.itemClicked['AC'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-fan icon" style="font-size: 50px;"></i>
+            <p>AC</p>
+        </div>
+        <div class="card column" (click)="handleClick('WashingMachine')" [ngClass]="!this.itemClicked['WashingMachine'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-soap icon"></i>
+            <p>Washing machine</p>
+        </div>
+        <div class="card column" (click)="handleClick('Lamp')" [ngClass]="!this.itemClicked['Lamp'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-lightbulb icon"></i>
+            <p>Lamp</p>
+        </div>
+        <div class="card column" (click)="handleClick('SolarPanel')" [ngClass]="!this.itemClicked['SolarPanel'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-solar-panel icon"></i>
+            <p>Solar panel</p>
+        </div>
+        <div class="card column" (click)="handleClick('VehicleGate')" [ngClass]="!this.itemClicked['VehicleGate'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-door-open icon"></i>
+            <p>Vehicle gate</p>
+        </div>
+        <div class="card column" (click)="handleClick('HomeBattery')" [ngClass]="!this.itemClicked['HomeBattery'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-car-battery icon"></i>
+            <p>Home battery</p>
+        </div>
+        <div class="card column" (click)="handleClick('IrrigationSystem')" [ngClass]="!this.itemClicked['IrrigationSystem'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-faucet icon"></i>
+            <!-- <i class="fa-solid fa-droplet"></i> -->
+            <p>Irrigation system</p>
+        </div>
+        <div class="card column" (click)="handleClick('EVCharger')" [ngClass]="!this.itemClicked['EVCharger'] ? 'not-clicked-card' : 'clicked-card'">
+            <i class="fa-solid fa-charging-station icon"></i>
+            <p>EV charger</p>
+        </div>
+    </div>
+    <button class="conf-button continue-btn back-light-blue" mat-raised-button *ngIf="isItemClicked()">Continue</button>
+</div>

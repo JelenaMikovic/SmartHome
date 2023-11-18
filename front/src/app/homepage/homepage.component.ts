@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddPropertyDialogComponent } from '../add-property-dialog/add-property-dialog.component';
+import { ChooseDeviceTypeDialogComponent } from '../choose-device-type-dialog/choose-device-type-dialog.component';
 
 @Component({
   selector: 'app-homepage',
@@ -17,5 +18,10 @@ export class HomepageComponent implements OnInit {
   openAddPropertyDialog() {
     this.dialog.open(AddPropertyDialogComponent);
   }
+
+  openChooseDeviceTypeDialog() {
+    this.dialog.open(ChooseDeviceTypeDialogComponent);
+  }
+
 
 }
