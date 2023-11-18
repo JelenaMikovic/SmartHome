@@ -19,11 +19,13 @@ import { CdTimerModule } from 'angular-cd-timer';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LoginComponent } from './login/login.component';
+import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    SideNavbarComponent
   ],
   imports: [
     BrowserModule,
