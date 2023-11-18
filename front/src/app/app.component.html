@@ -1,8 +1,6 @@
-<!-- <div id="container" [ngClass]="{ 'logged': loggedIn && !smallScreen, 'container-rows': smallScreen && !sideVisible, 'container-column': smallScreen && sideVisible}"> -->
-  <!-- <app-side-navbar *ngIf="loggedIn" id="navbar"></app-side-navbar> -->
+<div id="container" [ngClass]="{ 'logged': loggedIn && !smallScreen, 'container-rows': smallScreen && !sideVisible, 'container-column': smallScreen && sideVisible}">
+  <app-side-navbar *ngIf="loggedIn" id="navbar"></app-side-navbar>
   <div id="main-content">
-    <!-- <router-outlet></router-outlet> -->
     <app-homepage></app-homepage>
   </div>
-  <app-snack-bar></app-snack-bar>
-<!-- </div> -->
+</div>

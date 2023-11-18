@@ -21,6 +21,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AddPropertyDialogComponent } from './add-property-dialog/add-property-dialog.component';
 import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
+import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { LoginComponent } from './login/login.component';
     LoginComponent,
     AddPropertyDialogComponent,
     HomepageComponent,
+    SideNavbarComponent
   ],
   imports: [
     BrowserModule,

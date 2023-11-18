@@ -93,8 +93,7 @@ body {
     top: 1px !important;
 }
 
-<<<<<<< Updated upstream
-=======
+
 /* BUTTONS */
 .close-btn i {
     transform: rotate(45deg);
@@ -111,7 +110,7 @@ body {
     padding: 10px 35px;
 }
 
->>>>>>> Stashed changes
+
 .conf-button {
     background-color: #06d6a0 !important;
     color: white;
