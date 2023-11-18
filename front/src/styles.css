@@ -26,7 +26,7 @@ body {
 .title {
     margin-top: 0px;
     font-weight: 700;
-    font-size: 1.7em;
+    font-size: 1.7em !important;
     margin-bottom: 0px;
 }
 
@@ -93,11 +93,30 @@ body {
     top: 1px !important;
 }
 
+<<<<<<< Updated upstream
+=======
+/* BUTTONS */
+.close-btn i {
+    transform: rotate(45deg);
+    cursor: pointer;
+}
+
+.outline-btn {
+    background-color: white;
+    border-radius: 15px;
+    border: 2px solid gray;
+    color: gray;
+    cursor: pointer !important;
+    font-size: 1em;
+    padding: 10px 35px;
+}
+
+>>>>>>> Stashed changes
 .conf-button {
     background-color: #06d6a0 !important;
     color: white;
-    font-weight: 400 !important;
-    font-size: 14px;
+    font-weight: bold !important;
+    font-size: 1.1em;
     padding: 0px 30px !important;
     margin-top: 25px !important;
     border-radius: 15px !important;
@@ -133,6 +152,11 @@ label.star::before{
 
 
  /* COLORS */
+
+ .light-blue {
+    color: #2C87D7 !important;
+}
+ 
 
  .blue {
     color: #26547c !important;
@@ -188,6 +212,10 @@ label.star::before{
 
 .back-blue {
     background-color: #26547c !important;
+}
+
+.back-light-blue {
+    background-color: #2C87D7 !important;
 }
  
  

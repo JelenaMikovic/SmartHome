@@ -1,0 +1,45 @@
+<div class="add-property-container basic-container">
+    <div class="close-btn" (click)="close()">
+        <i class="fa fa-plus"></i>
+    </div>
+    <div class="title-container">
+        <p class="title light-blue">Add a new property</p>
+        <hr>
+    </div>
+    <form id="add-property-form" [formGroup]="addPropertyForm" (ngSubmit)="addProperty()">
+        <div class="form-section">
+            <p class="subtitle">Basic info:</p>
+            <mat-form-field >
+                <mat-label>Name</mat-label>
+                <input matInput type="text" name="name" formControlName="name" />
+                <mat-error *ngIf="addPropertyForm.get('name')?.errors?.['required']">entering name is required</mat-error>
+                <mat-error *ngIf="addPropertyForm.get('name')?.errors?.['nameError'] && !addPropertyForm.get('name')?.errors?.['required']">name should be 1-100 characters long</mat-error>
+            </mat-form-field>
+            <div class="area-and-floors">
+                <mat-form-field>
+                    <mat-label>Area</mat-label>
+                    <input matInput type="number" name="area" formControlName="area" />
+                    <mat-error *ngIf="addPropertyForm.get('area')?.errors?.['required']">entering area is required</mat-error>
+                    <mat-error *ngIf="addPropertyForm.get('area')?.errors?.['invalidArea'] && !addPropertyForm.get('area')?.errors?.['required']">area should be 0-1000 m2</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Number of floors</mat-label>
+                    <input matInput type="number" name="numberOfFloors" formControlName="numberOfFloors"/>
+                    <mat-error *ngIf="addPropertyForm.get('numberOfFloors')?.errors?.['required']">entering number of floors is required</mat-error>
+                    <mat-error *ngIf="addPropertyForm.get('numberOfFloors')?.errors?.['invalidFloors'] && !addPropertyForm.get('numberOfFloors')?.errors?.['required']">property can have 1-200 floors</mat-error>
+                </mat-form-field>
+            </div>
+            <button class="upload-btn" (click)="imageInput.click()">
+                Upload property image
+                <input #imageInput type="file" (change)="onFileSelect($event)" style="display: none">
+                <p>{{ file['name'] }}</p>
+            </button>
+        </div>
+        <div class="form-section">
+            <p class="subtitle">Address info:</p>
+        </div>
+        <div id="send-request-btn-container">
+            <button id="send-request-btn" class="conf-button" type="submit" mat-raised-button>Send request</button>
+        </div>
+    </form>
+</div>

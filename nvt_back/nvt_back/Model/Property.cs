@@ -18,6 +18,7 @@ namespace nvt_back
         public int NumOfFloors { get; set; }
         public double Area { get; set; }
         public PropertyStatus Status { get; set; }
+        public string ImagePath { get; set; }
         
         [ForeignKey("Owner")]
         public int UserId { get; set; }

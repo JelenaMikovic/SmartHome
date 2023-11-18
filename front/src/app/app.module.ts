@@ -18,12 +18,17 @@ import { NgxStarRatingModule } from 'ngx-star-rating';
 import { CdTimerModule } from 'angular-cd-timer';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AddPropertyDialogComponent } from './add-property-dialog/add-property-dialog.component';
+import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    AddPropertyDialogComponent,
+    HomepageComponent,
   ],
   imports: [
     BrowserModule,
