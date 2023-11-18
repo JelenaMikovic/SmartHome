@@ -38,14 +38,20 @@ namespace nvt_back.Services
             throw new Exception("Error saving image: Invalid base64 format.");
         }
 
+        private string getFilePath(byte[] imageBytes)
+        {
+            string extension = this.getImageFileTypeFromBase64(imageBytes);
+            string fileName = this.generateUuid() + extension;
+            string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "images");
+
+            return Path.Combine(directoryPath, fileName);
+        }
+
         public string SaveImage(string imageBase64)
         {
             imageBase64 = this.extractBase64String(imageBase64);
             byte[] imageBytes = Convert.FromBase64String(imageBase64);
-            string extension = this.getImageFileTypeFromBase64(imageBytes);
-            string fileName = this.generateUuid() + extension;
-            string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "images");
-            string filePath = Path.Combine(directoryPath, fileName);
+            string filePath = this.getFilePath(imageBytes);
 
             try
             {
