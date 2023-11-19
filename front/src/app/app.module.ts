@@ -16,7 +16,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { NgxStarRatingModule } from 'ngx-star-rating';
 import { CdTimerModule } from 'angular-cd-timer';
-
+import { SelectDropDownModule } from 'ngx-select-dropdown'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AddPropertyDialogComponent } from './add-property-dialog/add-property-dialog.component';
 import { HomepageComponent } from './homepage/homepage.component';
@@ -46,8 +46,8 @@ import { SideNavbarComponent } from './side-navbar/side-navbar.component';
     GooglePlaceModule,
     CommonModule,
     CdTimerModule,
-    NgxStarRatingModule
-    
+    NgxStarRatingModule,
+    SelectDropDownModule
     
   ],
   providers: [

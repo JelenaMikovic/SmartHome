@@ -29,7 +29,7 @@
                     <mat-error *ngIf="addPropertyForm.get('numberOfFloors')?.errors?.['invalidFloors'] && !addPropertyForm.get('numberOfFloors')?.errors?.['required']">property can have 1-200 floors</mat-error>
                 </mat-form-field>
             </div>
-            <button class="upload-btn" (click)="imageInput.click()">
+            <button class="upload-btn" type="button" (click)="imageInput.click()">
                 Upload property image
                 <input #imageInput type="file" (change)="onFileSelect($event)" style="display: none">
                 <p>{{ file['name'] }}</p>
@@ -37,6 +37,19 @@
         </div>
         <div class="form-section">
             <p class="subtitle">Address info:</p>
+            <mat-form-field class="example-full-width">
+                <mat-label>Select city</mat-label>
+                <input type="text"
+                       aria-label="Number"
+                       matInput
+                       formControlName="cityAndCountry"
+                       [matAutocomplete]="auto">
+                    <mat-autocomplete requireSelection #auto="matAutocomplete" [displayWith]="displayLocation">
+                        <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                            {{ option.location }}
+                        </mat-option>
+                    </mat-autocomplete>
+            </mat-form-field>
         </div>
         <div id="send-request-btn-container">
             <button id="send-request-btn" class="conf-button" type="submit" mat-raised-button>Send request</button>
