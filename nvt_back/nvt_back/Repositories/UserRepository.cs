@@ -12,6 +12,16 @@ namespace nvt_back.Repositories
             _context = context;
         }
 
+        public void AddUser(User user)
+        {
+            _context.Users.Add(user);
+        }
+
+        public Task<User> GetByEmail(string email)
+        {
+            return _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
         public Task<User> GetByEmailAndPassword(string email, string password)
         {
             return _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
