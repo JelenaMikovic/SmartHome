@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using nvt_back;
 using System.Text;
+using nvt_back.Repositories;
+using nvt_back.Repositories.Interfaces;
+using nvt_back.Services;
+using nvt_back.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,8 +50,22 @@ builder.Services.AddAuthorization(o =>
     o.AddPolicy("User", p => p.RequireRole("USER"));
 });
 
+builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
 
-// Add services to the container.
+builder.Services.AddTransient<IPropertyService, PropertyService>();
+builder.Services.AddTransient<IImageService, ImageService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -64,9 +82,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
+app.UseCors();
+
+app.UseRouting();
 app.MapControllers();
 
 app.Run();
