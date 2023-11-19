@@ -10,7 +10,7 @@ namespace nvt_back.Controllers
 {
     [ApiController]
     [Route("api/user")]
-    public class UserController : ControllerBase
+    public class UserController : Controller
     {
         private readonly IUserService _userService;
 
@@ -56,7 +56,7 @@ namespace nvt_back.Controllers
                 {
                     HttpOnly = true,
                     Secure = false,
-                    Expires = DateTime.UtcNow.AddDays(30),
+                    Expires = DateTime.UtcNow.AddHours(2),
 
                 });
 
@@ -66,18 +66,6 @@ namespace nvt_back.Controllers
             {
                 return StatusCode(500, "Internal Server Error. " + ex.Message);
             }
-        }
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            Response.Cookies.Append("jwtToken", "", new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false,
-                Expires = DateTime.UtcNow.AddYears(-1),
-            });
-
-            return Ok();
         }
 
     }
