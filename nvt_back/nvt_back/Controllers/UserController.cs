@@ -81,5 +81,19 @@ namespace nvt_back.Controllers
             }
             return Ok();
         }
+
+        [HttpPost("activate")]
+        public async Task<IActionResult> ActivateAccount([FromBody] ActivationDTO activationDTO)
+        {
+            try
+            {
+                _userService.ActivateAccount(activationDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
     }
 }

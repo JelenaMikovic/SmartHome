@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.Model;
 
 namespace nvt_back
 {
@@ -9,7 +10,8 @@ namespace nvt_back
         public DbSet<Country> Countries { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Address> Addresses { get; set; }
-         
+        public DbSet<ActivationCode> ActivationCodes { get; set; }
+
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
