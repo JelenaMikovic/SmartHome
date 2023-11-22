@@ -45,5 +45,5 @@
             <p>EV charger</p>
         </div>
     </div>
-    <button class="conf-button continue-btn back-light-blue" mat-raised-button *ngIf="isItemClicked()">Continue</button>
+    <button class="conf-button continue-btn back-light-blue" mat-raised-button *ngIf="isItemClicked()" (click)="continueToDeviceDetails()">Continue</button>
 </div>

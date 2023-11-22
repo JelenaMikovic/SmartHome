@@ -1,10 +1,11 @@
 import { PropertyDTO, PropertyService } from './../../services/property.service';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { areaValidator, floorsValidator, nameValidator } from '../validators/property-validators';
 import { markFormControlsTouched } from '../validators/formGroupValidators';
+import { AddDeviceDialogComponent } from '../add-device-dialog/add-device-dialog.component';
 
 @Component({
   selector: 'app-choose-device-type-dialog',
@@ -17,7 +18,8 @@ export class ChooseDeviceTypeDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ChooseDeviceTypeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private snackBar: MatSnackBar,
-    private propertyService: PropertyService
+    private propertyService: PropertyService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -25,24 +27,6 @@ export class ChooseDeviceTypeDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
-  }
-
-  clickedAmbientSensor: boolean = false;
-  clickedAC: boolean = false;
-  clickedWashingMachine: boolean = false;
-  clickedLamp: boolean = false;
-  clickedSolarPanel: boolean = false;
-  clickedVehicleGate: boolean = false;
-  clickedHomeBattery: boolean = false;
-  clickedIrrigationSystem: boolean = false;
-  clickedEVCharger: boolean = false;
-
-  clickAmbientSensor() : void {
-    this.clickedAmbientSensor = !this.clickedAmbientSensor
-  }
-
-  clickAC() : void {
-    this.clickedAC = !this.clickedAC;
   }
 
   itemClicked: { [key: string]: boolean } = {
@@ -78,6 +62,24 @@ export class ChooseDeviceTypeDialogComponent implements OnInit {
       }
     }
     return false;
+  }
+
+  private getClickedItem(): any{
+    for (const key in this.itemClicked) {
+      if (Object.prototype.hasOwnProperty.call(this.itemClicked, key)) {
+        if (this.itemClicked[key])
+          return key;
+      }
+    }
+  }
+
+  continueToDeviceDetails(){
+    this.close();
+    const dialogRef = this.dialog.open(AddDeviceDialogComponent, {
+      data: {
+        deviceType : this.getClickedItem()
+      }
+    });
   }
 
 }

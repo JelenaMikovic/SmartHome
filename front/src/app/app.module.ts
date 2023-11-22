@@ -23,6 +23,7 @@ import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 import { ChooseDeviceTypeDialogComponent } from './choose-device-type-dialog/choose-device-type-dialog.component';
+import { AddDeviceDialogComponent } from './add-device-dialog/add-device-dialog.component';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { ChooseDeviceTypeDialogComponent } from './choose-device-type-dialog/cho
     AddPropertyDialogComponent,
     HomepageComponent,
     SideNavbarComponent,
-    ChooseDeviceTypeDialogComponent
+    ChooseDeviceTypeDialogComponent,
+    AddDeviceDialogComponent
   ],
   imports: [
     BrowserModule,
