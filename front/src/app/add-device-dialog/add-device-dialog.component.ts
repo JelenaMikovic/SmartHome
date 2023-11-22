@@ -7,6 +7,8 @@ import { areaValidator, nameValidator } from '../validators/property-validators'
 import { markFormControlsTouched } from '../validators/formGroupValidators';
 import {batteryCapacityValidator, evChargingPowerValidator, evNumberOfPortsValidator, maxTempValidator, minTempValidator, percentageValidation, powerConsumptionValidator } from '../validators/device-validators';
 import { ConfirmValidParentMatcher, minMaxValidator } from '../validators/min-max-validators';
+import { AirConditionerRegistrationDTO, AmbientSensorRegistrationDTO, EVChargerRegistrationDTO, HomeBatteryRegistrationDTO, IrrigationSystemRegistrationDTO, LampRegistrationDTO, SolarPanelRegistrationDTO, VehicleGateRegistrationDTO, WashingMachineRegistrationDTO } from 'src/model/device-registration';
+import { DeviceRegistrationService } from 'src/services/device-registration.service';
 
 @Component({
   selector: 'app-add-device-dialog',
@@ -59,13 +61,14 @@ export class AddDeviceDialogComponent implements OnInit {
     evChargingThreshold: new FormControl(100, [percentageValidation])
   }, [minMaxValidator("minTemp", "maxTemp")])
 
-  deviceImgPath = "";
+  deviceImgPath = "../../assets/device-default.jpg";
 
   constructor(
     public dialogRef: MatDialogRef<AddDeviceDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private snackBar: MatSnackBar,
-    private propertyService: PropertyService) { 
+    private propertyService: PropertyService,
+    private deviceRegistration: DeviceRegistrationService) { 
     this.deviceType = this.data.deviceType;
   }
 
@@ -106,6 +109,314 @@ export class AddDeviceDialogComponent implements OnInit {
         // this.filePath = reader.result as string;
         this.deviceImgPath = reader.result as string;
       }
+    }
+  }
+
+  registerAmbientSensor(){
+    let device : AmbientSensorRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath
+    }
+    this.deviceRegistration.registerAmbientSensor(device).subscribe({
+      next: (res: any) => {
+      this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err);
+      }
+    });
+  }
+
+  getSupportedACModes(){
+    let modes : number[] = [];
+    if (this.addDeviceForm.value.acCooling) modes.push(0);
+    if (this.addDeviceForm.value.acHeating) modes.push(1);
+    if (this.addDeviceForm.value.acAutomatic) modes.push(2);
+    if (this.addDeviceForm.value.acVentilation) modes.push(3);
+    return modes;
+  }
+
+  registerAC(){
+    let device : AirConditionerRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath,
+      SupportedModes: this.getSupportedACModes(),
+      MinTemperature: this.addDeviceForm.value.minTemp!,
+      MaxTemperature: this.addDeviceForm.value.maxTemp!
+    }
+    this.deviceRegistration.registerAC(device).subscribe({
+      next: (res: any) => {
+        this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  getSupportedWachineMachineModes(){
+    let modes : number[] = [];
+    if (this.addDeviceForm.value.wmCotton) modes.push(0);
+    if (this.addDeviceForm.value.wmSportswear) modes.push(1);
+    if (this.addDeviceForm.value.wmIronDry) modes.push(2);
+    if (this.addDeviceForm.value.wmTowels) modes.push(3);
+    if (this.addDeviceForm.value.wmMix) modes.push(4);
+    if (this.addDeviceForm.value.wmWool) modes.push(5);
+    if (this.addDeviceForm.value.wmSuper) modes.push(6);
+    if (this.addDeviceForm.value.wmCupboard) modes.push(7);
+    return modes;
+  }
+
+  registerWashingMachine(){
+    let device : WashingMachineRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath,
+      SupportedModes: this.getSupportedWachineMachineModes()
+    }
+    this.deviceRegistration.registerWashingMachine(device).subscribe({
+      next: (res: any) => {
+      this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  selectedLampColor: string = this.colorsDD[0];
+
+  getLampColor(): number {
+    if (this.selectedLampColor == "White") return 0;
+    else if (this.selectedLampColor == "Yellow") return 1;
+    else if (this.selectedLampColor == "Green") return 2;
+    else if (this.selectedLampColor == "Blue") return 3;
+    return 4;
+  }
+
+  registerLamp(){
+    let device : LampRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath,
+      IsOn: false,
+      BrightnessLevel: 80,
+      Color: this.getLampColor()
+    }
+    this.deviceRegistration.registerLamp(device).subscribe({
+      next: (res: any) => {
+        this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  registerSolarPanel(){
+    let device : SolarPanelRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath,
+      Size: this.addDeviceForm.value.panelSize!,
+      Efficiency: this.addDeviceForm.value.panelEfficiency!
+    }
+    this.deviceRegistration.registerSolarPanel(device).subscribe({
+      next: (res: any) => {
+      this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  registerVehicleGate(){
+    let device : VehicleGateRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath
+    }
+    this.deviceRegistration.registerVehicleGate(device).subscribe({
+      next: (res: any) => {
+      this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  registerHomeBattery(){
+    let device : HomeBatteryRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath,
+      Capacity: this.addDeviceForm.value.batteryCapacity!,
+      Health: this.addDeviceForm.value.batteryHealth!,
+      CurrentCharge: 100
+    }
+    this.deviceRegistration.registerHomeBattery(device).subscribe({
+      next: (res: any) => {
+      this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  registerIrrigationSystem(){
+    let device : IrrigationSystemRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath
+    }
+    this.deviceRegistration.registerIrrigationSystem(device).subscribe({
+      next: (res: any) => {
+      this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  registerEVCharger(){
+    let device : EVChargerRegistrationDTO = {
+      Name: this.addDeviceForm.value.name!,
+      IsOnline: false,
+      PowerSource: 0,
+      PowerConsumption: this.addDeviceForm.value.consumption!,
+      Image: this.deviceImgPath,
+      NumberOfPorts: this.addDeviceForm.value.evNumberOfPorts!,
+      ChargingPower: this.addDeviceForm.value.evChargingPower!,
+      ChargingThreshold: this.addDeviceForm.value.evChargingThreshold!
+    }
+    this.deviceRegistration.registerEVCharger(device).subscribe({
+      next: (res: any) => {
+      this.snackBar.open(res.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+      });
+      //   this.router.navigate(['verification-choice']);
+      console.log(res);
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+       });
+        console.log(err)
+      }
+    });
+  }
+
+  createDevice(){
+    if (this.addDeviceForm.valid){
+      if (this.deviceType == "AmbientSensor"){
+        this.registerAmbientSensor();
+      }
+      if (this.deviceType == "AC"){
+        this.registerAC();
+      }
+      if (this.deviceType == "WashingMachine"){
+        this.registerWashingMachine()
+      }
+      if (this.deviceType == "Lamp"){
+        this.registerLamp();
+      }
+      if (this.deviceType == "SolarPanel"){
+        this.registerSolarPanel();
+      }
+      if (this.deviceType == "VehicleGate"){
+        this.registerVehicleGate();
+      }
+      if (this.deviceType == "HomeBattery"){
+        this.registerHomeBattery();
+      }
+      if (this.deviceType == "IrrigationSystem"){
+        this.registerIrrigationSystem();
+      }
+      else {
+        this.registerEVCharger();
+      }
+    } else {
+      this.snackBar.open("Check your inputs again!", "", {
+        duration: 2700, panelClass: ['snack-bar-front-error']
+     });
     }
   }
 

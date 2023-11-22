@@ -88,7 +88,7 @@
             <div class="form-section" *ngIf="this.deviceType == 'Lamp'">
                 <mat-form-field  id="color-dd">
                     <mat-label>Lamp color</mat-label>
-                    <mat-select [(value)]="colorsDD[0]">
+                    <mat-select [(value)]="this.selectedLampColor">
                       <mat-option *ngFor="let item of colorsDD" [value]="item" >
                         {{item}}
                       </mat-option>
@@ -126,7 +126,7 @@
                 </mat-form-field>
             </div>
             <div id="conf-button-container">
-                <button class="conf-button" type="submit" mat-raised-button>Create device</button>
+                <button class="conf-button" type="submit" mat-raised-button (click)="createDevice()">Create device</button>
             </div>
         </form>
     </div>

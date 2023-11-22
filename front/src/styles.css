@@ -30,6 +30,18 @@ body {
     margin-bottom: 0px;
 }
 
+.snack-bar-front-error {
+    --mdc-snackbar-container-color: #fb8500;
+  }
+  
+.snack-bar-success {
+    background: #ffb703;
+}
+  
+.snack-bar-server-error {
+    --mdc-snackbar-container-color: #000000;
+  }
+
 /* .default-container {
     display: flex;
     height: fit-content;
