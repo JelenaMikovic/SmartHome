@@ -12,6 +12,7 @@ namespace nvt_back
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<AmbientSensor> AmbientSensors { get; set; }
+        public DbSet<Lamp> Lamps { get; set; }
 
 
         public DatabaseContext(DbContextOptions options) : base(options)
@@ -22,6 +23,9 @@ namespace nvt_back
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Device>().ToTable("Devices");
+            modelBuilder.Entity<Lamp>().ToTable("Lamps");
 
             /*modelBuilder.Entity<AmbientSensor>().HasData(
                 new AmbientSensor { Id = 3, IsOnline = true, Name = "test", PowerConsumption = 40, PowerSource = PowerSource.AlkalineBattery }

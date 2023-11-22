@@ -12,9 +12,8 @@
     "nvt_back": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5110",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5184",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

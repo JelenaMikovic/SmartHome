@@ -18,9 +18,10 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
-
+builder.Services.AddTransient<IDeviceRegistrationRepository, DeviceRegistrationRepository>();
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
+builder.Services.AddTransient<IDeviceRegistrationService, DeviceRegistrationService>();
 
 builder.Services.AddCors(options =>
 {
@@ -55,5 +56,10 @@ app.UseRouting();
 //app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.Run();

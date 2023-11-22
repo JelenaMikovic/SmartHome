@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace nvt_back.Model.Devices
+namespace nvt_back.DTOs.Devices
 {
-    public class SolarPanel : Device
+    public class SolarPanelDTO : DeviceDTO
     {
         [Required(ErrorMessage = "Size field is required")]
         [Range(0, 1000, ErrorMessage = "Size should be between 0 and 1000")]
@@ -11,8 +11,5 @@ namespace nvt_back.Model.Devices
         [Required(ErrorMessage = "Efficiency field is required")]
         [Range(0, 100, ErrorMessage = "Efficiency should be between 0 and 100")]
         public double Efficiency { get; set; }
-
-        [Required(ErrorMessage = "Is on field is required")]
-        public bool IsOn { get; set; }
     }
 }

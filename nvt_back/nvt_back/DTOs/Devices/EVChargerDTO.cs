@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace nvt_back.Model.Devices
+namespace nvt_back.DTOs.Devices
 {
-    public class EVCharger : Device
+    public class EVChargerDTO : DeviceDTO
     {
         [Required(ErrorMessage = "Number of ports field is required")]
         [Range(1, 20, ErrorMessage = "Number of ports should be between 1 and 20")]
@@ -15,8 +15,5 @@ namespace nvt_back.Model.Devices
         [Required(ErrorMessage = "Charging threshold field is required")]
         [Range(0, 100, ErrorMessage = "Charging threshold should be between 0 and 100")]
         public double ChargingThreshold { get; set; }
-
-        /* public int MaxChargingTime { get; set; }
-         public List<EVChargingSession> ChargingSessions { get; set; }*/
     }
 }

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using nvt_back.Model.Devices;
+using System.ComponentModel.DataAnnotations;
 
-namespace nvt_back.Model.Devices
+namespace nvt_back.DTOs.Devices
 {
-    public class AirConditioner : Device
+    public class AirConditionerDTO : DeviceDTO
     {
         [Required(ErrorMessage = "Supported modes field is required")]
         public List<AirConditionerMode> SupportedModes { get; set; }
@@ -14,6 +15,5 @@ namespace nvt_back.Model.Devices
         [Required(ErrorMessage = "Max temperature field is required")]
         [Range(-5, 40, ErrorMessage = "Max temperature should be between -5 and 40")]
         public double MaxTemperature { get; set; }
-        /*public Dictionary<string, TemperatureSchedule> CustomSchedules { get; set; }*/
     }
 }
