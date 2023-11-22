@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace nvt_back.DTOs.Devices
+namespace nvt_back.DTOs.DeviceRegistration
 {
-    public class EVChargerDTO : DeviceDTO
+    public class EVChargerRegistrationDTO : DeviceRegistrationDTO
     {
         [Required(ErrorMessage = "Number of ports field is required")]
         [Range(1, 20, ErrorMessage = "Number of ports should be between 1 and 20")]

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using nvt_back.DTOs;
+using nvt_back.DTOs.DeviceRegistration;
 using nvt_back.Services;
 
 namespace nvt_back.Controllers
@@ -16,11 +17,132 @@ namespace nvt_back.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<MessageDTO>> AddLamp(DeviceDTO dto)
+        [Route("ac")]
+        public async Task<ActionResult<MessageDTO>> Add(AirConditionerRegistrationDTO dto)
         {
             try
             {
-                this._deviceRegistrationService.AddLamp(dto);
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new AC!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("ambient-sensor")]
+        public async Task<ActionResult<MessageDTO>> Add(AmbientSensorRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new ambient sensor!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("evcharger")]
+        public async Task<ActionResult<MessageDTO>> Add(EVChargerRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new EV charger!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("home-battery")]
+        public async Task<ActionResult<MessageDTO>> Add(HomeBatteryRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new home battery!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("irrigation-system")]
+        public async Task<ActionResult<MessageDTO>> Add(IrrigationSystemRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new irrigation system!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("solar-panel")]
+        public async Task<ActionResult<MessageDTO>> Add(SolarPanelRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new solar panel!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("vehicle-gate")]
+        public async Task<ActionResult<MessageDTO>> Add(VehicleGateRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new vehicle gate!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("washing-machine")]
+        public async Task<ActionResult<MessageDTO>> Add(WashingMachineRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
+                return Ok(new MessageDTO("You have successfully added new washing machine!"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("lamp")]
+        public async Task<ActionResult<MessageDTO>> Add(LampRegistrationDTO dto)
+        {
+            try
+            {
+                this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new lamp!"));
             } catch (Exception ex)
             {

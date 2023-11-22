@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using nvt_back.DTOs.DeviceRegistration;
+using System.ComponentModel.DataAnnotations;
 
 namespace nvt_back.Model.Devices
 {
@@ -18,5 +19,18 @@ namespace nvt_back.Model.Devices
 
         /* public int MaxChargingTime { get; set; }
          public List<EVChargingSession> ChargingSessions { get; set; }*/
+
+        public EVCharger() { }
+        public EVCharger(EVChargerRegistrationDTO dto)
+        {
+            Name = dto.Name;
+            IsOnline = false;
+            PowerConsumption = dto.PowerConsumption;
+            PowerSource = dto.PowerSource;
+            Image = dto.Image;
+            NumberOfPorts = dto.NumberOfPorts;
+            ChargingPower = dto.ChargingPower;
+            ChargingThreshold = dto.ChargingThreshold;
+        }
     }
 }

@@ -1,12 +1,19 @@
 ﻿using nvt_back.Model.Devices;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 
 namespace nvt_back.DTOs
 {
-    public class DeviceDTO
+    public class DeviceRegistrationDTO
     {
         [Required (ErrorMessage="Name field is required")]
         public string Name { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public DeviceType DeviceType { get; set; }
+
         public bool IsOnline { get; set; }
         public PowerSource PowerSource { get; set; }
 
@@ -16,5 +23,11 @@ namespace nvt_back.DTOs
 
         [Required(ErrorMessage = "Image field is required")]
         public string Image { get; set; }
+
+        public override string ToString()
+        {
+            return $"Name: {Name}, DeviceType: {DeviceType}, IsOnline: {IsOnline}, PowerSource: {PowerSource}, PowerConsumption: {PowerConsumption}, Image: {Image}";
+        }
+
     }
 }

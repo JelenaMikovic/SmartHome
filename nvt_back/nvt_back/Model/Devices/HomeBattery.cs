@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using nvt_back.DTOs.DeviceRegistration;
+using System.ComponentModel.DataAnnotations;
 
 namespace nvt_back.Model.Devices
 {
@@ -18,5 +19,18 @@ namespace nvt_back.Model.Devices
         /*public double PowerConsumption { get; set; }
         public double PowerProduction { get; set; }*/
 
+        public HomeBattery() { }
+
+        public HomeBattery(HomeBatteryRegistrationDTO dto)
+        {
+            Name = dto.Name;
+            IsOnline = false;
+            PowerConsumption = dto.PowerConsumption;
+            PowerSource = dto.PowerSource;
+            Image = dto.Image;
+            Capacity = dto.Capacity;
+            Health = dto.Health;
+            CurrentCharge = 100;
+        }
     }
 }

@@ -1,4 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 
 namespace nvt_back.Model.Devices
 {
@@ -8,6 +11,10 @@ namespace nvt_back.Model.Devices
         public int Id { get; set; }
         [Required(ErrorMessage = "Name field is required")]
         public string Name { get; set; }
+
+        [Required(ErrorMessage = "Device type field is required")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public DeviceType DeviceType { get; set; }
         public bool IsOnline { get; set; }
 
         [Required(ErrorMessage = "Power consumption field is required")]

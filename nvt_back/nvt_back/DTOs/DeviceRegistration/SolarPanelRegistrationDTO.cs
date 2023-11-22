@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace nvt_back.DTOs.Devices
+namespace nvt_back.DTOs.DeviceRegistration
 {
-    public class SolarPanelDTO : DeviceDTO
+    public class SolarPanelRegistrationDTO : DeviceRegistrationDTO
     {
         [Required(ErrorMessage = "Size field is required")]
         [Range(0, 1000, ErrorMessage = "Size should be between 0 and 1000")]

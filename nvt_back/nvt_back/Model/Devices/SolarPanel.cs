@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using nvt_back.DTOs.DeviceRegistration;
+using System.ComponentModel.DataAnnotations;
 
 namespace nvt_back.Model.Devices
 {
@@ -14,5 +15,18 @@ namespace nvt_back.Model.Devices
 
         [Required(ErrorMessage = "Is on field is required")]
         public bool IsOn { get; set; }
+
+        public SolarPanel() { }
+        public SolarPanel(SolarPanelRegistrationDTO dto) {
+            Name = dto.Name;
+            IsOnline = false;
+            PowerConsumption = dto.PowerConsumption;
+            PowerSource = dto.PowerSource;
+            Image = dto.Image;
+            Size = dto.Size;
+            Efficiency = dto.Efficiency;
+            IsOn = false;
+        }
+
     }
 }

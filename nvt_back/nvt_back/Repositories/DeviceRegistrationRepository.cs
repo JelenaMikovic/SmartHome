@@ -12,9 +12,9 @@ namespace nvt_back.Repositories
             _context = context;
         }
 
-        public void AddLamp(Lamp lamp)
+        public void Add(Device device)
         {
-            _context.Lamps.Add(lamp);
+            _context.Devices.Add(device);
             _context.SaveChanges();
         }
     }
