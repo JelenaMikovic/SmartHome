@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.Model.Devices;
 
 namespace nvt_back
 {
@@ -9,7 +10,9 @@ namespace nvt_back
         public DbSet<Country> Countries { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Address> Addresses { get; set; }
-         
+        public DbSet<Device> Devices { get; set; }
+        public DbSet<AmbientSensor> AmbientSensors { get; set; }
+
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
@@ -20,10 +23,9 @@ namespace nvt_back
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder.Entity<User>().HasData(
-            //    new User { Id = 1, Name = "Bob" },
-            //    new User { Id = 2, Nam = "Bob" }
-            //);
+            /*modelBuilder.Entity<AmbientSensor>().HasData(
+                new AmbientSensor { Id = 3, IsOnline = true, Name = "test", PowerConsumption = 40, PowerSource = PowerSource.AlkalineBattery }
+            ); ;*/
 
         }
 

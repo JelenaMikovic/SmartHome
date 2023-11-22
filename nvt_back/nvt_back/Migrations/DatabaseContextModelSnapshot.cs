@@ -92,6 +92,40 @@ namespace nvt_back.Migrations
                     b.ToTable("Countries");
                 });
 
+            modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("PowerConsumption")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("PowerSource")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Devices");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Device");
+
+                    b.UseTphMappingStrategy();
+                });
+
             modelBuilder.Entity("nvt_back.Property", b =>
                 {
                     b.Property<int>("Id")
@@ -157,6 +191,22 @@ namespace nvt_back.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("nvt_back.Model.Devices.AmbientSensor", b =>
+                {
+                    b.HasBaseType("nvt_back.Model.Devices.Device");
+
+                    b.Property<double>("CurrentHumidity")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("CurrentTemperature")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("UpdateIntervalSeconds")
+                        .HasColumnType("integer");
+
+                    b.HasDiscriminator().HasValue("AmbientSensor");
                 });
 
             modelBuilder.Entity("nvt_back.Address", b =>
