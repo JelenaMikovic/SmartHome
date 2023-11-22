@@ -24,6 +24,7 @@ import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 import { ChooseDeviceTypeDialogComponent } from './choose-device-type-dialog/choose-device-type-dialog.component';
 import { AddDeviceDialogComponent } from './add-device-dialog/add-device-dialog.component';
+import { PropertyCardComponent } from './property-card/property-card.component';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { AddDeviceDialogComponent } from './add-device-dialog/add-device-dialog.
     HomepageComponent,
     SideNavbarComponent,
     ChooseDeviceTypeDialogComponent,
-    AddDeviceDialogComponent
+    AddDeviceDialogComponent,
+    PropertyCardComponent
   ],
   imports: [
     BrowserModule,

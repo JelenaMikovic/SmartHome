@@ -1,0 +1,49 @@
+
+#card-container {
+    width: 80%;
+    display: flex;
+    position: relative;
+}
+
+#image-container {
+    flex: 1;
+}
+
+h2 {
+    font-weight: bold;
+    /* font-size: 1.2em; */
+}
+
+#info-container {
+    flex: 1;
+    height: 100%;
+    padding-left: 20px;
+}
+
+#info-container div {
+    margin-bottom: 8px;
+}
+
+#info-container i {
+    margin-right: 8px;
+}
+
+#info-container span {
+    font-weight: 400;
+    /* font-weight: 600;
+    font-size: 0.9em;
+    color: #555555 !important */
+}
+
+.active-button {
+    background-color: #9beed9 !important;
+    opacity: 0.8;
+    color: #05c090;
+    /* font-weight: bold !important; */
+    font-size: 1.2em;
+    padding: 0px 30px !important;
+    /* margin-top: 25px !important; */
+    border-radius: 15px !important;
+    border: 1px solid #999999 !important;
+    cursor: pointer
+}
