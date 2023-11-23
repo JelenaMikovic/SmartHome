@@ -22,10 +22,9 @@ namespace nvt_back
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder.Entity<User>().HasData(
-            //    new User { Id = 1, Name = "Bob" },
-            //    new User { Id = 2, Nam = "Bob" }
-            //);
+            modelBuilder.Entity<User>().HasData(
+                new User { Id = 1, Name = "Bob", Surname = "Ross", Email = "bob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER }
+            );
 
         }
 

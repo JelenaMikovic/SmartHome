@@ -29,7 +29,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret_key"))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret_keysecret_keysecret_keysecret_key"))
         };
 
 
@@ -51,21 +51,23 @@ builder.Services.AddAuthorization(o =>
 });
 
 builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 
+builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
+           builder =>
+           {
+               builder.WithOrigins("http://localhost:4200") // Add the origin of your Angular app
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+           });
 });
-
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -83,6 +85,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ClaimsMiddleware>();
 
 app.UseCors();
 
