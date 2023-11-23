@@ -42,7 +42,16 @@ namespace nvt_back.Controllers
 
             try
             {
-                PageResultDTO<PropertyDTO> res = this._propertyService.GetAllPaginated(page, size, _user.Id);
+                PageResultDTO<PropertyDTO> res;
+                if (_user.Role == UserRole.USER)
+                {
+                    res = this._propertyService.GetAllPaginated(page, size, _user.Id);
+                }
+                else
+                {
+                    res = this._propertyService.GetAllPaginated(page, size);
+
+                }
                 return Ok(res);
             }
             catch (Exception ex)

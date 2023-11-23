@@ -98,11 +98,64 @@ namespace nvt_back.Services
                         Lng = property.Address.Lng,
                         Name = property.Address.Name,
                         City = property.Address.City.Name, 
+                        Country = property.Address.City.Country.Name,
+                    },
+                    Name = property.Name,
+                    NumOfFloors = property.NumOfFloors,
+                    Status = property.Status.ToString(),
+                    Owner = null
+                });
+            }
+
+            return result;
+        }
+
+        public PageResultDTO<PropertyDTO> GetAllPaginated(int page, int size)
+        {
+            int count = this._propertyRepository.GetCount();
+            PageResultDTO<PropertyDTO> result = new PageResultDTO<PropertyDTO>();
+
+            if (count == 0)
+            {
+                return result;
+            }
+
+            page = this.getFilteredPage(page, count, size);
+
+            IEnumerable<Property> properties = this._propertyRepository.GetAllPaginated(page, size);
+
+
+            result.Count = count;
+            result.PageIndex = page;
+            result.PageSize = size;
+            foreach (Property property in properties)
+            {
+                result.Items.Add(new PropertyDTO
+                {
+                    Id = property.Id,
+                    Area = property.Area,
+                    Image = this._imageService.GetBase64StringFromImage(property.ImagePath),
+                    Address = new ReturnedAddressDTO
+                    {
+                        Id = property.Address.Id,
+                        Lat = property.Address.Lat,
+                        Lng = property.Address.Lng,
+                        Name = property.Address.Name,
+                        City = property.Address.City.Name,
                         Country = property.Address.City.Country.Name
                     },
                     Name = property.Name,
                     NumOfFloors = property.NumOfFloors,
-                    Status = property.Status.ToString()
+                    Status = property.Status.ToString(),
+                    Owner = new UserDTO
+                    {
+                        Id = property.Owner.Id,
+                        Name = property.Owner.Name,
+                        Surname = property.Owner.Surname,
+                        Email = property.Owner.Email,
+                        IsActivated = property.Owner.IsActivated,
+                        Role = property.Owner.Role.ToString()
+                    }
                 });
             }
 

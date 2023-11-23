@@ -2,7 +2,7 @@
 
 namespace nvt_back.DTOs
 {
-    internal class UserDTO
+    public class UserDTO
     {
 
         public int Id { get; set; }
@@ -12,6 +12,7 @@ namespace nvt_back.DTOs
         public bool IsActivated { get; set; }
         public string Role { get; set; }
 
+        public UserDTO() { }
 
         public UserDTO(User user)
         {

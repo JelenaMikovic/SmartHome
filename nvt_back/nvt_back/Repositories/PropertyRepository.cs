@@ -26,7 +26,12 @@ namespace nvt_back.Repositories
 
         public IEnumerable<Property> GetAllPaginated(int page, int size)
         {
-            throw new NotImplementedException();
+            IEnumerable<Property> properties = _context.Properties.Where(x => x.Status == PropertyStatus.PENDING).OrderByDescending(x => x.Id).Include(x => x.Owner).Include(x => x.Address).Include(x => x.Address.City).Include(x => x.Address.City.Country)
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToList();
+
+            return properties;
         }
 
         public IEnumerable<Property> GetAllPaginatedForOwner(int page, int size, int id)
@@ -41,7 +46,7 @@ namespace nvt_back.Repositories
 
         public int GetCount()
         {
-            return this._context.Properties.Count();
+            return this._context.Properties.Where(x => x.Status == PropertyStatus.PENDING).Count();
         }
 
         public int GetCountForOwner(int id)

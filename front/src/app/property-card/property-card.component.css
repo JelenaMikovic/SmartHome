@@ -5,7 +5,7 @@
 }
 
 #image-container {
-    height: 216px;
+    height: 220px;
     width: 200px;
     /* flex: 1; */
     object-fit: cover;
@@ -14,6 +14,8 @@
 h2 {
     font-weight: bold;
     font-size: 1.4em;
+    margin-top: 12px;
+    margin-bottom: 10px;
 }
 
 #info-container {
@@ -23,7 +25,7 @@ h2 {
 }
 
 #info-container div {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 #info-container i {
@@ -35,6 +37,22 @@ h2 {
     /* font-weight: 600;
     font-size: 0.9em;
     color: #555555 !important */
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 10px;
+    margin-top: -16px;
+}
+
+.button-container button {
+    width: 120px;
+    text-align: center !important;
+    border: none;
+    font-size: 1em !important;
+    padding: 5px 0px !important;
+    cursor: pointer;
 }
 
 .status {
