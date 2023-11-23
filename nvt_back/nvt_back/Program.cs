@@ -1,5 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using nvt_back;
+using System.Text;
+using nvt_back.Repositories;
+using nvt_back.Repositories.Interfaces;
+using nvt_back.Services;
+using nvt_back.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +20,54 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 }, ServiceLifetime.Transient);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret_keysecret_keysecret_keysecret_key"))
+        };
 
-// Add services to the container.
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["jwtToken"];
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+builder.Services.AddAuthorization(o =>
+{
+    o.AddPolicy("SuperAdmin", p => p.RequireRole("SUPERADMIN"));
+    o.AddPolicy("Admin", p => p.RequireRole("ADMIN", "SUPERADMIN"));
+    o.AddPolicy("User", p => p.RequireRole("USER"));
+});
+
+builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IPropertyService, PropertyService>();
+builder.Services.AddTransient<IImageService, ImageService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+           builder =>
+           {
+               builder.WithOrigins("http://localhost:4200") // Add the origin of your Angular app
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+           });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -30,8 +83,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ClaimsMiddleware>();
 
+app.UseCors();
+
+app.UseRouting();
 app.MapControllers();
 
 app.Run();

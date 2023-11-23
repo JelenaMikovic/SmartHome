@@ -1366,3 +1366,5 @@ FodyWeavers.xsd
 
 appsettings*.json
 **appsettings.json
+
+**images/

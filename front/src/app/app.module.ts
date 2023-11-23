@@ -18,13 +18,20 @@ import { NgxStarRatingModule } from 'ngx-star-rating';
 import { CdTimerModule } from 'angular-cd-timer';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AddPropertyDialogComponent } from './add-property-dialog/add-property-dialog.component';
+import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
+
+
+import { JwtModule } from "@auth0/angular-jwt";
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
+    AddPropertyDialogComponent,
+    HomepageComponent,
     SideNavbarComponent
   ],
   imports: [
@@ -41,9 +48,14 @@ import { SideNavbarComponent } from './side-navbar/side-navbar.component';
     GooglePlaceModule,
     CommonModule,
     CdTimerModule,
-    NgxStarRatingModule
-    
-    
+    NgxStarRatingModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: () => {
+          return localStorage.getItem("access_token");
+        },
+        allowedDomains: ["your_backend_domain"],
+        disallowedRoutes: ["your_backend_domain/api/auth"] }})
   ],
   providers: [
     { provide: MAT_DIALOG_DATA, useValue: {} },
