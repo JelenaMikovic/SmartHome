@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { catchError, map, throwError } from 'rxjs';
+import { catchError, map, of, throwError } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
 
@@ -37,11 +37,28 @@ export class AuthService {
   isAuthenticated(): Observable<any> {
     return this.http.get<any>(environment.apiHost + '/user/authenticate', {withCredentials: true}).pipe(
       map(response => {
-        console.log(response)
+        console.log(response);
         if (response.email) {
           return true;
         } else {
           return false;
+        }
+      }),
+      catchError((error: any) => {
+        console.error('Authentication error:', error);
+        return of(false);
+      })
+    );
+  }
+
+  getUser(): Observable<any> {
+    return this.http.get<any>(environment.apiHost + '/user/authenticate', {withCredentials: true}).pipe(
+      map(response => {
+        console.log(response)
+        if (response.email) {
+          return response;
+        } else {
+          return response;
         }
       })
     );
