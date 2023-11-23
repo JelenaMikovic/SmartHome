@@ -6,14 +6,17 @@
         </div>
         <hr>
     </div>
-    <div *ngFor="let property of properties">
-        <p>{{ property.name }}</p>
+    <div class="card-holder">
+        <div *ngFor="let property of properties">
+            <app-property-card [property]="property"></app-property-card>
+            <!-- <p>{{ property.name }}</p> -->
+        </div> 
     </div>
     
     <mat-paginator
       [length]="count" 
       [pageSize]="pageSize"
-      [pageSizeOptions]="[3]"
+      [pageSizeOptions]="[4]"
       (page)="onPageChange($event)">
     </mat-paginator>
 </div>

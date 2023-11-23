@@ -1,0 +1,39 @@
+<div class="basic-container" id="card-container">
+    <div id="image-container">
+        <img src={{property.image}} style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;"/>
+    </div>
+
+    <div id="info-container">
+        <div>
+            <h2 class="green">{{ property.name }}</h2>
+        <div>
+            <i class="fa-solid fa-location-dot red"></i>
+            <span class="black">{{ property.address.name }}</span>
+        </div>
+        <div>
+            <i class="fa-solid fa-earth-americas green"></i>
+            <span class="black">{{ property.address.city + ", " + property.address.country}}</span>
+        </div>
+        <div>
+            <i class="fa-solid fa-maximize"></i>
+            <span class="black">{{ property.area }} m2</span>
+
+        </div>
+        <div>
+            <i class="fa-solid fa-layer-group blue"></i>
+            <span class="black">{{ property.numOfFloors }} floors</span>
+
+        </div>
+        </div>
+        <div style="float: right; margin-right: 15px;">
+            <div [ngClass]="{
+                'pending-status': property.status == 'PENDING',
+                'active-status': property.status == 'ACCEPTED',
+                'denied-status': property.status == 'DENIED',
+                'status': true
+              }" class="active-button">{{ property.status!.toLowerCase() }}</div>
+        </div>
+        
+        
+    </div>
+</div>

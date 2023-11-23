@@ -27,11 +27,29 @@ export interface PropertyDTO {
   address: AddressDTO
 }
 
+export interface ReturnedPropertyDTO {
+  name: string,
+  area: number,
+  numOfFloors: number,
+  image: string,
+  status: string,
+  address: ReturendAddressDTO
+}
+
 export interface AddressDTO {
   cityId: number,
   lat: number,
   lng: number, 
   name: string
+}
+
+export interface ReturendAddressDTO {
+  city: string,
+  country: string,
+  lat: number,
+  lng: number, 
+  name: string,
+  id: number
 }
 
 export interface PageResultDTO {

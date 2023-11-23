@@ -8,6 +8,6 @@
         public double Area { get; set; }
         public string Status { get; set; }
         public string Image { get; set; }
-        public Address Address { get; set; }
+        public ReturnedAddressDTO Address { get; set; }
     }
 }

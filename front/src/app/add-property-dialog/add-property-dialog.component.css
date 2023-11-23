@@ -1,7 +1,7 @@
 .add-property-container {
     position: relative;
     height: 90vh !important;
-    width: 82vw;
+    min-width: 65vw;
     max-width: 90vw !important;
 }
 

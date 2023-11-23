@@ -1,6 +1,7 @@
 ﻿using nvt_back.Repositories.Interfaces;
 using nvt_back.Services.Interfaces;
 using nvt_back.DTOs;
+using System.Transactions;
 
 namespace nvt_back.Services
 {
@@ -18,40 +19,39 @@ namespace nvt_back.Services
         }
         public void AddProperty(AddPropertyDTO dto)
         {
-            try
+            using (var transaction = new TransactionScope())
             {
-                string filePath = this._imageService.SaveImage(dto.Image);
-                //Console.WriteLine("tu 1");
-                //Address address = 
-                //Console.WriteLine("tu 2");
-
-                //this._addressRepository.Add(address);
-
-                Property newProperty = new Property
+                try
                 {
-                    Name = dto.Name,
-                    Area = dto.Area,
-                    NumOfFloors = dto.NumOfFloors,
-                    ImagePath = filePath,
-                    Address = new Address
+                    string filePath = this._imageService.SaveImage(dto.Image);
+
+                    Property newProperty = new Property
                     {
-                        Lat = dto.Address.Lat,
-                        Lng = dto.Address.Lng,
-                        Name = dto.Address.Name,
-                        CityId = dto.Address.CityId
-                    },
-                    UserId = 3,
-                    Status = PropertyStatus.PENDING
-                };
+                        Name = dto.Name,
+                        Area = dto.Area,
+                        NumOfFloors = dto.NumOfFloors,
+                        ImagePath = filePath,
+                        Address = new Address
+                        {
+                            Lat = dto.Address.Lat,
+                            Lng = dto.Address.Lng,
+                            Name = dto.Address.Name,
+                            CityId = dto.Address.CityId
+                        },
+                        UserId = 3,
+                        Status = PropertyStatus.PENDING
+                    };
 
-                this._propertyRepository.Add(newProperty);
+                    this._propertyRepository.Add(newProperty);
 
+                    transaction.Complete();
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                }
             }
             
         }
@@ -84,8 +84,16 @@ namespace nvt_back.Services
                 {
                     Id = property.Id,
                     Area = property.Area,
-                    Image = property.ImagePath,
-                    Address = property.Address,
+                    Image = this._imageService.GetBase64StringFromImage(property.ImagePath),
+                    Address = new ReturnedAddressDTO
+                    {
+                        Id = property.Address.Id,
+                        Lat = property.Address.Lat,
+                        Lng = property.Address.Lng,
+                        Name = property.Address.Name,
+                        City = property.Address.City.Name, 
+                        Country = property.Address.City.Country.Name
+                    },
                     Name = property.Name,
                     NumOfFloors = property.NumOfFloors,
                     Status = property.Status.ToString()

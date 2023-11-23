@@ -23,6 +23,7 @@ import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 import { MapComponent } from './map/map.component';
+import { PropertyCardComponent } from './property-card/property-card.component';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { MapComponent } from './map/map.component';
     AddPropertyDialogComponent,
     HomepageComponent,
     SideNavbarComponent,
-    MapComponent
+    MapComponent,
+    PropertyCardComponent
   ],
   imports: [
     BrowserModule,

@@ -31,7 +31,7 @@ namespace nvt_back.Repositories
 
         public IEnumerable<Property> GetAllPaginatedForOwner(int page, int size, int id)
         {
-            IEnumerable<Property> properties = _context.Properties.Where(x => x.UserId == id)
+            IEnumerable<Property> properties = _context.Properties.Where(x => x.UserId == id).OrderByDescending(x => x.Id).Include(x => x.Address).Include(x => x.Address.City).Include(x => x.Address.City.Country)
             .Skip((page - 1) * size)
             .Take(size)
             .ToList();
