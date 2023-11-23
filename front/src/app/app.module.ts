@@ -16,12 +16,14 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { NgxStarRatingModule } from 'ngx-star-rating';
 import { CdTimerModule } from 'angular-cd-timer';
-
+import { SelectDropDownModule } from 'ngx-select-dropdown'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AddPropertyDialogComponent } from './add-property-dialog/add-property-dialog.component';
 import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
+import { MapComponent } from './map/map.component';
+import { PropertyCardComponent } from './property-card/property-card.component';
 
 
 import { JwtModule } from "@auth0/angular-jwt";
@@ -32,7 +34,9 @@ import { JwtModule } from "@auth0/angular-jwt";
     LoginComponent,
     AddPropertyDialogComponent,
     HomepageComponent,
-    SideNavbarComponent
+    SideNavbarComponent,
+    MapComponent,
+    PropertyCardComponent
   ],
   imports: [
     BrowserModule,
@@ -49,6 +53,8 @@ import { JwtModule } from "@auth0/angular-jwt";
     CommonModule,
     CdTimerModule,
     NgxStarRatingModule,
+    SelectDropDownModule,
+
     JwtModule.forRoot({
       config: {
         tokenGetter: () => {

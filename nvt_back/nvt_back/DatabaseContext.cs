@@ -13,7 +13,6 @@ namespace nvt_back
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
-            Console.WriteLine("tu");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

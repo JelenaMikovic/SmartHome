@@ -16,7 +16,7 @@
 }
 
 .logged {
-    grid-template-columns: 330px auto;
+    grid-template-columns: 290px auto;
     grid-template-rows: 1fr;
 }
 

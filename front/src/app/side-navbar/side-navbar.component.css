@@ -1,5 +1,5 @@
 #side-navbar-container {
-    width: 300px;
+    width: 260px;
     height: calc(100% - 30px);
     background-color: white;
     border-right: 1px solid #dadada;
@@ -52,7 +52,7 @@ p {
     background-color: rgb(73, 222, 182);
 }
 
-.selected-item {
+.selected-option {
     background-color: #06D6A0;
 }
 

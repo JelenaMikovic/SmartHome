@@ -1,4 +1,5 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject, fromEvent } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { NavbarService } from 'src/services/navbar.service';
@@ -10,9 +11,10 @@ import { NavbarService } from 'src/services/navbar.service';
 })
 export class SideNavbarComponent implements OnInit, OnDestroy {
 
+  url = "/home";
   private destroy$: Subject<void> = new Subject<void>();
 
-  constructor(private navService: NavbarService) { }
+  constructor(private navService: NavbarService, private router: Router) { }
 
   ngOnInit(): void {
     this.handleSmallScreens();
@@ -62,6 +64,11 @@ export class SideNavbarComponent implements OnInit, OnDestroy {
       this.navService.setSideVisible(false);
     }
 
+  }
+
+  openHome() {
+    this.router.navigate(["/home"]);
+    this.url = "/home";
   }
 
   close() {

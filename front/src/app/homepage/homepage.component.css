@@ -1,11 +1,63 @@
+.homepage-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 25px;
+    height: 94%;
+}
+
+.title-topper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.title {
+    color: #06D6A0;
+    font-weight: bolder !important;
+    font-size: 1.8em !important;
+}
+
+.card-holder {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+app-property-card {
+    width: 480px !important;
+    height: 200px;
+    display: inline-block !important;
+}
+
 .add-prop-btn {
     border: none;
     border-radius: 10px;
     font-weight: bold !important;
-    font-size: 1.1em;
+    font-size: 0.9em;
     padding: 10px 15px !important;
+    margin-top: 0px !important;
+    margin-left: auto;
+    cursor: pointer;
 }
 
 .add-prop-btn i {
     margin-right: 5px;
+}
+
+mat-paginator {
+    margin-top: auto;
+}
+
+@media screen and (max-width: 900px) { 
+    
+    .card-holder{ 
+        justify-content: center;
+        gap: 20px;
+    }
+
+    app-property-card { 
+        width: 100% !important;
+    }
+
 }
