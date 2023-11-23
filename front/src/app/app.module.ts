@@ -26,6 +26,8 @@ import { MapComponent } from './map/map.component';
 import { PropertyCardComponent } from './property-card/property-card.component';
 
 
+import { JwtModule } from "@auth0/angular-jwt";
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -51,8 +53,15 @@ import { PropertyCardComponent } from './property-card/property-card.component';
     CommonModule,
     CdTimerModule,
     NgxStarRatingModule,
-    SelectDropDownModule
-    
+    SelectDropDownModule,
+
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: () => {
+          return localStorage.getItem("access_token");
+        },
+        allowedDomains: ["your_backend_domain"],
+        disallowedRoutes: ["your_backend_domain/api/auth"] }})
   ],
   providers: [
     { provide: MAT_DIALOG_DATA, useValue: {} },
