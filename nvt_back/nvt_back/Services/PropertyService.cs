@@ -17,7 +17,7 @@ namespace nvt_back.Services
             this._imageService = imageService;
             this._addressRepository = addressRepository;
         }
-        public void AddProperty(AddPropertyDTO dto)
+        public void AddProperty(AddPropertyDTO dto, int id)
         {
             using (var transaction = new TransactionScope())
             {
@@ -38,7 +38,7 @@ namespace nvt_back.Services
                             Name = dto.Address.Name,
                             CityId = dto.Address.CityId
                         },
-                        UserId = 3,
+                        UserId = id,
                         Status = PropertyStatus.PENDING
                     };
 
@@ -60,21 +60,27 @@ namespace nvt_back.Services
         {
             int maxPages = (int)Math.Ceiling((double)count / size);
 
-            page = page > 0 ? page : 0;
+            page = page <= 0 ? 1 : page;
             page = page > maxPages ? maxPages : page;
 
             return page;
         }
 
-        public PageResultDTO<PropertyDTO> GetAllPaginated(int page, int size)
+        public PageResultDTO<PropertyDTO> GetAllPaginated(int page, int size, int id)
         {
-            int id = 3;
             int count = this._propertyRepository.GetCountForOwner(id);
+            PageResultDTO<PropertyDTO> result = new PageResultDTO<PropertyDTO>();
+
+            if (count == 0)
+            {
+                return result;
+            }
+
             page = this.getFilteredPage(page, count, size);
 
             IEnumerable<Property> properties = this._propertyRepository.GetAllPaginatedForOwner(page, size, id);
 
-            PageResultDTO<PropertyDTO> result = new PageResultDTO<PropertyDTO>();
+            
             result.Count = count;
             result.PageIndex = page;
             result.PageSize = size;
