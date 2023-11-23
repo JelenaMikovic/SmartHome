@@ -21,16 +21,12 @@ namespace nvt_back.Model.Devices
 
         public HomeBattery() { }
 
-        public HomeBattery(HomeBatteryRegistrationDTO dto)
+        public HomeBattery(HomeBatteryRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
             Capacity = dto.Capacity;
             Health = dto.Health;
             CurrentCharge = 100;
+            DeviceType = DeviceType.HOME_BATTERY;
         }
     }
 }

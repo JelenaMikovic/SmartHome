@@ -10,14 +10,10 @@ namespace nvt_back.Model.Devices
         //public Dictionary<string; TimeSchedule> CustomSchedules { get; set; }
 
         public IrrigationSystem() { }
-        public IrrigationSystem(IrrigationSystemRegistrationDTO dto)
+        public IrrigationSystem(IrrigationSystemRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
             IsOn = false;
+            DeviceType = DeviceType.IRRIGATION_SYSTEM;
         }
     }
 }

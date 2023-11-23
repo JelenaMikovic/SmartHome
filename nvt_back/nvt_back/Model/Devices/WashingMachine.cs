@@ -14,14 +14,10 @@ namespace nvt_back.Model.Devices
 
         public WashingMachine() { }
 
-        public WashingMachine(WashingMachineRegistrationDTO dto)
+        public WashingMachine(WashingMachineRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
             SupportedModes = dto.SupportedModes;
+            DeviceType = DeviceType.WASHING_MACHINE;
         }
     }
 }

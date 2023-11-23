@@ -21,16 +21,12 @@ namespace nvt_back.Model.Devices
          public List<EVChargingSession> ChargingSessions { get; set; }*/
 
         public EVCharger() { }
-        public EVCharger(EVChargerRegistrationDTO dto)
+        public EVCharger(EVChargerRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
             NumberOfPorts = dto.NumberOfPorts;
             ChargingPower = dto.ChargingPower;
             ChargingThreshold = dto.ChargingThreshold;
+            DeviceType = DeviceType.EV_CHARGER;
         }
     }
 }

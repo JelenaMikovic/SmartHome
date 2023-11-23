@@ -19,16 +19,11 @@ namespace nvt_back.Model.Devices
         public LampColor Color { get; set; }
 
         public Lamp() { }
-        public Lamp(LampRegistrationDTO dto)
+        public Lamp(LampRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
             IsOn = dto.IsOn;
             BrightnessLevel = dto.BrightnessLevel;
             Color = dto.Color;
-            Image = dto.Image;
             DeviceType = DeviceType.LAMP;
         }
     }

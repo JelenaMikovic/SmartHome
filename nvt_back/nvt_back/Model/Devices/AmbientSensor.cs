@@ -9,13 +9,10 @@ namespace nvt_back.Model.Devices
         public int UpdateIntervalSeconds { get; set; }
 
         public AmbientSensor() { }
-        public AmbientSensor(AmbientSensorRegistrationDTO dto)
+        public AmbientSensor(AmbientSensorRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
+            //Image = dto.Image;
+            DeviceType = DeviceType.AMBIENT_SENSOR;
         }
     }
 }

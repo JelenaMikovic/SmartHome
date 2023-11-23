@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-
+using nvt_back.DTOs;
 
 namespace nvt_back.Model.Devices
 {
@@ -24,5 +25,21 @@ namespace nvt_back.Model.Devices
 
         [Required(ErrorMessage = "Image field is required")]
         public string Image { get; set; }
+
+        [ForeignKey("Property")]
+        [Required(ErrorMessage = "Property id field is required")]
+        public int PropertyId { get; set; }
+
+        public Property Property { get; set; }
+
+        public Device() { }
+        public Device(DeviceRegistrationDTO dto)
+        {
+            Name = dto.Name;
+            IsOnline = false;
+            PowerConsumption = dto.PowerConsumption;
+            PowerSource = dto.PowerSource;
+            PropertyId = dto.PropertyId;
+        }
     }
 }

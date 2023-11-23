@@ -24,6 +24,9 @@ namespace nvt_back.DTOs
         [Required(ErrorMessage = "Image field is required")]
         public string Image { get; set; }
 
+        [Required(ErrorMessage = "Property id field is required")]
+        public int PropertyId { get; set; }
+
         public override string ToString()
         {
             return $"Name: {Name}, DeviceType: {DeviceType}, IsOnline: {IsOnline}, PowerSource: {PowerSource}, PowerConsumption: {PowerConsumption}, Image: {Image}";

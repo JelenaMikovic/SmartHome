@@ -21,16 +21,13 @@ namespace nvt_back.Model.Devices
         /*public Dictionary<string, TemperatureSchedule> CustomSchedules { get; set; }*/
 
         public AirConditioner() { }
-        public AirConditioner(AirConditionerRegistrationDTO dto)
+        public AirConditioner(AirConditionerRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
+            //Image = dto.Image;
             SupportedModes = dto.SupportedModes;
             MinTemperature = dto.MinTemperature;
             MaxTemperature = dto.MaxTemperature;
+            DeviceType = DeviceType.AC;
         }
     }
 }

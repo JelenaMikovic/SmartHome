@@ -10,16 +10,12 @@ namespace nvt_back.Model.Devices
 
         public VehicleGate() { }
 
-        public VehicleGate(VehicleGateRegistrationDTO dto)
+        public VehicleGate(VehicleGateRegistrationDTO dto) : base(dto)
         {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
             IsPrivateModeOn = false;
             AllowedLicencePlates = new List<string>();
             IsOpened = false;
+            DeviceType = DeviceType.VEHICLE_GATE;
         }
     }
 }

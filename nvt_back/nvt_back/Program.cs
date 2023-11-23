@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using nvt_back;
+using nvt_back.Mqtt;
 using nvt_back.Repositories;
 using nvt_back.Repositories.Interfaces;
 using nvt_back.Services;
 using nvt_back.Services.Interfaces;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,8 @@ builder.Services.AddTransient<IDeviceRegistrationRepository, DeviceRegistrationR
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<IDeviceRegistrationService, DeviceRegistrationService>();
+builder.Services.Configure<MqttConfiguration>(builder.Configuration.GetSection("MqttConfiguration"));
+builder.Services.AddSingleton<MqttClientService>();
 
 builder.Services.AddCors(options =>
 {
@@ -61,5 +65,15 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+
+var mqttClientService = app.Services.GetService<MqttClientService>();
+
+if (mqttClientService != null)
+{
+    mqttClientService.Connect();
+} else
+{
+    Console.WriteLine("uf");
+}
 
 app.Run();

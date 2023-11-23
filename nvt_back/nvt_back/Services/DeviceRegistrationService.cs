@@ -2,21 +2,24 @@
 using nvt_back.DTOs.DeviceRegistration;
 using nvt_back.Model.Devices;
 using nvt_back.Repositories.Interfaces;
+using nvt_back.Services.Interfaces;
 
 namespace nvt_back.Services
 {
     public class DeviceRegistrationService : IDeviceRegistrationService
     {
         private readonly IDeviceRegistrationRepository _deviceRegistrationRepository;
+        private readonly IImageService _imageService;
 
-        public DeviceRegistrationService(IDeviceRegistrationRepository deviceRegistrationRepository)
+        public DeviceRegistrationService(IDeviceRegistrationRepository deviceRegistrationRepository,
+            IImageService imageService)
         {
             _deviceRegistrationRepository = deviceRegistrationRepository;
+            _imageService = imageService;
         }
 
         public void Add(DeviceRegistrationDTO dto)
         {
-            Console.WriteLine(dto.ToString());
             Device deviceForDb = null;
             if (dto is AirConditionerRegistrationDTO)
                 deviceForDb = new AirConditioner((AirConditionerRegistrationDTO)dto);
@@ -37,6 +40,8 @@ namespace nvt_back.Services
             else if (dto is WashingMachineRegistrationDTO)
                 deviceForDb = new WashingMachine((WashingMachineRegistrationDTO)dto);
 
+            string filePath = this._imageService.SaveImage(dto.Image);
+            deviceForDb.Image = filePath;
             this._deviceRegistrationRepository.Add(deviceForDb);
         }
     }

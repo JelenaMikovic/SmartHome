@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using nvt_back.Model.Devices;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nvt_back
@@ -24,6 +25,8 @@ namespace nvt_back
         public int UserId { get; set; }
 
         public User Owner { get; set; }
+
+        public List<Device> Devices { get; set; }
 
     }
 }

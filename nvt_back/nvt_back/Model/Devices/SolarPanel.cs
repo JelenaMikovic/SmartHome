@@ -17,15 +17,12 @@ namespace nvt_back.Model.Devices
         public bool IsOn { get; set; }
 
         public SolarPanel() { }
-        public SolarPanel(SolarPanelRegistrationDTO dto) {
-            Name = dto.Name;
-            IsOnline = false;
-            PowerConsumption = dto.PowerConsumption;
-            PowerSource = dto.PowerSource;
-            Image = dto.Image;
+        public SolarPanel(SolarPanelRegistrationDTO dto) : base(dto)
+        { 
             Size = dto.Size;
             Efficiency = dto.Efficiency;
             IsOn = false;
+            DeviceType = DeviceType.SOLAR_PANEL;
         }
 
     }
