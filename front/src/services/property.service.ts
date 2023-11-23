@@ -11,7 +11,7 @@ export class PropertyService {
 
   addProperty(dto: PropertyDTO) {
     console.log(dto);
-    return this.http.post<any>(environment.apiHost + "/property", dto);
+    return this.http.post<any>(environment.apiHost + "/property", dto, {withCredentials: true});
   }
 
   getPaginatedProperties(page: number, size: number, ) {

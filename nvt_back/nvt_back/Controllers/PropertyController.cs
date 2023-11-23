@@ -35,7 +35,7 @@ namespace nvt_back.Controllers
 
         [HttpGet]
         [Route("paginated")]
-        [Authorize(Roles = "USER")]
+        [Authorize(Roles = "USER, ADMIN, SUPERADMIN")]
         public async Task<ActionResult<IEnumerable<Property>>> GetPropertyPaginated(int page, int size)
         {
             Console.WriteLine(_user.Id);

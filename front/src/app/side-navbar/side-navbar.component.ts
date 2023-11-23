@@ -1,3 +1,4 @@
+import { AuthService } from './../../services/auth.service';
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, fromEvent } from 'rxjs';
@@ -14,7 +15,7 @@ export class SideNavbarComponent implements OnInit, OnDestroy {
   url = "/home";
   private destroy$: Subject<void> = new Subject<void>();
 
-  constructor(private navService: NavbarService, private router: Router) { }
+  constructor(private navService: NavbarService, private router: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.handleSmallScreens();
@@ -84,8 +85,8 @@ export class SideNavbarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    // this.authService.logout();
-    // this.router.navigate(['login']);
+    this.authService.logout();
+    this.router.navigate(['login']);
   }
 
   ngOnDestroy() {

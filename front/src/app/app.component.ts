@@ -9,7 +9,7 @@ import { Component, HostListener } from '@angular/core';
 export class AppComponent {
 
   title = "Le Casa De Smart";
-  loggedIn: boolean = false; 
+  loggedIn: boolean = true; 
   sideVisible: Boolean = false;
   smallScreen: boolean = window.innerWidth < 900;
 
