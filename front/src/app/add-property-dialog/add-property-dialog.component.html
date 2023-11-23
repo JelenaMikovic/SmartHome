@@ -43,13 +43,22 @@
                        aria-label="Number"
                        matInput
                        formControlName="cityAndCountry"
-                       [matAutocomplete]="auto">
-                    <mat-autocomplete requireSelection #auto="matAutocomplete" [displayWith]="displayLocation">
+                       [matAutocomplete]="auto"
+                       >
+                    <mat-autocomplete requireSelection #auto="matAutocomplete" [displayWith]="displayLocation" (optionSelected)="rememberSelection($event)">
                         <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
                             {{ option.location }}
                         </mat-option>
                     </mat-autocomplete>
+                    <mat-error *ngIf="addPropertyForm.get('cityAndCountry')?.errors?.['invalidCity'] && !addPropertyForm.get('cityAndCountry')?.errors?.['required']">select one of the given options</mat-error>
             </mat-form-field>
+            <mat-form-field >
+                <mat-label>Address</mat-label>
+                <input matInput type="text" name="address" formControlName="address" (keyup.enter)="onEnterKeyPressed()"/>
+                <mat-error *ngIf="addPropertyForm.get('address')?.errors?.['required']">entering address is required</mat-error>
+                <!-- <mat-error *ngIf="addPropertyForm.get('address')?.errors?.['nameError'] && !addPropertyForm.get('address')?.errors?.['required']">address</mat-error> -->
+            </mat-form-field>
+            <app-map (latLngSelected)="decodeSelectedAddress($event)" [markerPosition]="selectedMarkerPosition"></app-map>
         </div>
         <div id="send-request-btn-container">
             <button id="send-request-btn" class="conf-button" type="submit" mat-raised-button>Send request</button>

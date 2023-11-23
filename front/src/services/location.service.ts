@@ -19,5 +19,6 @@ export class LocationService {
 }
 
 export interface LocationDTO {
-  location: string
+  location: string,
+  cityId: number
 }

@@ -20,6 +20,7 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
 builder.Services.AddTransient<ICityRepository, CityRepository>();
 builder.Services.AddTransient<ICountryRepository, CountryRepository>();
+builder.Services.AddTransient<IAddressRepository, AddressRepository>();
 
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();

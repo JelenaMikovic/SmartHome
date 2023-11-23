@@ -93,6 +93,41 @@ body {
     top: 1px !important;
 }
 
+.title-container {
+    text-align: left;
+    width: 100%;
+}
+
+.title-container hr {
+    border: 2px solid #D9D9D9;
+}
+
+p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.subtitle {
+    font-weight: bold;
+    color: gray;
+    margin-bottom: -5px;
+}
+
+mat-paginator {
+    margin-top: 10px;
+    border: 1px solid #E6E6E6;
+    border-radius: 10px;
+    padding-bottom: 10px;
+}
+
+::ng-deep .mat-paginator-range-actions {
+    margin-top: 10px;
+}
+
+
+::ng-deep .mat-form-field-flex {
+    vertical-align: middle !important;
+}
 
 /* BUTTONS */
 .close-btn i {

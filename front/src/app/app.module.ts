@@ -22,6 +22,7 @@ import { AddPropertyDialogComponent } from './add-property-dialog/add-property-d
 import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
+import { MapComponent } from './map/map.component';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { SideNavbarComponent } from './side-navbar/side-navbar.component';
     LoginComponent,
     AddPropertyDialogComponent,
     HomepageComponent,
-    SideNavbarComponent
+    SideNavbarComponent,
+    MapComponent
   ],
   imports: [
     BrowserModule,
