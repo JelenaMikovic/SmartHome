@@ -2,6 +2,8 @@ import { PropertyDTO, PropertyService, ReturnedPropertyDTO } from './../../servi
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddPropertyDialogComponent } from '../add-property-dialog/add-property-dialog.component';
+import { AuthService } from 'src/services/auth.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-homepage',
@@ -14,7 +16,7 @@ export class HomepageComponent implements OnInit {
   pageSize = 4;
   count = 0;
 
-  constructor(private dialog: MatDialog, private propertyService: PropertyService) { }
+  constructor(private dialog: MatDialog, private propertyService: PropertyService, private authService: AuthService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.loadItems();
@@ -47,4 +49,20 @@ export class HomepageComponent implements OnInit {
     });
   }
 
+  x(){
+    this.authService.isAuthenticated().subscribe(
+      (success) => {
+        console.log(success)
+        if (success) {
+
+        } else {
+          this.snackBar.open('Invalid dsadas', 'Close', { duration: 3000 });
+        }
+      },
+      (error) => {
+        console.error('Lodsadadgin error:', error);
+        this.snackBar.open('An error occurred while dsadadasd in', 'Close', { duration: 3000 });
+      }
+    );
+  }
 }

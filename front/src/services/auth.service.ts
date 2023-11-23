@@ -13,7 +13,7 @@ export class AuthService {
   constructor(private http: HttpClient, public jwtHelper: JwtHelperService) {}
 
   login(credentials: any): Observable<boolean> {
-    return this.http.post<any>(environment.apiHost + '/user/login', credentials)
+    return this.http.post<any>(environment.apiHost + '/user/login', credentials, {withCredentials: true})
       .pipe(
         map(response => {
           if (response.email) {
@@ -37,6 +37,7 @@ export class AuthService {
   isAuthenticated(): Observable<any> {
     return this.http.get<any>(environment.apiHost + '/user/authenticate', {withCredentials: true}).pipe(
       map(response => {
+        console.log(response)
         if (response.email) {
           return true;
         } else {
