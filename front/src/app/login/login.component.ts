@@ -36,6 +36,7 @@ export class LoginComponent implements OnInit {
 
       this.authService.login(credentials).subscribe(
         (success) => {
+          console.log(success)
           if (success) {
             this.router.navigate(['/']);
           } else {

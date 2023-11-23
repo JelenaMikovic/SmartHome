@@ -39,7 +39,7 @@ namespace nvt_back.Controllers
                     new Claim(ClaimTypes.Role, user.Role.ToString())
                 };
 
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret_key"));
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret_keysecret_keysecret_keysecret_key"));
                 var credentialsJWT = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(
@@ -57,8 +57,9 @@ namespace nvt_back.Controllers
                     HttpOnly = true,
                     Secure = false,
                     Expires = DateTime.UtcNow.AddHours(2),
-
                 });
+
+                Console.WriteLine(_user);
 
                 return Ok(new UserDTO(user));
             }
@@ -68,5 +69,31 @@ namespace nvt_back.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Append("jwtToken", "", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                Expires = DateTime.UtcNow.AddYears(-100),
+            });
+
+            return Ok();
+        }
+
+
+        [HttpGet("authenticate")]
+        public async Task<ActionResult> Authenticate()
+        {
+            if (_user == null)
+            {
+                return Unauthorized();
+            }
+            else
+            {
+                return Ok(_user);
+            }
+        }
     }
 }

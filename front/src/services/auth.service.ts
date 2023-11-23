@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { map } from 'rxjs';
+import { catchError, map, throwError } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
 
@@ -13,12 +13,10 @@ export class AuthService {
   constructor(private http: HttpClient, public jwtHelper: JwtHelperService) {}
 
   login(credentials: any): Observable<boolean> {
-    return this.http.post<any>(environment.apiHost + 'user/login', credentials)
+    return this.http.post<any>(environment.apiHost + '/user/login', credentials)
       .pipe(
         map(response => {
-          const token = response.jwtToken;
-          if (token) {
-            localStorage.setItem('access_token', token);
+          if (response.email) {
             return true;
           } else {
             return false;
@@ -27,12 +25,24 @@ export class AuthService {
       );
   }
 
-  logout(): void {
-    localStorage.removeItem('access_token');
+  logout(): Observable<any> {
+    return this.http.post<any>(environment.apiHost + '/user/logout', {}, {withCredentials: true}).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Logout error:', error);
+        return throwError(error);
+      })
+    );
   }
 
-  isAuthenticated(): boolean {
-    const token = localStorage.getItem('access_token');
-    return !this.jwtHelper.isTokenExpired(token);
+  isAuthenticated(): Observable<any> {
+    return this.http.get<any>(environment.apiHost + '/user/authenticate', {withCredentials: true}).pipe(
+      map(response => {
+        if (response.email) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+    );
   }
 }

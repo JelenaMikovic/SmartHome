@@ -14,8 +14,10 @@ namespace nvt_back
 
         public async Task Invoke(HttpContext context)
         {
+            Console.WriteLine("Middleware Start");
             if (context.User.Identity is ClaimsIdentity identity)
             {
+                Console.WriteLine("Middleware sdsadsad");
                 try
                 {
                     User loggedUser = new User();
@@ -23,11 +25,15 @@ namespace nvt_back
                     loggedUser.Name = identity.FindFirst(ClaimTypes.Name)?.Value;
                     loggedUser.Email = identity.FindFirst(ClaimTypes.Email)?.Value;
                     loggedUser.Role = Enum.Parse<UserRole>(identity.FindFirst(ClaimTypes.Role)?.Value);
-                    loggedUser.IsActivated = bool.Parse(identity.FindFirst(ClaimTypes.Version)?.Value);
+                    loggedUser.IsActivated = true;
                     context.Items["loggedUser"] = loggedUser;
+
+                    Console.WriteLine("Middleware user");
+                    Console.WriteLine(context.Items["loggedUser"]);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine($"Exception in middleware: {ex}");
                 }
             }
 
