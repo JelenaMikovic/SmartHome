@@ -13,4 +13,12 @@ export class PropertyCardComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  denyRequest() {
+
+  }
+
+  acceptRequest() {
+    
+  }
+
 }

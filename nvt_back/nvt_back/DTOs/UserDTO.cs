@@ -2,7 +2,7 @@
 
 namespace nvt_back.DTOs
 {
-    internal class UserDTO
+    public class UserDTO
     {
 
         public int Id { get; set; }
@@ -10,8 +10,9 @@ namespace nvt_back.DTOs
         public string Name { get; set; }
         public string Surname { get; set; }
         public bool IsActivated { get; set; }
-        public UserRole Role { get; set; }
+        public string Role { get; set; }
 
+        public UserDTO() { }
 
         public UserDTO(User user)
         {
@@ -19,7 +20,7 @@ namespace nvt_back.DTOs
             this.Email = user.Email;
             this.Name = user.Name;
             this.Surname = user.Surname;
-            this.Role = user.Role;
+            this.Role = user.Role.ToString();
             this.IsActivated = user.IsActivated;
         }
     }

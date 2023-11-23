@@ -33,7 +33,8 @@ export interface ReturnedPropertyDTO {
   numOfFloors: number,
   image: string,
   status: string,
-  address: ReturendAddressDTO
+  address: ReturendAddressDTO,
+  owner?: UserDTO
 }
 
 export interface AddressDTO {
@@ -57,4 +58,13 @@ export interface PageResultDTO {
   pageIndex: number,
   pageSize: number,
   items: any[]
+}
+
+export interface UserDTO {
+  name: string,
+  surname: string,
+  email: string, 
+  id: number,
+  role: string,
+  isActivated: boolean
 }

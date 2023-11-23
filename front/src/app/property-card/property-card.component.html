@@ -24,8 +24,18 @@
             <span class="black">{{ property.numOfFloors }} floors</span>
 
         </div>
+        <div>
+            <i class="fa-solid fa-user orange"></i>
+            <span class="black">requested by: {{ property.owner?.name! + " " + property.owner?.surname! }}</span>
+
         </div>
-        <div style="float: right; margin-right: 15px;">
+        </div>
+
+        <div class="button-container">
+            <button type="button" class="conf-button back-red" (click)="denyRequest()">Deny</button>
+            <button type="button" class="conf-button back-green" (click)="acceptRequest()">Accept</button>
+        </div>
+        <!-- <div style="float: right; margin-right: 15px;">
             <div [ngClass]="{
                 'pending-status': property.status == 'PENDING',
                 'active-status': property.status == 'ACCEPTED',
@@ -33,7 +43,7 @@
                 'status': true
               }" class="active-button">{{ property.status!.toLowerCase() }}</div>
         </div>
-        
+         -->
         
     </div>
 </div>
