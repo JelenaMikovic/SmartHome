@@ -1,3 +1,4 @@
+import { AuthService } from 'src/services/auth.service';
 import { NavbarService } from './../services/navbar.service';
 import { Component, HostListener } from '@angular/core';
 
@@ -8,21 +9,28 @@ import { Component, HostListener } from '@angular/core';
 })
 export class AppComponent {
 
-  title = "Le Casa De Smart";
+  title = "La Casa De Smart";
   loggedIn: boolean = true; 
   sideVisible: Boolean = false;
   smallScreen: boolean = window.innerWidth < 900;
 
-  constructor(private navbarService: NavbarService) {
+  constructor(private navbarService: NavbarService, private authService: AuthService) {
     this.navbarService.getSideVisible().subscribe(value => {
       this.sideVisible = value;
     })
+  }
+
+  ngOnInit(): void {
+    this.authService.isAuthenticated().subscribe(loggedIn => {
+      this.loggedIn = loggedIn;
+    });
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.smallScreen = window.innerWidth < 900;
   }
+
 
 
 }

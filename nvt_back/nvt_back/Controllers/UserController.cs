@@ -92,7 +92,7 @@ namespace nvt_back.Controllers
             }
             else
             {
-                return Ok(_user);
+                return Ok(new UserDTO(_user));
             }
         }
     }
