@@ -19,11 +19,11 @@ export class PropertyService {
   }
 
   acceptPropertyRequest(id: number) {
-    return this.http.put<any>(environment.apiHost + "/property/accept/" + id, {withCredentials: true});
+    return this.http.put<any>(environment.apiHost + "/property/accept/" + id, {}, {withCredentials: true});
   }
 
-  denyPropertyRequest(id: number, reason: string) {
-    return this.http.put<any>(environment.apiHost + "/property/deny/" + id, {withCredentials: true});
+  denyPropertyRequest(id: number, reason: ReasonDTO) {
+    return this.http.put<any>(environment.apiHost + "/property/deny/" + id, reason, {withCredentials: true});
   }
 }
 
@@ -76,4 +76,8 @@ export interface UserDTO {
   id: number,
   role: string,
   isActivated: boolean
+}
+
+export interface ReasonDTO {
+  reason: string
 }

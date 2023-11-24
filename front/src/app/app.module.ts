@@ -27,6 +27,7 @@ import { PropertyCardComponent } from './property-card/property-card.component';
 
 
 import { JwtModule } from "@auth0/angular-jwt";
+import { RejectPropertyDialogComponent } from './reject-property-dialog/reject-property-dialog.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { JwtModule } from "@auth0/angular-jwt";
     HomepageComponent,
     SideNavbarComponent,
     MapComponent,
-    PropertyCardComponent
+    PropertyCardComponent,
+    RejectPropertyDialogComponent
   ],
   imports: [
     BrowserModule,

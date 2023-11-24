@@ -23,6 +23,7 @@ export class AppComponent {
   }
 
   ngOnInit(): void {
+    this.loggedIn = sessionStorage.getItem("loggedIn")? true: false;
     this.authService.isLoggedIn.pipe(takeUntil(this.destroy$)).subscribe(loggedIn => {
       this.loggedIn = loggedIn;
     });

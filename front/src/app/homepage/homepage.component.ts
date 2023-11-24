@@ -49,6 +49,13 @@ export class HomepageComponent implements OnInit {
     });
   }
 
+  processRejection(event: any) {
+    if (event) {
+      this.loadItems();
+      console.log("property rejected")
+    }
+  }
+
   onPageChange(event: any): void {
     this.currentPage = event.pageIndex + 1;
     this.loadItems();

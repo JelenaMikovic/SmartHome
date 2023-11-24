@@ -8,7 +8,7 @@
     </div>
     <div class="card-holder">
         <div *ngFor="let property of properties">
-            <app-property-card [property]="property"></app-property-card>
+            <app-property-card [property]="property" (rejectionCompleted)="processRejection($event)"></app-property-card>
             <!-- <p>{{ property.name }}</p> -->
         </div> 
     </div>

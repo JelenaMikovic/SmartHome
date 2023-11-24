@@ -29,6 +29,6 @@ namespace nvt_back
         public int AddressId { get; set; }
 
         public Address Address { get; set; }
-
+        public String? RejectionReason { get; set; }
     }
 }

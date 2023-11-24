@@ -1,0 +1,14 @@
+<div id="rejection-dialog">
+    <h1 mat-dialog-title align="center" class="light-blue">Property rejection reason</h1>
+      <div mat-dialog-content align="center">
+        <form [formGroup]="rejectionReasonForm">
+            <mat-form-field >
+                <mat-label>Reason</mat-label>
+                <input matInput type="text" name="reason" formControlName="reason" placeholder="Reason..." />
+                <mat-error *ngIf="rejectionReasonForm.get('reason')?.errors?.['required']">entering reason is required</mat-error>
+            </mat-form-field>
+        </form>
+      <div mat-dialog-actions align="center">
+        <button mat-button class="conf-button back-green" (click)="submitRejectionReason()">Submit</button>
+      </div>
+</div>

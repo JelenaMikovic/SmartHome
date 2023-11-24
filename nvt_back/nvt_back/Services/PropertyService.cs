@@ -168,7 +168,34 @@ namespace nvt_back.Services
 
             if (property != null)
             {
+                if (property.Status != PropertyStatus.PENDING)
+                {
+                    throw new Exception("You can't update processed requests.");
+                }
+
                 property.Status = PropertyStatus.ACCEPTED;
+                this._propertyRepository.Update(property);
+                //TODO: send email
+            }
+            else
+            {
+                throw new Exception("Property with the given id doesn't exist");
+            }
+        }
+
+        public void DenyProperty(int id, ReasonDTO reasonDTO)
+        {
+            Property property = this._propertyRepository.GetById(id);
+
+            if (property != null)
+            {
+                if (property.Status != PropertyStatus.PENDING)
+                {
+                    throw new Exception("You can't update processed requests.");
+                }
+
+                property.Status = PropertyStatus.DENIED;
+                property.RejectionReason = reasonDTO.Reason;
                 this._propertyRepository.Update(property);
                 //TODO: send email
             }

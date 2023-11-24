@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private loggedInSubject = new BehaviorSubject<boolean>(false);
+  public loggedInSubject = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient, public jwtHelper: JwtHelperService) {}
 
@@ -23,6 +23,7 @@ export class AuthService {
         tap(response => {
           if (response.email) {
             this.loggedInSubject.next(true);
+            sessionStorage.setItem("loggedIn", "true");
           }
         }),
         map(response => response.email ? true : false),
@@ -38,6 +39,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           this.loggedInSubject.next(false);
+          sessionStorage.removeItem("loggedIn");
           console.log('Logout response:', response);
           console.log('Logged out successfully.');
         }),

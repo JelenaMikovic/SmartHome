@@ -97,5 +97,21 @@ namespace nvt_back.Controllers
                 return StatusCode(500, "Internal Server Error. " + ex.Message);
             }
         }
+
+        [HttpPut]
+        [Route("deny/{id}")]
+        [Authorize(Roles = "ADMIN, SUPERADMIN")]
+        public async Task<ActionResult<MessageDTO>> DenyProperty(int id, ReasonDTO reason)
+        {
+            try
+            {
+                this._propertyService.DenyProperty(id, reason);
+                return Ok(new MessageDTO("Property denied successfully."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error. " + ex.Message);
+            }
+        }
     }
 }
