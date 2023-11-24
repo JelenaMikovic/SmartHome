@@ -81,5 +81,21 @@ namespace nvt_back.Controllers
                 return StatusCode(500, "Internal Server Error. " + ex.Message);
             }
         }
+
+        [HttpPut]
+        [Route("accept/{id}")]
+        [Authorize(Roles = "ADMIN, SUPERADMIN")]
+        public async Task<ActionResult<MessageDTO>> AcceptProperty(int id)
+        {
+            try
+            {
+                this._propertyService.AcceptProperty(id);
+                return Ok(new MessageDTO("Property accepted successfully."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error. " + ex.Message);
+            }
+        }
     }
 }

@@ -161,5 +161,21 @@ namespace nvt_back.Services
 
             return result;
         }
+
+        public void AcceptProperty(int id)
+        {
+            Property property = this._propertyRepository.GetById(id);
+
+            if (property != null)
+            {
+                property.Status = PropertyStatus.ACCEPTED;
+                this._propertyRepository.Update(property);
+                //TODO: send email
+            }
+            else
+            {
+                throw new Exception("Property with the given id doesn't exist");
+            }
+        }
     }
 }

@@ -16,9 +16,22 @@ export class HomepageComponent implements OnInit {
   pageSize = 4;
   count = 0;
 
+  loggedUser: any = {};
+
   constructor(private dialog: MatDialog, private propertyService: PropertyService, private authService: AuthService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.authService.getUser().subscribe({
+      next: (value) => {
+        if (value) {
+          this.loggedUser = value;
+        }
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    })
+
     this.loadItems();
   }
 

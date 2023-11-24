@@ -7,5 +7,6 @@ namespace nvt_back.Services.Interfaces
         void AddProperty(AddPropertyDTO dto, int id);
         PageResultDTO<PropertyDTO> GetAllPaginated(int page, int size, int id);
         PageResultDTO<PropertyDTO> GetAllPaginated(int page, int size);
+        void AcceptProperty(int id);
     }
 }
