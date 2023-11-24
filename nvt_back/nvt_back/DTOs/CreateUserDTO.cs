@@ -19,6 +19,8 @@ namespace nvt_back.DTOs
         public string Surname { get; set; }
         [Required]
         public string Role { get; set; }
+        [Required]
+        public string Image { get; set; }
 
     }
 }

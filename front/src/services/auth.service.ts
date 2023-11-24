@@ -25,6 +25,19 @@ export class AuthService {
       );
   }
 
+  register(form: any): Observable<any> {
+    return this.http.post<any>(environment.apiHost + '/user/register', form)
+      .pipe(
+        map(response => {
+          if (response.email) {
+            return true;
+          } else {
+            return false;
+          }
+        })
+      );
+  }
+
   logout(): Observable<any> {
     return this.http.post<any>(environment.apiHost + '/user/logout', {}, {withCredentials: true}).pipe(
       catchError((error: HttpErrorResponse) => {

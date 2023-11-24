@@ -25,11 +25,13 @@ import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 
 
 import { JwtModule } from "@auth0/angular-jwt";
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
+    RegisterComponent,
     AddPropertyDialogComponent,
     HomepageComponent,
     SideNavbarComponent

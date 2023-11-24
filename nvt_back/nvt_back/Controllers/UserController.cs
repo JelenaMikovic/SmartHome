@@ -95,6 +95,9 @@ namespace nvt_back.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok();
+
+        }
+
         [HttpPost("logout")]
         public IActionResult Logout()
         {

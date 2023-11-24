@@ -39,7 +39,7 @@ namespace nvt_back.Services
             activationCode.Expiration = DateTime.UtcNow.AddDays(1);
 
             _userRepository.AddActivationCode(activationCode);
-            _ = sendEmail(activationCode);
+            //_ = sendEmail(activationCode);
         }
 
         public async Task sendEmail(ActivationCode activationCode)
