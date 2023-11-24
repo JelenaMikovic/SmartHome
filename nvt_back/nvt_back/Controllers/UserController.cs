@@ -99,13 +99,13 @@ namespace nvt_back.Controllers
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             Response.Cookies.Append("jwtToken", "", new CookieOptions
             {
                 HttpOnly = true,
                 Secure = false,
-                Expires = DateTime.UtcNow.AddYears(-100),
+                Expires = DateTime.UtcNow.AddHours(-10),
             });
 
             return Ok();
@@ -121,7 +121,7 @@ namespace nvt_back.Controllers
             }
             else
             {
-                return Ok(_user);
+                return Ok(new UserDTO(_user));
             }
         }
     }

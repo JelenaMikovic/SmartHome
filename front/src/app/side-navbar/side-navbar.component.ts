@@ -1,4 +1,7 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from './../../services/auth.service';
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject, fromEvent } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { NavbarService } from 'src/services/navbar.service';
@@ -10,9 +13,10 @@ import { NavbarService } from 'src/services/navbar.service';
 })
 export class SideNavbarComponent implements OnInit, OnDestroy {
 
+  url = "/home";
   private destroy$: Subject<void> = new Subject<void>();
 
-  constructor(private navService: NavbarService) { }
+  constructor(private navService: NavbarService, private router: Router, private authService: AuthService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.handleSmallScreens();
@@ -64,6 +68,11 @@ export class SideNavbarComponent implements OnInit, OnDestroy {
 
   }
 
+  openHome() {
+    this.router.navigate(["/home"]);
+    this.url = "/home";
+  }
+
   close() {
     let navbarMenu = <HTMLDivElement>document.querySelector('#side-navbar-container');
     let navbarMenuSmaller = <HTMLDivElement>document.querySelector('#navbar-smaller');
@@ -77,8 +86,15 @@ export class SideNavbarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    // this.authService.logout();
-    // this.router.navigate(['login']);
+    this.authService.logout().subscribe(
+      (success) => {
+        this.router.navigate(['login']);
+      },
+      (error) => {
+        this.snackBar.open('An error occurred while logging out', 'Close', { duration: 3000 });
+      }
+    );
+   
   }
 
   ngOnDestroy() {

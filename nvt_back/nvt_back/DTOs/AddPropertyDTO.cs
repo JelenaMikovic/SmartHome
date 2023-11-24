@@ -6,5 +6,6 @@
         public int NumOfFloors { get; set; }
         public double Area { get; set; }
         public string Image { get; set; }
+        public AddressDTO Address { get; set; }
     }
 }

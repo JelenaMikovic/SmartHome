@@ -1,1 +1,24 @@
-<button class="conf-button add-prop-btn back-light-blue" (click)="openAddPropertyDialog()"><i class="fa fa-circle-plus"></i>Request a new property</button>
+<div class="homepage-container">
+    <div class="title-container">
+        <div class="title-topper">
+            <p class="title">Properties</p>
+            <button class="conf-button add-prop-btn back-light-blue" (click)="openAddPropertyDialog()"><i class="fa fa-circle-plus"></i>Request a new property</button>
+        </div>
+        <hr>
+    </div>
+    <div class="card-holder">
+        <div *ngFor="let property of properties">
+            <app-property-card [property]="property"></app-property-card>
+            <!-- <p>{{ property.name }}</p> -->
+        </div> 
+    </div>
+    <button (click)="x()">dasda</button>
+    <mat-paginator
+      [length]="count" 
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[4]"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+</div>
+
+

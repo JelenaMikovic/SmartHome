@@ -25,5 +25,10 @@ namespace nvt_back
 
         public User Owner { get; set; }
 
+        [ForeignKey("Address")]
+        public int AddressId { get; set; }
+
+        public Address Address { get; set; }
+
     }
 }

@@ -15,7 +15,6 @@ namespace nvt_back
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
-            Console.WriteLine("tu");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -23,7 +22,9 @@ namespace nvt_back
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "Bob", Surname = "Ross", Email = "bob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER }
+                new User { Id = 1, Name = "Bob", Surname = "Ross", Email = "bob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER },
+                new User { Id = 2, Name = "Rob", Surname = "Boss", Email = "rob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER }
+
             );
 
         }

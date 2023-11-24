@@ -20,6 +20,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 }, ServiceLifetime.Transient);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -31,7 +32,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret_keysecret_keysecret_keysecret_key"))
         };
-
 
         options.Events = new JwtBearerEvents
         {
@@ -50,12 +50,18 @@ builder.Services.AddAuthorization(o =>
     o.AddPolicy("User", p => p.RequireRole("USER"));
 });
 
+
 builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
+builder.Services.AddTransient<ICityRepository, CityRepository>();
+builder.Services.AddTransient<ICountryRepository, CountryRepository>();
+builder.Services.AddTransient<IAddressRepository, AddressRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
+builder.Services.AddTransient<ILocationService, LocationService>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -83,13 +89,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
+
+app.UseCors();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ClaimsMiddleware>();
 
-app.UseCors();
-
-app.UseRouting();
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.Run();
+

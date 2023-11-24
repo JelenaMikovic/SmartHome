@@ -100,6 +100,9 @@ namespace nvt_back.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AddressId")
+                        .HasColumnType("integer");
+
                     b.Property<double>("Area")
                         .HasColumnType("double precision");
 
@@ -121,6 +124,8 @@ namespace nvt_back.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("UserId");
 
@@ -171,6 +176,16 @@ namespace nvt_back.Migrations
                             Password = "123",
                             Role = 0,
                             Surname = "Ross"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "rob@mail.com",
+                            IsActivated = true,
+                            Name = "Rob",
+                            Password = "123",
+                            Role = 0,
+                            Surname = "Boss"
                         });
                 });
 
@@ -198,11 +213,19 @@ namespace nvt_back.Migrations
 
             modelBuilder.Entity("nvt_back.Property", b =>
                 {
+                    b.HasOne("nvt_back.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("nvt_back.User", "Owner")
                         .WithMany("OwnedProperties")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Address");
 
                     b.Navigation("Owner");
                 });
