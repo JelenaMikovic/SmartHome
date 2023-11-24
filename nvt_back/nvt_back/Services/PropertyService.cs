@@ -10,12 +10,14 @@ namespace nvt_back.Services
         private readonly IPropertyRepository _propertyRepository;
         private readonly IImageService _imageService;
         private readonly IAddressRepository _addressRepository;
+        private readonly IMailService _mailService;
 
-        public PropertyService(IPropertyRepository propertyRepository, IImageService imageService, IAddressRepository addressRepository)
+        public PropertyService(IPropertyRepository propertyRepository, IImageService imageService, IAddressRepository addressRepository, IMailService mailService)
         {
             this._propertyRepository = propertyRepository;
             this._imageService = imageService;
             this._addressRepository = addressRepository;
+            this._mailService = mailService;
         }
         public void AddProperty(AddPropertyDTO dto, int id)
         {
@@ -160,6 +162,53 @@ namespace nvt_back.Services
             }
 
             return result;
+        }
+
+        public void AcceptProperty(int id)
+        {
+            Property property = this._propertyRepository.GetById(id);
+
+            if (property != null)
+            {
+                if (property.Status != PropertyStatus.PENDING)
+                {
+                    throw new Exception("You can't update processed requests.");
+                }
+
+                property.Status = PropertyStatus.ACCEPTED;
+                this._propertyRepository.Update(property);
+
+                this._mailService.SendPropertyApprovedEmail(property.Owner.Email, property.Owner.Name, property.Name);
+
+            }
+            else
+            {
+                throw new Exception("Property with the given id doesn't exist");
+            }
+        }
+
+        public void DenyProperty(int id, ReasonDTO reasonDTO)
+        {
+            Property property = this._propertyRepository.GetById(id);
+
+            if (property != null)
+            {
+                if (property.Status != PropertyStatus.PENDING)
+                {
+                    throw new Exception("You can't update processed requests.");
+                }
+
+                property.Status = PropertyStatus.DENIED;
+                property.RejectionReason = reasonDTO.Reason;
+                this._propertyRepository.Update(property);
+
+                this._mailService.SendPropertyDeniedEmail(property.Owner.Email, property.Owner.Name, property.Name, reasonDTO.Reason);
+            }
+
+            else
+            {
+                throw new Exception("Property with the given id doesn't exist");
+            }
         }
     }
 }

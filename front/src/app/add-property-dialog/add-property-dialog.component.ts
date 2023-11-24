@@ -40,7 +40,7 @@ export class AddPropertyDialogComponent implements OnInit {
     private snackBar: MatSnackBar,
     private propertyService: PropertyService,
     private locationService: LocationService,
-    private mapService: MapService
+    private mapService: MapService,
   ) { }
 
   ngOnInit(): void {
@@ -132,7 +132,10 @@ export class AddPropertyDialogComponent implements OnInit {
 
       console.log(this.filePath)
       this.propertyService.addProperty(dto).subscribe({
-        next(value) {
+        next: (value) => {
+          this.snackBar.open("Property request sent.", "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+          });
           console.log("done")
           console.log(value);
         },

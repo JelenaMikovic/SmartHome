@@ -17,6 +17,14 @@ export class PropertyService {
   getPaginatedProperties(page: number, size: number, ) {
     return this.http.get<any>(environment.apiHost + "/property/paginated?page=" + page +"&size=" + size, {withCredentials: true});
   }
+
+  acceptPropertyRequest(id: number) {
+    return this.http.put<any>(environment.apiHost + "/property/accept/" + id, {}, {withCredentials: true});
+  }
+
+  denyPropertyRequest(id: number, reason: ReasonDTO) {
+    return this.http.put<any>(environment.apiHost + "/property/deny/" + id, reason, {withCredentials: true});
+  }
 }
 
 export interface PropertyDTO {
@@ -28,6 +36,7 @@ export interface PropertyDTO {
 }
 
 export interface ReturnedPropertyDTO {
+  id: number,
   name: string,
   area: number,
   numOfFloors: number,
@@ -67,4 +76,8 @@ export interface UserDTO {
   id: number,
   role: string,
   isActivated: boolean
+}
+
+export interface ReasonDTO {
+  reason: string
 }

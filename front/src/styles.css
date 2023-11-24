@@ -259,3 +259,16 @@ label.star::before{
     border: 1px solid #E6E6E6;
     border-radius: 10px;
 }
+
+.snack-bar-front-error {
+    background: #ef476f;
+   }
+ 
+ .snack-bar-success {
+     background: #ffb703;
+ }
+ 
+ .snack-bar-server-error {
+    background: #000000;
+   }
+ 

@@ -27,6 +27,7 @@ import { PropertyCardComponent } from './property-card/property-card.component';
 
 
 import { JwtModule } from "@auth0/angular-jwt";
+import { RejectPropertyDialogComponent } from './reject-property-dialog/reject-property-dialog.component';
 import { RegisterComponent } from './register/register.component';
 import { CodeDialogComponent } from './code-dialog/code-dialog.component';
 
@@ -40,6 +41,7 @@ import { CodeDialogComponent } from './code-dialog/code-dialog.component';
     SideNavbarComponent,
     MapComponent,
     PropertyCardComponent,
+    RejectPropertyDialogComponent
     CodeDialogComponent
   ],
   imports: [

@@ -56,6 +56,9 @@ h2 {
 }
 
 .status {
+    position: absolute;
+    bottom: 5px;
+    right: 15px;
     opacity: 0.8;
     /* font-weight: bold !important; */
     font-size: 0.9em;

@@ -44,6 +44,18 @@ namespace nvt_back.Repositories
             return properties;
         }
 
+        public Property GetById(int id)
+        {
+            return this._context.Properties.Include(x => x.Owner).FirstOrDefault(x => x.Id == id);
+        }
+
+        public void Update(Property property)
+        {
+            _context.Entry(property).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+
+
         public int GetCount()
         {
             return this._context.Properties.Where(x => x.Status == PropertyStatus.PENDING).Count();
