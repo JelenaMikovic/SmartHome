@@ -1,6 +1,7 @@
 import { AuthService } from 'src/services/auth.service';
 import { NavbarService } from './../services/navbar.service';
 import { Component, HostListener } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,8 @@ export class AppComponent {
   loggedIn: boolean = true; 
   sideVisible: Boolean = false;
   smallScreen: boolean = window.innerWidth < 900;
-
+  private destroy$: Subject<void> = new Subject<void>();
+  
   constructor(private navbarService: NavbarService, private authService: AuthService) {
     this.navbarService.getSideVisible().subscribe(value => {
       this.sideVisible = value;
@@ -21,7 +23,7 @@ export class AppComponent {
   }
 
   ngOnInit(): void {
-    this.authService.isAuthenticated().subscribe(loggedIn => {
+    this.authService.isLoggedIn.pipe(takeUntil(this.destroy$)).subscribe(loggedIn => {
       this.loggedIn = loggedIn;
     });
   }
@@ -30,7 +32,5 @@ export class AppComponent {
   onResize(event: Event): void {
     this.smallScreen = window.innerWidth < 900;
   }
-
-
 
 }
