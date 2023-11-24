@@ -34,6 +34,35 @@ export class AuthService {
       );
   }
 
+  register(form: any): Observable<any> {
+    return this.http.post<any>(environment.apiHost + '/user/register', form)
+      .pipe(
+        map(response => {
+          if (response) {
+            return true;
+          } else {
+            return false;
+          }
+        })
+      );
+  }
+
+  activate(dto: any): Observable<any> {
+    return this.http.post<any>(environment.apiHost + '/user/login', dto)
+      .pipe(
+        tap(response => {
+          if (response.email) {
+            this.loggedInSubject.next(true);
+          }
+        }),
+        map(response => response.email ? true : false),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Login error:', error);
+          return throwError(error);
+        })
+      );
+  }
+
   logout(): Observable<any> {
     return this.http.post<any>(environment.apiHost + '/user/logout', {}, { withCredentials: true })
       .pipe(

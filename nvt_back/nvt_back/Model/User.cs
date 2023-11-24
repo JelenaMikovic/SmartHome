@@ -18,6 +18,7 @@ namespace nvt_back
         public string Name { get; set; }
         public string Surname { get; set; }
         public bool IsActivated { get; set; }
+        //public string ImagePath { get; set; }
         public UserRole Role { get; set; }
         public List<Property> OwnedProperties { get; set; }
     }

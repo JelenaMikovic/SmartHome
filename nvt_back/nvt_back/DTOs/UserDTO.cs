@@ -11,6 +11,7 @@ namespace nvt_back.DTOs
         public string Surname { get; set; }
         public bool IsActivated { get; set; }
         public string Role { get; set; }
+        //public string Image { get; set; }
 
         public UserDTO() { }
 
@@ -22,6 +23,7 @@ namespace nvt_back.DTOs
             this.Surname = user.Surname;
             this.Role = user.Role.ToString();
             this.IsActivated = user.IsActivated;
+            //this.Image = user.ImagePath;
         }
     }
 }

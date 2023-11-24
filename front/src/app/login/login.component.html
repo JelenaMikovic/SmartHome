@@ -14,16 +14,19 @@
                 <input matInput [type]="isVisible? 'text' : 'password'" name="password" formControlName="password" />
                 <mat-error *ngIf="loginForm.get('password')?.errors?.['required']">entering password is required</mat-error>
             </mat-form-field>
-            <mat-checkbox color="primary">Remember me</mat-checkbox>
         </form>
         <button class="conf-button" mat-raised-button (click)="login()">Log In</button>
-        <a id="forgotten-password-ref" [routerLink]="['/forgot-password']">Forgot password?</a>
-        <p>
+        <p class="">
+            <br>
             New to LaCasaDeSmart? <a id="register-ref" [routerLink]="['/register']">Register!</a>
+        </p>
+        <p class="">
+            <br>
+            Activate account <a id="register-ref" (click)="activate()"> here!</a>
         </p>
     </div>
     <div id="img-container">
-        <img src="../../assets/vectors/login.svg">
+        <img src="../../assets/logIn.svg">
     </div>
 
 </div>

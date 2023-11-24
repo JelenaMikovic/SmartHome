@@ -69,6 +69,35 @@ namespace nvt_back.Controllers
             }
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] CreateUserDTO userDTO)
+        {
+            try
+            {
+                _userService.CreateUser(userDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
+
+        [HttpPost("activate")]
+        public async Task<IActionResult> ActivateAccount([FromBody] ActivationDTO activationDTO)
+        {
+            try
+            {
+                _userService.ActivateAccount(activationDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+
+        }
+
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
