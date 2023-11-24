@@ -50,19 +50,6 @@ export class HomepageComponent implements OnInit {
   }
 
   x(){
-    this.authService.isAuthenticated().subscribe(
-      (success) => {
-        console.log(success)
-        if (success) {
-
-        } else {
-          this.snackBar.open('Invalid dsadas', 'Close', { duration: 3000 });
-        }
-      },
-      (error) => {
-        console.error('Lodsadadgin error:', error);
-        this.snackBar.open('An error occurred while dsadadasd in', 'Close', { duration: 3000 });
-      }
-    );
+    
   }
 }
