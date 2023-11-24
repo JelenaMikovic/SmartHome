@@ -69,14 +69,43 @@ namespace nvt_back.Controllers
             }
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] CreateUserDTO userDTO)
+        {
+            try
+            {
+                _userService.CreateUser(userDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
+
+        [HttpPost("activate")]
+        public async Task<IActionResult> ActivateAccount([FromBody] ActivationDTO activationDTO)
+        {
+            try
+            {
+                _userService.ActivateAccount(activationDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+
+        }
+
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             Response.Cookies.Append("jwtToken", "", new CookieOptions
             {
                 HttpOnly = true,
                 Secure = false,
-                Expires = DateTime.UtcNow.AddYears(-100),
+                Expires = DateTime.UtcNow.AddHours(-10),
             });
 
             return Ok();
@@ -92,7 +121,7 @@ namespace nvt_back.Controllers
             }
             else
             {
-                return Ok(_user);
+                return Ok(new UserDTO(_user));
             }
         }
     }

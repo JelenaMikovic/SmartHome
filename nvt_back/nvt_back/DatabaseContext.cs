@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.Model;
 
 namespace nvt_back
 {
@@ -9,7 +10,8 @@ namespace nvt_back
         public DbSet<Country> Countries { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Address> Addresses { get; set; }
-         
+        public DbSet<ActivationCode> ActivationCodes { get; set; }
+
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
@@ -20,7 +22,9 @@ namespace nvt_back
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "Bob", Surname = "Ross", Email = "bob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER }
+                new User { Id = 1, Name = "Bob", Surname = "Ross", Email = "bob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER},
+                new User { Id = 2, Name = "Rob", Surname = "Boss", Email = "rob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER},
+                new User { Id = 10, Name = "Lob", Surname = "Loss", Email = "lob@mail.com", Password = "123", IsActivated = true, Role = UserRole.SUPERADMIN}
             );
 
         }

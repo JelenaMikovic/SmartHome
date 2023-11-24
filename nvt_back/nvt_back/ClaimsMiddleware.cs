@@ -24,7 +24,9 @@ namespace nvt_back
                     loggedUser.Id = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                     loggedUser.Name = identity.FindFirst(ClaimTypes.Name)?.Value;
                     loggedUser.Email = identity.FindFirst(ClaimTypes.Email)?.Value;
+                    Console.WriteLine(identity.FindFirst(identity.FindFirst(ClaimTypes.Role)?.Value));
                     loggedUser.Role = Enum.Parse<UserRole>(identity.FindFirst(ClaimTypes.Role)?.Value);
+                    Console.WriteLine(loggedUser.Role);
                     loggedUser.IsActivated = true;
                     context.Items["loggedUser"] = loggedUser;
 
