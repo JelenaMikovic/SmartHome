@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using nvt_back;
+using nvt_back.InfluxDB;
 using nvt_back.Mqtt;
 using nvt_back.Repositories;
 using nvt_back.Repositories.Interfaces;
 using nvt_back.Services;
 using nvt_back.Services.Interfaces;
 using System.Configuration;
+using Coravel;
+using nvt_back.InfluxDB.Invocables;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +27,14 @@ builder.Services.AddTransient<IDeviceRegistrationRepository, DeviceRegistrationR
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<IDeviceRegistrationService, DeviceRegistrationService>();
+builder.Services.AddTransient<IDeviceActivationService, DeviceActivationService>();
+builder.Services.AddTransient<IDeviceRepository, DeviceRepository>();
 builder.Services.Configure<MqttConfiguration>(builder.Configuration.GetSection("MqttConfiguration"));
 builder.Services.AddSingleton<MqttClientService>();
+
+builder.Services.AddSingleton<InfluxDBService>();
+builder.Services.AddTransient<DeviceActivityCheckInvocable>();
+builder.Services.AddScheduler();
 
 builder.Services.AddCors(options =>
 {
@@ -73,7 +82,15 @@ if (mqttClientService != null)
     mqttClientService.Connect();
 } else
 {
-    Console.WriteLine("uf");
+    Console.WriteLine("MqttClientService is null!");
 }
+
+app.Services.UseScheduler(scheduler =>
+{
+    scheduler
+        .Schedule<DeviceActivityCheckInvocable>()
+        .EverySeconds(20);
+});
+
 
 app.Run();

@@ -3,7 +3,8 @@ export interface DeviceRegistrationDTO {
     IsOnline: boolean,
     PowerSource: number,
     PowerConsumption: string,
-    Image: string
+    Image: string,
+    PropertyId: number
   }
   
   export interface AirConditionerRegistrationDTO extends DeviceRegistrationDTO{

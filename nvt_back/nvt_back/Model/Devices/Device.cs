@@ -26,11 +26,11 @@ namespace nvt_back.Model.Devices
         [Required(ErrorMessage = "Image field is required")]
         public string Image { get; set; }
 
-        [ForeignKey("Property")]
+        //[ForeignKey("Property")]
         [Required(ErrorMessage = "Property id field is required")]
         public int PropertyId { get; set; }
 
-        public Property Property { get; set; }
+        //public virtual Property Property { get; set; }
 
         public Device() { }
         public Device(DeviceRegistrationDTO dto)

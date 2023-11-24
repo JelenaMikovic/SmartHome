@@ -11,7 +11,6 @@
                 KeepAliveInterval = TimeSpan.FromSeconds(120),
             });
 
-            Console.WriteLine("usao");
 
             RunOnApplicationStart();
         }

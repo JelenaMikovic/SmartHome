@@ -23,7 +23,6 @@ namespace nvt_back
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
-            Console.WriteLine("tu");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,6 +39,9 @@ namespace nvt_back
             modelBuilder.Entity<VehicleGate>().ToTable("VehicleGates");
             modelBuilder.Entity<WashingMachine>().ToTable("WashingMachines");
             modelBuilder.Entity<Lamp>().ToTable("Lamps");
+
+            /*modelBuilder.Entity<Device>()
+              .HasKey(x => new { x.Id, x.PropertyId });*/
 
             /*modelBuilder.Entity<AmbientSensor>().HasData(
                 new AmbientSensor { Id = 3, IsOnline = true, Name = "test", PowerConsumption = 40, PowerSource = PowerSource.AlkalineBattery }

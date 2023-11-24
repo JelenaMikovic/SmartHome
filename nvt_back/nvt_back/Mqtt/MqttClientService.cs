@@ -2,7 +2,11 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
+using Newtonsoft.Json;
+using nvt_back.InfluxDB;
 using nvt_back.Mqtt;
+using nvt_back.Repositories.Interfaces;
+using nvt_back.Services.Interfaces;
 using System.Text;
 
 namespace nvt_back.Mqtt
@@ -15,7 +19,7 @@ namespace nvt_back.Mqtt
         public int Port { get; set; }
     }
 
-    public class MqttClientService 
+    public class MqttClientService : IMqttClientService
     {
         private  IMqttClient _mqttClient;
         private  string _username;
@@ -23,16 +27,17 @@ namespace nvt_back.Mqtt
         private  string _host;
         private  int _port;
 
-        public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration)
+        private readonly InfluxDBService _influxDBService;
+
+        public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService)
         {
             var config = mqttConfiguration.Value;
             _username = config.Username;
             _password = config.Password;
             _host = config.Host;
             _port = config.Port;
+            _influxDBService = influxDBService;
         }
-
-
 
         public async Task Connect()
         {
@@ -57,50 +62,64 @@ namespace nvt_back.Mqtt
 
             await _mqttClient.ConnectAsync(options);
 
-            /*await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic("topic1").Build());
-
-            Console.WriteLine("### SUBSCRIBED ###");*/
         }
 
         private Task _mqttClient_ConnectedAsync(MqttClientConnectedEventArgs arg)
         {
-            Console.WriteLine("Connection to MQTT complete with code: " + arg.ConnectResult.ResultCode);
+            //Console.WriteLine("\nConnection to MQTT complete with code: " + arg.ConnectResult.ResultCode);
             
             return Task.CompletedTask;
         }
 
         private Task _mqttClient_DisconnectedAsync(MqttClientDisconnectedEventArgs arg)
         {
-            Console.WriteLine("Disconnected from MQTT, with reason: " + arg.ConnectResult.ReasonString);
+            //Console.WriteLine("\nDisconnected from MQTT, with reason: " + arg.ConnectResult.ReasonString);
             return Task.CompletedTask;
         }
 
         private Task _mqttClient_ConnectingAsync(MqttClientConnectingEventArgs arg)
         {
-            Console.WriteLine("Connecting to MQTT...");
+            //Console.WriteLine("\nConnecting to MQTT...");
             return Task.CompletedTask;
         }
 
         private Task _mqttClient_ApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg)
         {
-            Console.WriteLine("### RECEIVED APPLICATION MESSAGE ###");
-            Console.WriteLine($"+ Topic = {arg.ApplicationMessage.Topic}");
-            Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(arg.ApplicationMessage.Payload)}");
-            Console.WriteLine($"+ QoS = {arg.ApplicationMessage.QualityOfServiceLevel}");
-            Console.WriteLine($"+ Retain = {arg.ApplicationMessage.Retain}");
+            string topic = arg.ApplicationMessage.Topic;
+            if (topic.Split("/").Last() == "status")
+            {
+                string payloadString = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
+                var payloadObject = JsonConvert.DeserializeObject<Heartbeat>(payloadString);
+
+                if (payloadObject.Sender == Sender.DEVICE)
+                {
+                    //Console.WriteLine($"\nGot message {payloadString} from topic {topic}");
+
+                    if (payloadObject.Status == Status.ON)
+                    {
+                        this.PublishActivatedStatus(payloadObject.DeviceId);
+                        _influxDBService.WriteHeartbeatToInfluxDBForDevice(payloadObject.DeviceId, "ON");
+                    }
+                    else
+                    {
+                        this.PublishDeactivatedStatus(payloadObject.DeviceId);
+                        _influxDBService.WriteHeartbeatToInfluxDBForDevice(payloadObject.DeviceId, "OFF");
+                    }
+                }
+            }
             return Task.CompletedTask;
         }
 
         public async Task Subscribe(string topic)
         {
             await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).Build());
-            Console.WriteLine($"Subscribed to topic: {topic}");
+            //Console.WriteLine($"\nSubscribed to topic: {topic}");
         }
 
         public async Task Unsubscribe(string topic)
         {
             await _mqttClient.UnsubscribeAsync(topic);
-            Console.WriteLine($"Unsubscribed from topic: {topic}");
+            //Console.WriteLine($"\nUnsubscribed from topic: {topic}");
         }
 
         public async Task Publish(string topic, string payload, MqttQualityOfServiceLevel qos = MqttQualityOfServiceLevel.AtLeastOnce, bool retain = false)
@@ -113,7 +132,40 @@ namespace nvt_back.Mqtt
                 .Build();
 
             await _mqttClient.PublishAsync(message);
-            Console.WriteLine($"Published message to topic: {topic}");
+            //Console.WriteLine($"\nPublished message to topic: {topic}");
+        }
+
+        public string GetStatusTopicForDevice(int deviceId)
+        {
+            return "topic/device/" + deviceId + "/status";
+        }
+
+        public async Task PublishActivatedStatus(int deviceId)
+        {
+            string topic = GetStatusTopicForDevice(deviceId);
+            var payload = new Heartbeat
+            {
+                PlatformResponse = "You are online!",
+                Sender = Sender.PLATFORM,
+                Status = Status.ON
+            };
+            var payloadJSON = JsonConvert.SerializeObject(payload);
+            
+            this.Publish(topic, payloadJSON);
+        }
+
+        public async Task PublishDeactivatedStatus(int deviceId)
+        {
+            string topic = GetStatusTopicForDevice(deviceId);
+            var payload = new Heartbeat
+            {
+                PlatformResponse = "You are offline!",
+                Sender = Sender.PLATFORM,
+                Status = Status.OFF
+            };
+            var payloadJSON = JsonConvert.SerializeObject(payload);
+
+            this.Publish(topic, payloadJSON);
         }
     }
 }

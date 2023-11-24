@@ -57,7 +57,7 @@ namespace nvt_back.Services
             {
                 File.WriteAllBytes(filePath, imageBytes);
                 
-                return filePath;
+                return "images\\" + filePath.Split('\\').Last();
             }
             catch (Exception ex)
             {

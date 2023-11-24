@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using nvt_back;
@@ -11,9 +12,11 @@ using nvt_back;
 namespace nvt_back.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20231124065138_prop-for-k")]
+    partial class propfork
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,6 +128,8 @@ namespace nvt_back.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
 
                     b.ToTable("Devices", (string)null);
 
@@ -355,6 +360,17 @@ namespace nvt_back.Migrations
                     b.Navigation("Country");
                 });
 
+            modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
+                {
+                    b.HasOne("nvt_back.Property", "Property")
+                        .WithMany("Devices")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
             modelBuilder.Entity("nvt_back.Property", b =>
                 {
                     b.HasOne("nvt_back.User", "Owner")
@@ -445,6 +461,11 @@ namespace nvt_back.Migrations
                         .HasForeignKey("nvt_back.Model.Devices.WashingMachine", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("nvt_back.Property", b =>
+                {
+                    b.Navigation("Devices");
                 });
 
             modelBuilder.Entity("nvt_back.User", b =>

@@ -61,7 +61,7 @@ export class AddDeviceDialogComponent implements OnInit {
     evChargingThreshold: new FormControl(100, [percentageValidation])
   }, [minMaxValidator("minTemp", "maxTemp")])
 
-  deviceImgPath = "../../assets/device-default.jpg";
+  deviceImgPath = "../../assets/logo.png";
 
   constructor(
     public dialogRef: MatDialogRef<AddDeviceDialogComponent>,
@@ -118,7 +118,8 @@ export class AddDeviceDialogComponent implements OnInit {
       IsOnline: false,
       PowerSource: 0,
       PowerConsumption: this.addDeviceForm.value.consumption!,
-      Image: this.deviceImgPath
+      Image: this.deviceImgPath,
+      PropertyId: 1
     }
     this.deviceRegistration.registerAmbientSensor(device).subscribe({
       next: (res: any) => {
@@ -155,7 +156,8 @@ export class AddDeviceDialogComponent implements OnInit {
       Image: this.deviceImgPath,
       SupportedModes: this.getSupportedACModes(),
       MinTemperature: this.addDeviceForm.value.minTemp!,
-      MaxTemperature: this.addDeviceForm.value.maxTemp!
+      MaxTemperature: this.addDeviceForm.value.maxTemp!,
+      PropertyId: 1
     }
     this.deviceRegistration.registerAC(device).subscribe({
       next: (res: any) => {
@@ -188,13 +190,15 @@ export class AddDeviceDialogComponent implements OnInit {
   }
 
   registerWashingMachine(){
+    console.log(this.deviceImgPath);
     let device : WashingMachineRegistrationDTO = {
       Name: this.addDeviceForm.value.name!,
       IsOnline: false,
       PowerSource: 0,
       PowerConsumption: this.addDeviceForm.value.consumption!,
       Image: this.deviceImgPath,
-      SupportedModes: this.getSupportedWachineMachineModes()
+      SupportedModes: this.getSupportedWachineMachineModes(),
+      PropertyId: 1
     }
     this.deviceRegistration.registerWashingMachine(device).subscribe({
       next: (res: any) => {
@@ -232,7 +236,8 @@ export class AddDeviceDialogComponent implements OnInit {
       Image: this.deviceImgPath,
       IsOn: false,
       BrightnessLevel: 80,
-      Color: this.getLampColor()
+      Color: this.getLampColor(),
+      PropertyId: 1
     }
     this.deviceRegistration.registerLamp(device).subscribe({
       next: (res: any) => {
@@ -259,7 +264,8 @@ export class AddDeviceDialogComponent implements OnInit {
       PowerConsumption: this.addDeviceForm.value.consumption!,
       Image: this.deviceImgPath,
       Size: this.addDeviceForm.value.panelSize!,
-      Efficiency: this.addDeviceForm.value.panelEfficiency!
+      Efficiency: this.addDeviceForm.value.panelEfficiency!,
+      PropertyId: 1
     }
     this.deviceRegistration.registerSolarPanel(device).subscribe({
       next: (res: any) => {
@@ -284,7 +290,8 @@ export class AddDeviceDialogComponent implements OnInit {
       IsOnline: false,
       PowerSource: 0,
       PowerConsumption: this.addDeviceForm.value.consumption!,
-      Image: this.deviceImgPath
+      Image: this.deviceImgPath,
+      PropertyId: 1
     }
     this.deviceRegistration.registerVehicleGate(device).subscribe({
       next: (res: any) => {
@@ -312,7 +319,8 @@ export class AddDeviceDialogComponent implements OnInit {
       Image: this.deviceImgPath,
       Capacity: this.addDeviceForm.value.batteryCapacity!,
       Health: this.addDeviceForm.value.batteryHealth!,
-      CurrentCharge: 100
+      CurrentCharge: 100,
+      PropertyId: 1
     }
     this.deviceRegistration.registerHomeBattery(device).subscribe({
       next: (res: any) => {
@@ -337,7 +345,8 @@ export class AddDeviceDialogComponent implements OnInit {
       IsOnline: false,
       PowerSource: 0,
       PowerConsumption: this.addDeviceForm.value.consumption!,
-      Image: this.deviceImgPath
+      Image: this.deviceImgPath,
+      PropertyId: 1
     }
     this.deviceRegistration.registerIrrigationSystem(device).subscribe({
       next: (res: any) => {
@@ -365,7 +374,8 @@ export class AddDeviceDialogComponent implements OnInit {
       Image: this.deviceImgPath,
       NumberOfPorts: this.addDeviceForm.value.evNumberOfPorts!,
       ChargingPower: this.addDeviceForm.value.evChargingPower!,
-      ChargingThreshold: this.addDeviceForm.value.evChargingThreshold!
+      ChargingThreshold: this.addDeviceForm.value.evChargingThreshold!,
+      PropertyId: 1
     }
     this.deviceRegistration.registerEVCharger(device).subscribe({
       next: (res: any) => {
@@ -389,30 +399,31 @@ export class AddDeviceDialogComponent implements OnInit {
       if (this.deviceType == "AmbientSensor"){
         this.registerAmbientSensor();
       }
-      if (this.deviceType == "AC"){
+      else if (this.deviceType == "AC"){
         this.registerAC();
       }
-      if (this.deviceType == "WashingMachine"){
+      else if (this.deviceType == "WashingMachine"){
         this.registerWashingMachine()
       }
-      if (this.deviceType == "Lamp"){
+      else if (this.deviceType == "Lamp"){
         this.registerLamp();
       }
-      if (this.deviceType == "SolarPanel"){
+      else if (this.deviceType == "SolarPanel"){
         this.registerSolarPanel();
       }
-      if (this.deviceType == "VehicleGate"){
+      else if (this.deviceType == "VehicleGate"){
         this.registerVehicleGate();
       }
-      if (this.deviceType == "HomeBattery"){
+      else if (this.deviceType == "HomeBattery"){
         this.registerHomeBattery();
       }
-      if (this.deviceType == "IrrigationSystem"){
+      else if (this.deviceType == "IrrigationSystem"){
         this.registerIrrigationSystem();
       }
       else {
         this.registerEVCharger();
       }
+      this.dialogRef.close();
     } else {
       this.snackBar.open("Check your inputs again!", "", {
         duration: 2700, panelClass: ['snack-bar-front-error']

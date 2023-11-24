@@ -24,7 +24,7 @@ import { ErrorStateMatcher } from '@angular/material/core'
   export function percentageValidation(control: AbstractControl): { [key: string]: boolean } | null {
     const value = control.value;
   
-    if (isNaN(value) || value <= 0 || value > 100) {
+    if (isNaN(value) || value < 0 || value > 100) {
       return { invalidPercentage: true };
     }
   
