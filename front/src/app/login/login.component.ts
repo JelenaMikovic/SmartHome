@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
         (success) => {
           console.log(success)
           if (success) {
-            //this.router.navigate(['/home']);
+            this.router.navigate(['/home']);
           } else {
             this.snackBar.open('Invalid credentials', 'Close', { duration: 3000 });
           }

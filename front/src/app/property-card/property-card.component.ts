@@ -1,3 +1,4 @@
+import { AuthService } from 'src/services/auth.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { PropertyDTO, ReturnedPropertyDTO } from 'src/services/property.service';
 
@@ -10,6 +11,10 @@ export class PropertyCardComponent implements OnInit {
 
   @Input() property: ReturnedPropertyDTO = {} as ReturnedPropertyDTO;
 
+  constructor(private authService: AuthService) {
+
+  }
+
   ngOnInit(): void {
   }
 
@@ -18,7 +23,7 @@ export class PropertyCardComponent implements OnInit {
   }
 
   acceptRequest() {
-    
+
   }
 
 }

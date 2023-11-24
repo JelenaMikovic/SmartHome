@@ -13,6 +13,7 @@ export class LocationService {
   public getAll(): Observable<any> {
     const options: any = {
       responseType: 'json',
+      withCredentials: true
     };
     return this.http.get<LocationDTO[]>(environment.apiHost + "/location", options);
   }
