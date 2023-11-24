@@ -20,6 +20,9 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 }, ServiceLifetime.Transient);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+builder.Services.Configure<EmailSettings>
+   (options => builder.Configuration.GetSection("EmailSettings").Bind(options));
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -61,6 +64,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
+builder.Services.AddTransient<IMailService, MailService>();
 
 
 builder.Services.AddCors(options =>

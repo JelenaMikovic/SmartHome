@@ -50,10 +50,14 @@ export class HomepageComponent implements OnInit {
   }
 
   processRejection(event: any) {
+    this.loadItems();
     if (event) {
-      this.loadItems();
+      
+      this.snackBar.open("You have successfully rejected request!", "", {
+        duration: 2700, panelClass: ['snack-bar-success']
+     });
       console.log("property rejected")
-    }
+    } 
   }
 
   onPageChange(event: any): void {

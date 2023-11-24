@@ -46,7 +46,7 @@ namespace nvt_back.Repositories
 
         public Property GetById(int id)
         {
-            return this._context.Properties.FirstOrDefault(x => x.Id == id);
+            return this._context.Properties.Include(x => x.Owner).FirstOrDefault(x => x.Id == id);
         }
 
         public void Update(Property property)

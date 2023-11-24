@@ -5,6 +5,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { PropertyDTO, ReturnedPropertyDTO, UserDTO } from 'src/services/property.service';
 import { MatDialog } from '@angular/material/dialog';
 import { RejectPropertyDialogComponent } from '../reject-property-dialog/reject-property-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-property-card',
@@ -18,7 +19,7 @@ export class PropertyCardComponent implements OnInit {
   @Input() property: ReturnedPropertyDTO = {} as ReturnedPropertyDTO;
   @Output() rejectionCompleted = new EventEmitter<any>();
 
-  constructor(private dialog: MatDialog, private authService: AuthService, private router: Router, private propertyService: PropertyService) {
+  constructor(private dialog: MatDialog, private authService: AuthService, private router: Router, private propertyService: PropertyService, private snackBar: MatSnackBar) {
 
   }
 
@@ -49,7 +50,10 @@ export class PropertyCardComponent implements OnInit {
   acceptRequest() {
     this.propertyService.acceptPropertyRequest(this.property.id).subscribe({
       next: (value) => {
-        console.log(value);
+        this.snackBar.open(value.message, "", {
+          duration: 2700, panelClass: ['snack-bar-success']
+       });
+       this.rejectionCompleted.emit(false);
       },
       error: (err) => {
         console.log(err);

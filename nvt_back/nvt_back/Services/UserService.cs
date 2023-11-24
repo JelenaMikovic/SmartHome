@@ -18,5 +18,7 @@ namespace nvt_back.Services
         {
             return _userRepository.GetByEmailAndPassword(email, password);
         }
+
+        
     }
 }
