@@ -3,6 +3,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/services/auth.service';
+import { CodeDialogComponent } from '../code-dialog/code-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +21,7 @@ export class LoginComponent implements OnInit {
   })
 
   constructor(
+    private dialog: MatDialog,
     private authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar
@@ -51,6 +54,10 @@ export class LoginComponent implements OnInit {
     } else {
       this.snackBar.open('Please fill in all required fields', 'Close', { duration: 3000 });
     }
+  }
+
+  activate(){
+    const dialogRef = this.dialog.open(CodeDialogComponent);
   }
 
 }

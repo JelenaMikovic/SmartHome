@@ -3,6 +3,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/services/auth.service';
+import { CodeDialogComponent } from '../code-dialog/code-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-register',
@@ -12,6 +14,8 @@ import { AuthService } from 'src/services/auth.service';
 export class RegisterComponent implements OnInit {
 
   isVisible : boolean = false;
+  filePath: string = "";
+  file: File = {} as File;
 
   registerForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -21,6 +25,7 @@ export class RegisterComponent implements OnInit {
   })
 
   constructor(
+    private dialog: MatDialog,
     private authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar
@@ -36,14 +41,16 @@ export class RegisterComponent implements OnInit {
         surname: this.registerForm.get('surname')?.value,
         email: this.registerForm.get('email')?.value,
         password: this.registerForm.get('password')?.value,
-        role: "USER"
+        role: "USER",
+        //image: this.filePath
       };
 
       this.authService.register(form).subscribe(
         (success) => {
-          if (success) {
-            this.router.navigate(['/']);
-          }
+            const dialogRef = this.dialog.open(CodeDialogComponent);
+            dialogRef.afterClosed().subscribe((result) => {
+              this.router.navigate(["/login"]);
+            });
         },
         (error) => {
           console.error('Login error:', error);
@@ -55,5 +62,17 @@ export class RegisterComponent implements OnInit {
     }
   }
 
+  onFileSelect(event: any) {
+    event.preventDefault();
+    if (event.target.files){
+      var reader = new FileReader();
+      this.file = event.target.files[0];
+      reader.readAsDataURL(this.file);
+      reader.onload=(e: any)=>{
+        event.preventDefault();
+        this.filePath = reader.result as string;
+      }
+    }
+  }
   
 }

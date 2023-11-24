@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
+
   private loggedInSubject = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient, public jwtHelper: JwtHelperService) {}
@@ -37,11 +38,27 @@ export class AuthService {
     return this.http.post<any>(environment.apiHost + '/user/register', form)
       .pipe(
         map(response => {
-          if (response.email) {
+          if (response) {
             return true;
           } else {
             return false;
           }
+        })
+      );
+  }
+
+  activate(dto: any): Observable<any> {
+    return this.http.post<any>(environment.apiHost + '/user/login', dto)
+      .pipe(
+        tap(response => {
+          if (response.email) {
+            this.loggedInSubject.next(true);
+          }
+        }),
+        map(response => response.email ? true : false),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Login error:', error);
+          return throwError(error);
         })
       );
   }

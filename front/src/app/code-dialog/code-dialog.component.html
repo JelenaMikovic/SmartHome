@@ -1,0 +1,24 @@
+<div class="add-property-container basic-container">
+    <div class="close-btn" (click)="close()">
+        <i class="fa fa-plus"></i>
+    </div>
+    <div class="title-container">
+        <p class="title light-blue">Account activation</p>
+        <hr>
+    </div>
+    <form id="code-form" [formGroup]="codeForm" (ngSubmit)="activate()">
+        <div class="form-section">
+            <mat-form-field >
+                <mat-label>Code</mat-label>
+                <input matInput type="text" name="code" formControlName="code" />
+            </mat-form-field>
+            <mat-form-field >
+                <mat-label>Email</mat-label>
+                <input matInput type="text" name="email" formControlName="email" />
+            </mat-form-field>
+        </div>
+        <div id="send-request-btn-container">
+            <button id="send-request-btn" class="conf-button" type="submit" mat-raised-button>Activate</button>
+        </div>
+    </form>
+</div>

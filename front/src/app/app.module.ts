@@ -28,6 +28,7 @@ import { PropertyCardComponent } from './property-card/property-card.component';
 
 import { JwtModule } from "@auth0/angular-jwt";
 import { RegisterComponent } from './register/register.component';
+import { CodeDialogComponent } from './code-dialog/code-dialog.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { RegisterComponent } from './register/register.component';
     HomepageComponent,
     SideNavbarComponent,
     MapComponent,
-    PropertyCardComponent
+    PropertyCardComponent,
+    CodeDialogComponent
   ],
   imports: [
     BrowserModule,

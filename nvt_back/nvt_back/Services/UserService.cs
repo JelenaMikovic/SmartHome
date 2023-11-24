@@ -14,16 +14,17 @@ namespace nvt_back.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IImageService _imageService;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IImageService imageService)
         {
             this._userRepository = userRepository;
-
+            _imageService = imageService;   
         }
 
         public void CreateUser(CreateUserDTO userDTO)
         {
-            if (_userRepository.GetByEmail(userDTO.Email) != null) throw new Exception("User already exists");
+            if (_userRepository.GetByEmail(userDTO.Email).Result != null) throw new Exception("User already exists");
             User user = new User();
             user.Name = userDTO.Name;
             user.Email = userDTO.Email;
@@ -31,6 +32,9 @@ namespace nvt_back.Services
             user.IsActivated = false;
             user.Surname = userDTO.Surname;
             user.Role = Enum.Parse<UserRole>(userDTO.Role);
+            //string filePath = _imageService.SaveImage(userDTO.Image);
+            //user.ImagePath = filePath;
+
             _userRepository.AddUser(user);
 
             ActivationCode activationCode = new ActivationCode();

@@ -1,6 +1,6 @@
 <div id="login-container">
     <div id="form-container">
-        <h1 class="title dark-gray">Welcome</h1>
+        <h1 class="title dark-gray">Join Us</h1>
         <form [formGroup]="registerForm" (ngSubmit)="register()">
             <mat-form-field >
                 <mat-label>Name</mat-label>
@@ -24,6 +24,14 @@
                 <input matInput [type]="isVisible? 'text' : 'password'" name="password" formControlName="password" />
                 <mat-error *ngIf="registerForm.get('password')?.errors?.['required']">entering password is required</mat-error>
             </mat-form-field>
+            <button class="upload-btn" type="button" (click)="imageInput.click()">
+                Upload profile picture
+            </button>
+            <div class="img-container">
+                <img *ngIf="filePath" [src]="filePath" alt="Selected Image" class="selected-image" />
+            </div>
+            <input #imageInput type="file" (change)="onFileSelect($event)" style="display: none">
+                <p>{{ file['name'] }}</p>
         </form>
         <button class="conf-button" mat-raised-button (click)="register()">Register</button>
         <p>
@@ -31,6 +39,6 @@
         </p>
     </div>
     <div id="img-container">
-        <img src="../../assets/vectors/login.svg">
+        <img src="../../assets/signUp.svg">
     </div>
 </div>

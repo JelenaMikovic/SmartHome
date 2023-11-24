@@ -19,6 +19,12 @@
     text-align: center;
 }
 
+.selected-image {
+    margin-top: 10px;
+    max-width: 100%;
+    max-height: 100px;
+  }
+
 #form-container {
     border-right: 2px solid #D9D9D9;
     padding: 30px 15px 0px 15px;
@@ -108,4 +114,18 @@ p {
         width: 85%;
     }
     
+}
+
+.upload-btn{
+    background-color: #06d69e00 !important;
+    color: rgb(122, 122, 122);
+    font-weight: lighter !important;
+    font-size: 12px;
+    padding: 10px !important;
+    margin-top: 25px !important;
+    border-radius: 15px !important;
+}
+
+.image-container {
+    display: block;
 }
