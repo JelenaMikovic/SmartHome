@@ -23,7 +23,7 @@ args = parser.parse_args()
 
 # PUB_SUB_TOPIC = "property/" + str(args.pid) + "/device" + str(args.did) + "/" + args.tt
 PUB_SUB_TOPIC = "topic/device/" + str(args.did) + "/" + args.tt
-IS_ONLINE = True
+IS_ONLINE = False
 
 def on_connect(client: mqtt.Client, userdata: any, flags, result_code):
     print("Connected with result code "+str(result_code))

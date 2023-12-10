@@ -15,6 +15,15 @@ class Heartbeat(object):
             'DeviceId': self.device_id
         }
 
+def primer_za_slanje_telegraf(device_id):
+    measurement = "heartbeat"
+    tags = f"device_id={device_id}"
+    fields = "status=1"
+
+    # Creating the Influx Line Protocol string
+    influx_line_protocol = f"{measurement},{tags} {fields}"
+
+    return influx_line_protocol
 
 def status_on_heartbeat_to_json(device_id):
     hb = Heartbeat("DEVICE", "ON", device_id)
