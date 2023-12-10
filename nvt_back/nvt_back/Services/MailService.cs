@@ -15,71 +15,13 @@ namespace nvt_back.Services
             this._options = options;
         }
 
-        public void SendPropertyApprovedEmail(string email, string name, string propertyName)
+        public async void SendPropertyApprovedEmail(string email, string name, string propertyName)
         {
-            string subject = "Hooray! Your property has been approved";
-            string htmlMessage = @"
-                                <!DOCTYPE html>
-                                <html lang=""en"">
-                                <head>
-                                    <meta charset=""UTF-8"">
-                                    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"">
-                                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                                    <style>
-                                        body {
-                                            font-family: 'Arial', sans-serif;
-                                            line-height: 1.6;
-                                            color: #333;
-                                        }
-
-                                        .container {
-                                            max-width: 600px;
-                                            margin: 0 auto;
-                                        }
-
-                                        .header {
-                                            background-color: #f8f8f8;
-                                            padding: 20px;
-                                            text-align: center;
-                                        }
-
-                                        .content {
-                                            padding: 20px;
-                                        }
-
-                                        .footer {
-                                            background-color: #f8f8f8;
-                                            padding: 10px;
-                                            text-align: center;
-                                        }
-
-                                        .approved {
-                                            color: green;
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div class=""container"">
-                                        <div class=""header"">
-                                            <h2>LaCasaDeSmart</h2>
-                                        </div>
-                                        <div class=""content"">
-                                            <p>Dear " + name + @",</p>
-                                            <p>Your request to register property with name <strong>" + propertyName + @"</strong> has been <span class=""approved"">APPROVED</span>.</p>
-                                            <p>Feel free to log in and start connecting it to your smart devices.</p>
-                                            <p>Best,<br>LaCasaDeSmart team</p>
-                                        </div>
-                                        <div class=""footer"">
-                                            <p>&copy; 2023 LaCasaDeSmart. All rights reserved.</p>
-                                        </div>
-                                    </div>
-                                </body>
-                                </html>
-                                ";
+            string templateId = "d-3204e708408e43a8a6bbeb07838c4b86";
 
             try
             {
-                this.SendEmailAsync(email, subject, htmlMessage).Wait();
+                await this.SendEmailAsync(email, name, propertyName, templateId, "");
                 Console.WriteLine("mail sent to " + email);
             }
             catch (Exception ex)
@@ -89,7 +31,7 @@ namespace nvt_back.Services
             }
         }
 
-        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string name, string property, string templateId, string reason)
         {
             string? fromEmail = _options.Value.SenderEmail;
             string? fromName = _options.Value.SenderName;
@@ -97,78 +39,29 @@ namespace nvt_back.Services
             var sendGridClient = new SendGridClient(apiKey);
             var from = new EmailAddress(fromEmail, fromName);
             var to = new EmailAddress(email);
-            var plainTextContent = Regex.Replace(htmlMessage, "<[^>]*>", "");
-            var msg = MailHelper.CreateSingleEmail(from, to, subject,
-            plainTextContent, htmlMessage);
+
+            object dynamicData;
+            if (string.IsNullOrEmpty(reason))
+            {
+                dynamicData = new { name, property };
+            }
+            else
+            {
+                dynamicData = new { name, property, reason };
+            }
+
+            var msg = MailHelper.CreateSingleTemplateEmail(from, to, templateId, dynamicData);
+
             var response = await sendGridClient.SendEmailAsync(msg);
         }
 
-        public void SendPropertyDeniedEmail(string email, string name, string propertyName, string reason)
+        public async void SendPropertyDeniedEmail(string email, string name, string propertyName, string reason)
         {
-            string subject = "Oh no! Your property has been denied";
-            string htmlMessage = @"
-                                <!DOCTYPE html>
-                                <html lang=""en"">
-                                <head>
-                                    <meta charset=""UTF-8"">
-                                    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"">
-                                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                                    <style>
-                                        body {
-                                            font-family: 'Arial', sans-serif;
-                                            line-height: 1.6;
-                                            color: #333;
-                                        }
-
-                                        .container {
-                                            max-width: 600px;
-                                            margin: 0 auto;
-                                        }
-
-                                        .header {
-                                            background-color: #f8f8f8;
-                                            padding: 20px;
-                                            text-align: center;
-                                        }
-
-                                        .content {
-                                            padding: 20px;
-                                        }
-
-                                        .footer {
-                                            background-color: #f8f8f8;
-                                            padding: 10px;
-                                            text-align: center;
-                                        }
-
-                                        .approved {
-                                            color: red;
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div class=""container"">
-                                        <div class=""header"">
-                                            <h2>LaCasaDeSmart</h2>
-                                        </div>
-                                        <div class=""content"">
-                                            <p>Dear " + name + @",</p>
-                                            <p>Your request to register property with name <strong>" + propertyName + @"</strong> has been <span class=""approved"">DENIED</span>.</p>
-                                            <p>Our admins said this was the reason: </p>
-                                            <p>" + reason + @"</p>
-                                            <p>Best,<br>LaCasaDeSmart team</p>
-                                        </div>
-                                        <div class=""footer"">
-                                            <p>&copy; 2023 LaCasaDeSmart. All rights reserved.</p>
-                                        </div>
-                                    </div>
-                                </body>
-                                </html>
-                                ";
+            string templateId = "d-e1526454046647518d386ba56f1b0838";
 
             try
             {
-                this.SendEmailAsync(email, subject, htmlMessage).Wait();
+                await this.SendEmailAsync(email, name, propertyName, templateId, reason);
                 Console.WriteLine("mail sent to " + email);
             }
             catch (Exception ex)

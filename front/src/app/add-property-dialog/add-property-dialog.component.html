@@ -31,9 +31,12 @@
             </div>
             <button class="upload-btn" type="button" (click)="imageInput.click()">
                 Upload property image
-                <input #imageInput type="file" (change)="onFileSelect($event)" style="display: none">
-                <p>{{ file['name'] }}</p>
             </button>
+            <div class="img-container">
+                <img *ngIf="filePath" [src]="filePath" alt="Selected Image" class="selected-image" />
+            </div>
+            <input #imageInput type="file" (change)="onFileSelect($event)" style="display: none">
+                <p>{{ file['name'] }}</p>
         </div>
         <div class="form-section">
             <p class="subtitle">Address info:</p>

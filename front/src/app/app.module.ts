@@ -41,7 +41,7 @@ import { CodeDialogComponent } from './code-dialog/code-dialog.component';
     SideNavbarComponent,
     MapComponent,
     PropertyCardComponent,
-    RejectPropertyDialogComponent
+    RejectPropertyDialogComponent,
     CodeDialogComponent
   ],
   imports: [
