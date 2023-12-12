@@ -31,6 +31,11 @@ namespace nvt_back.Controllers
                     return BadRequest("Invalid credentials");
                 }
 
+                if (user.Role == UserRole.USER || user.IsActivated!)
+                {
+                    return BadRequest("Account not activated");
+                }
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

@@ -55,6 +55,20 @@ namespace nvt_back.Services
             var response = await sendGridClient.SendEmailAsync(msg);
         }
 
+        public async Task SendEmailAsync(string email, string name, string activationCode, string templateId)
+        {
+            string? fromEmail = _options.Value.SenderEmail;
+            string? fromName = _options.Value.SenderName;
+            string? apiKey = _options.Value.ApiKey;
+            var sendGridClient = new SendGridClient(apiKey);
+            var from = new EmailAddress(fromEmail, fromName);
+            var to = new EmailAddress(email);
+
+            object dynamicData = new { name, activationCode };
+            var msg = MailHelper.CreateSingleTemplateEmail(from, to, templateId, dynamicData);
+            var response = await sendGridClient.SendEmailAsync(msg);
+        }
+
         public async void SendPropertyDeniedEmail(string email, string name, string propertyName, string reason)
         {
             string templateId = "d-e1526454046647518d386ba56f1b0838";
@@ -70,5 +84,22 @@ namespace nvt_back.Services
                 Console.WriteLine(ex.StackTrace);
             }
         }
+
+        public async void SendAccountActiationEmail(string email, string name, string activationCode)
+        {
+            string templateId = "";
+
+            try
+            {
+                await this.SendEmailAsync(email, name, activationCode, templateId);
+                Console.WriteLine("mail sent to " + email);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
+
     }
 }
