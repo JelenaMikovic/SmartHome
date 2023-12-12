@@ -1,32 +1,47 @@
-<div class="basicc-container" id="card-container">
+<div class="basic-container" id="card-container">
     <div id="image-container">
-        <img src="../../assets/background.jpg" style="width: 100%; height: 100%; border-radius: 20px;">
+        <img src={{property.image}} style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;"/>
     </div>
 
     <div id="info-container">
         <div>
-            <h2 class="green">Pool House</h2>
+            <h2 class="green">{{ property.name }}</h2>
         <div>
             <i class="fa-solid fa-location-dot red"></i>
-            <span class="black">Gunduliceva 43</span>
+            <span class="black">{{ property.address.name }}</span>
         </div>
         <div>
             <i class="fa-solid fa-earth-americas green"></i>
-            <span class="black">Kragujevac, Srbija</span>
+            <span class="black">{{ property.address.city + ", " + property.address.country}}</span>
         </div>
         <div>
             <i class="fa-solid fa-maximize"></i>
-            <span class="black">200 m2</span>
+            <span class="black">{{ property.area }} m2</span>
 
         </div>
         <div>
             <i class="fa-solid fa-layer-group blue"></i>
-            <span class="black">3 floors</span>
+            <span class="black">{{ property.numOfFloors }} floors</span>
+
+        </div>
+        <div *ngIf="loggedUser.role == 'ADMIN' || loggedUser.role == 'SUPERADMIN'"> 
+            <i class="fa-solid fa-user orange"></i>
+            <span class="black">requested by: {{ property.owner?.name! + " " + property.owner?.surname! }}</span>
 
         </div>
         </div>
-        <div style="float: right; margin-right: 15px;">
-            <button class="active-button" mat-raised-button disabled="true">active</button>
+
+        <div *ngIf="loggedUser.role == 'ADMIN' || loggedUser.role == 'SUPERADMIN'" class="button-container">
+            <button type="button" class="conf-button back-red" (click)="denyRequest()">Deny</button>
+            <button type="button" class="conf-button back-green" (click)="acceptRequest()">Accept</button>
+        </div>
+        <div *ngIf="loggedUser.role == 'USER'" style="float: right; margin-right: 15px; margin-bottom: -20px;">
+            <div [ngClass]="{
+                'pending-status': property.status == 'PENDING',
+                'active-status': property.status == 'ACCEPTED',
+                'denied-status': property.status == 'DENIED',
+                'status': true
+              }" class="active-button">{{ property.status!.toLowerCase() }}</div>
         </div>
         
         

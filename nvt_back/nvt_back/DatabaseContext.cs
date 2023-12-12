@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.Model;
 using nvt_back.Model.Devices;
 
 namespace nvt_back
@@ -20,6 +21,8 @@ namespace nvt_back
         public DbSet<SolarPanel> SolarPanels { get; set; }
         public DbSet<VehicleGate> VehicleGates { get; set; }
         public DbSet<WashingMachine> WashingMachines { get; set; }
+        public DbSet<ActivationCode> ActivationCodes { get; set; }
+
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
@@ -46,6 +49,11 @@ namespace nvt_back
             /*modelBuilder.Entity<AmbientSensor>().HasData(
                 new AmbientSensor { Id = 3, IsOnline = true, Name = "test", PowerConsumption = 40, PowerSource = PowerSource.AlkalineBattery }
             ); ;*/
+            modelBuilder.Entity<User>().HasData(
+                new User { Id = 1, Name = "Bob", Surname = "Ross", Email = "bob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER},
+                new User { Id = 2, Name = "Rob", Surname = "Boss", Email = "rob@mail.com", Password = "123", IsActivated = true, Role = UserRole.USER},
+                new User { Id = 10, Name = "Lob", Surname = "Loss", Email = "lob@mail.com", Password = "123", IsActivated = true, Role = UserRole.SUPERADMIN}
+            );
 
         }
 

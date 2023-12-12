@@ -94,6 +94,31 @@ namespace nvt_back.Migrations
                     b.ToTable("Countries");
                 });
 
+            modelBuilder.Entity("nvt_back.Model.ActivationCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Expiration")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ActivationCodes");
+                });
+
             modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -145,6 +170,9 @@ namespace nvt_back.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AddressId")
+                        .HasColumnType("integer");
+
                     b.Property<double>("Area")
                         .HasColumnType("double precision");
 
@@ -159,6 +187,9 @@ namespace nvt_back.Migrations
                     b.Property<int>("NumOfFloors")
                         .HasColumnType("integer");
 
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -166,6 +197,8 @@ namespace nvt_back.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("UserId");
 
@@ -184,6 +217,10 @@ namespace nvt_back.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsActivated")
                         .HasColumnType("boolean");
 
@@ -195,6 +232,9 @@ namespace nvt_back.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasColumnType("text");
@@ -202,6 +242,30 @@ namespace nvt_back.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "bob@mail.com",
+                            ImagePath = "dsada",
+                            IsActivated = true,
+                            Name = "Bob",
+                            Password = "123",
+                            Role = 0,
+                            Surname = "Ross"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "rob@mail.com",
+                            ImagePath = "dsada",
+                            IsActivated = true,
+                            Name = "Rob",
+                            Password = "123",
+                            Role = 0,
+                            Surname = "Boss"
+                        });
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.AirConditioner", b =>
@@ -361,6 +425,17 @@ namespace nvt_back.Migrations
                     b.Navigation("Country");
                 });
 
+            modelBuilder.Entity("nvt_back.Model.ActivationCode", b =>
+                {
+                    b.HasOne("nvt_back.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
                 {
                     b.HasOne("nvt_back.Property", "Property")
@@ -374,11 +449,19 @@ namespace nvt_back.Migrations
 
             modelBuilder.Entity("nvt_back.Property", b =>
                 {
+                    b.HasOne("nvt_back.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("nvt_back.User", "Owner")
                         .WithMany("OwnedProperties")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Address");
 
                     b.Navigation("Owner");
                 });

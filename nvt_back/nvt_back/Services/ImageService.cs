@@ -67,6 +67,27 @@ namespace nvt_back.Services
             }
         }
 
+        public string GetBaseNemanja64StringFromImage(string fileName)
+        {
+            try
+            {
+                using (FileStream fs = File.OpenRead(fileName))
+                {
+                    byte[] imageBytes = new byte[fs.Length];
+                    fs.Read(imageBytes, 0, imageBytes.Length);
+                    return "data:image/jpg;base64," + Convert.ToBase64String(imageBytes);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw new Exception("Error loading image: Reading from file failed.");
+
+            }
+        }
+
+    }
+
         public string GetBase64StringFromImage(string fileName)
         {
             byte[] imageBytes = File.ReadAllBytes(fileName);

@@ -16,7 +16,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { NgxStarRatingModule } from 'ngx-star-rating';
 import { CdTimerModule } from 'angular-cd-timer';
-
+import { SelectDropDownModule } from 'ngx-select-dropdown'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AddPropertyDialogComponent } from './add-property-dialog/add-property-dialog.component';
 import { HomepageComponent } from './homepage/homepage.component';
@@ -24,19 +24,30 @@ import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 import { ChooseDeviceTypeDialogComponent } from './choose-device-type-dialog/choose-device-type-dialog.component';
 import { AddDeviceDialogComponent } from './add-device-dialog/add-device-dialog.component';
+import { MapComponent } from './map/map.component';
 import { PropertyCardComponent } from './property-card/property-card.component';
 
+
+import { JwtModule } from "@auth0/angular-jwt";
+import { RejectPropertyDialogComponent } from './reject-property-dialog/reject-property-dialog.component';
+import { RegisterComponent } from './register/register.component';
+import { CodeDialogComponent } from './code-dialog/code-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
+    RegisterComponent,
     AddPropertyDialogComponent,
     HomepageComponent,
     SideNavbarComponent,
     ChooseDeviceTypeDialogComponent,
     AddDeviceDialogComponent,
-    PropertyCardComponent
+    PropertyCardComponent,
+    MapComponent,
+    PropertyCardComponent,
+    RejectPropertyDialogComponent,
+    CodeDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -52,9 +63,16 @@ import { PropertyCardComponent } from './property-card/property-card.component';
     GooglePlaceModule,
     CommonModule,
     CdTimerModule,
-    NgxStarRatingModule
-    
-    
+    NgxStarRatingModule,
+    SelectDropDownModule,
+
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: () => {
+          return localStorage.getItem("access_token");
+        },
+        allowedDomains: ["your_backend_domain"],
+        disallowedRoutes: ["your_backend_domain/api/auth"] }})
   ],
   providers: [
     { provide: MAT_DIALOG_DATA, useValue: {} },

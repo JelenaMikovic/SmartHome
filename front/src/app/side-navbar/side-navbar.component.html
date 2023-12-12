@@ -19,7 +19,7 @@
     <div class="logo-container">
         <img class="logo-img" src="../../assets/logo.png" alt="La Casa De Smart">
     </div>
-    <div class="nav-item">
+    <div class="nav-item" [routerLink]="['/home']" [ngClass]="url == '/home' ? 'selected-option': ''">
         <i class="fa-solid fa-home" style="cursor: pointer"></i>
         <p>Properties</p>
     </div>

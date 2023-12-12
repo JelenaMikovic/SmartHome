@@ -2,6 +2,7 @@
 {
     public interface IImageService
     {
-        public string SaveImage(string imageBase64);
+        string SaveImage(string imageBase64);
+        string GetBase64StringFromImage(string fileName);
     }
 }
