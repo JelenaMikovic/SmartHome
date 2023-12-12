@@ -57,7 +57,7 @@ namespace nvt_back.Services
             {
                 File.WriteAllBytes(filePath, imageBytes);
                 
-                return filePath;
+                return "images\\" + filePath.Split('\\').Last();
             }
             catch (Exception ex)
             {
@@ -87,4 +87,13 @@ namespace nvt_back.Services
         }
 
     }
+
+        /*public string GetBase64StringFromImage(string fileName)
+        {
+            byte[] imageBytes = File.ReadAllBytes(fileName);
+            string base64String = Convert.ToBase64String(imageBytes);
+            // imgElement.src = 'data:image/jpeg;base64,' + base64String;
+            return base64String;
+        }*/
+    //}
 }

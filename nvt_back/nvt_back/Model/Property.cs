@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using nvt_back.Model.Devices;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace nvt_back
@@ -30,5 +31,7 @@ namespace nvt_back
 
         public Address Address { get; set; }
         public String? RejectionReason { get; set; }
+        public List<Device> Devices { get; set; }
+
     }
 }

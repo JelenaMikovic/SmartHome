@@ -1,0 +1,79 @@
+.choose-device-container {
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 1.2em;
+}
+
+.title-container {
+    text-align: left;
+    width: 100%;
+}
+
+.title-container hr {
+    border: 2px solid #D9D9D9;
+}
+
+p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+#cards {
+    display: grid;
+    grid-template-columns: repeat(3, 0.5fr);
+    /* width: 80%; */
+    height: 43%;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card {
+    /* width: 35%; */
+    /* margin: 0 auto; */
+    margin: 10px;
+    border-radius: 20px;
+    padding: 0 12px;
+    box-shadow: 0 3px 2px -2px #B9BBBD;   
+    height: 113px;
+    width: 113px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #B9BBBD;
+    /* padding: 0 15px; */
+}
+
+.card p {
+    font-size: 1em;
+}
+
+.icon {
+    font-size: 50px;
+    margin: 5px auto 10px auto;
+}
+
+.card:hover{
+    cursor: pointer;
+    opacity: 0.95;
+}
+
+.not-clicked-card {
+    border: 2px solid #C7C7C7;
+}
+
+.clicked-card {
+    border: 2.5px solid #2C87D7;
+    color: #2C87D7;
+    /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
+}
+
+.continue-btn{
+    float: right;
+}

@@ -1,0 +1,55 @@
+version: "3.7"
+services:
+
+  # mqtt5 eclipse-mosquitto
+  mqtt5:
+    image: eclipse-mosquitto
+    container_name: mqtt5
+    ports:
+      - 1883:1883 #default mqtt port
+      - 9001:9001 #default mqtt port for websockets
+    volumes:
+      - ./broker-config:/mosquitto/config:rw
+      - ./broker-data:/mosquitto/data:rw
+      - ./broker-log:/mosquitto/log:rw
+    networks:
+      - nvt-network
+    env_file:
+      - .env
+
+  # InfluxDB
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    ports:
+      - 8086:8086 # InfluxDB API port
+    volumes:
+      - ./influxdb/data:/var/lib/influxdb2:rw
+    networks:
+      - nvt-network
+    env_file:
+      - .env
+    entrypoint: ["./entrypoint.sh"]
+      
+  telegraf:
+    image: telegraf
+    depends_on:
+      - influxdb
+      - mqtt5
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:rw
+    networks:
+      - nvt-network
+    env_file:
+      - .env
+
+volumes:
+  config:
+  data:
+  log:
+  influxdb:
+
+networks:
+  nvt-network:
+    name: nvt-network
+

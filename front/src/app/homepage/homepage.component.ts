@@ -2,6 +2,7 @@ import { PropertyDTO, PropertyService, ReturnedPropertyDTO } from './../../servi
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddPropertyDialogComponent } from '../add-property-dialog/add-property-dialog.component';
+import { ChooseDeviceTypeDialogComponent } from '../choose-device-type-dialog/choose-device-type-dialog.component';
 import { AuthService } from 'src/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -72,5 +73,10 @@ export class HomepageComponent implements OnInit {
       this.loadItems();
     });
   }
+
+  openChooseDeviceTypeDialog() {
+    this.dialog.open(ChooseDeviceTypeDialogComponent);
+  }
+
 
 }

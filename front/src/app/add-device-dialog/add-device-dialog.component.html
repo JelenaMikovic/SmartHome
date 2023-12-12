@@ -1,0 +1,133 @@
+<div class="add-device-container basics-container">
+    <div class="close-btn" (click)="close()">
+        <i class="fa fa-plus"></i>
+    </div>
+    <div class="title-container">
+        <p class="title light-blue">{{ this.setDeviceTypeInTitle() }} details</p>
+        <hr>
+    </div>
+    
+    <div id="main-form-container">
+        <form id="add-device-form" [formGroup]="addDeviceForm" (ngSubmit)="addDevice()">
+            <p class="subtitle">Basic info:</p>
+            
+            <div class="form-section basic-info-container">
+                <div class="device-img-container">
+                    <img [src]="deviceImgPath" class="device-img">
+                    <button id="update-img-btn" type="button" (click)="imageInput.click()">
+                        <i class="fas fa-pencil-alt"></i>
+                        <input #imageInput type="file" (change)="onFileSelect($event)" style="display: none">
+                    </button>
+                </div>
+                <div class="inline-block">
+                    <mat-form-field style="margin-top: 0 !important;">
+                        <mat-label>Name</mat-label>
+                        <input matInput type="text" name="name" formControlName="name" />
+                        <mat-error *ngIf="addDeviceForm.get('name')?.errors?.['required']">entering name is required</mat-error>
+                        <mat-error *ngIf="addDeviceForm.get('name')?.errors?.['nameError'] && !addDeviceForm.get('name')?.errors?.['required']">name should be 1-100 characters long</mat-error>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Power consumption</mat-label>
+                        <input matInput type="number" name="consumption" formControlName="consumption" />
+                        <mat-error *ngIf="addDeviceForm.get('consumption')?.errors?.['required']">entering consumption is required</mat-error>
+                        <mat-error *ngIf="addDeviceForm.get('consumption')?.errors?.['invalidConsumption'] && !addDeviceForm.get('consumption')?.errors?.['required']">consumption should be 0-1000 kw</mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+            <hr *ngIf="this.deviceType != 'AmbientSensor' && this.deviceType != 'IrrigationSystem' && this.deviceType != 'VehicleGate'">
+            <p class="subtitle" style="margin-top: 10px;" *ngIf="this.deviceType != 'AmbientSensor' && this.deviceType != 'IrrigationSystem' && this.deviceType != 'VehicleGate'">
+                Additional info:
+            </p>
+            <div class="form-section" *ngIf="this.deviceType == 'AC'">
+                <mat-form-field >
+                    <mat-label>Min temperature (C)</mat-label>
+                    <input matInput type="text" name="minTemp" formControlName="minTemp" [errorStateMatcher]="confirmValidParentMatcher"/>
+                    <!-- <mat-error *ngIf="addDeviceForm.get('minTemp')?.errors?.['required']">entering min temp is required</mat-error> -->
+                    <mat-error *ngIf="addDeviceForm.get('minTemp')?.errors?.['invalidMinTemp']">min temp should be between -5 and 40</mat-error>
+                    <mat-error *ngIf="addDeviceForm.errors?.['minMaxError'] && !addDeviceForm.get('minTemp')?.errors?.['invalidMinTemp']" >min temp should be less than or equal to max temperature</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Max temperature (C)</mat-label>
+                    <input matInput type="number" name="maxTemp" formControlName="maxTemp"/>
+                    <mat-error *ngIf="addDeviceForm.get('maxTemp')?.errors?.['invalidMaxTemp']">max temp should be between -5 and 40</mat-error>
+                </mat-form-field>
+                <p class="subsection" style="margin-top: 10px;">Modes:</p>
+                <div id="ac-checkbox-container">
+                    <mat-checkbox formControlName="acCooling">Cooling</mat-checkbox>      
+                    <mat-checkbox formControlName="acHeating">Heating</mat-checkbox>      
+                    <mat-checkbox formControlName="acAutomatic">Automatic</mat-checkbox>      
+                    <mat-checkbox formControlName="acVentilation">Ventilation</mat-checkbox>      
+                </div>
+            </div>
+            <div class="form-section" style="margin-top: 15px;" *ngIf="this.deviceType == 'WashingMachine'">
+                <p class="subsection" >Modes:</p>
+                <div id="wmachine-checkbox-container">
+                    <mat-checkbox formControlName="wmCotton">Cotton</mat-checkbox>      
+                    <mat-checkbox formControlName="wmSportswear">Sportswear</mat-checkbox>      
+                    <mat-checkbox formControlName="wmIronDry">Iron dry</mat-checkbox>      
+                    <mat-checkbox formControlName="wmTowels">Towels</mat-checkbox>  
+                    <mat-checkbox formControlName="wmMix">Mix</mat-checkbox>      
+                    <mat-checkbox formControlName="wmWool">Wool</mat-checkbox>      
+                    <mat-checkbox formControlName="wmSuper">Super 30'</mat-checkbox>    
+                    <mat-checkbox formControlName="wmCupboard">Cupboard</mat-checkbox>  
+    
+                </div>    
+            </div>
+            <div class="form-section" *ngIf="this.deviceType == 'SolarPanel'">
+                <mat-form-field >
+                    <mat-label>Size (m2)</mat-label>
+                    <input matInput type="number" name="panelSize" formControlName="panelSize"/>
+                    <mat-error *ngIf="addDeviceForm.get('panelSize')?.errors?.['invalidArea']">size should be between 0 and 1000</mat-error>
+                </mat-form-field>  
+                <mat-form-field >
+                    <mat-label>Efficiency (%)</mat-label>
+                    <input matInput type="number" name="panelEfficiency" formControlName="panelEfficiency"/>
+                    <mat-error *ngIf="addDeviceForm.get('panelEfficiency')?.errors?.['invalidPercentage']">panel efficiency should be between 0 and 100</mat-error>
+                </mat-form-field>  
+            </div>
+            <div class="form-section" *ngIf="this.deviceType == 'Lamp'">
+                <mat-form-field  id="color-dd">
+                    <mat-label>Lamp color</mat-label>
+                    <mat-select [(value)]="this.selectedLampColor">
+                      <mat-option *ngFor="let item of colorsDD" [value]="item" >
+                        {{item}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>      
+            </div>
+            <div class="form-section" *ngIf="this.deviceType == 'HomeBattery'">
+                <mat-form-field >
+                    <mat-label>Capacity (kWh)</mat-label>
+                    <input matInput type="number" name="batteryCapacity" formControlName="batteryCapacity"/>
+                    <mat-error *ngIf="addDeviceForm.get('batteryCapacity')?.errors?.['invalidBatteryCapacity']">capacity should be between 0 and 18</mat-error>
+                </mat-form-field>
+                <mat-form-field >
+                    <mat-label>Battery health (%)</mat-label>
+                    <input matInput type="number" name="batteryHealth" formControlName="batteryHealth"/>
+                    <mat-error *ngIf="addDeviceForm.get('batteryHealth')?.errors?.['invalidPercentage']">battery health should be between 0 and 100</mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-section" *ngIf="this.deviceType == 'EVCharger'">
+                <mat-form-field >
+                    <mat-label>Charging power (kW)</mat-label>
+                    <input matInput type="number" name="evChargingPower" formControlName="evChargingPower"/>
+                    <mat-error *ngIf="addDeviceForm.get('evChargingPower')?.errors?.['invalidEvChargingPower']">charging power should be between 5 and 150</mat-error>
+                </mat-form-field>
+                <mat-form-field >
+                    <mat-label>No. of ports</mat-label>
+                    <input matInput type="number" name="evNumberOfPorts" formControlName="evNumberOfPorts"/>
+                    <mat-error *ngIf="addDeviceForm.get('evNumberOfPorts')?.errors?.['invalidEvNumberOfPorts']">number of ports should be between 1 and 20</mat-error>
+                </mat-form-field>
+                <mat-form-field >
+                    <mat-label>Charging threshold (%)</mat-label>
+                    <input matInput type="number" name="evChargingThreshold" formControlName="evChargingThreshold"/>
+                    <mat-error *ngIf="addDeviceForm.get('evChargingThreshold')?.errors?.['invalidPercentage']">threshold should be between 0 and 100</mat-error>
+                </mat-form-field>
+            </div>
+            <div id="conf-button-container">
+                <button class="conf-button" type="submit" mat-raised-button (click)="createDevice()">Create device</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -30,6 +30,17 @@ body {
     margin-bottom: 0px;
 }
 
+.snack-bar-front-error {
+    --mdc-snackbar-container-color: #fb8500;
+  }
+  
+.snack-bar-success {
+    background: #ffb703;
+}
+  
+.snack-bar-server-error {
+    --mdc-snackbar-container-color: #000000;
+  }
 
 
 /* .default-container {
@@ -156,6 +167,7 @@ mat-paginator {
     padding: 0px 30px !important;
     margin-top: 25px !important;
     border-radius: 15px !important;
+    cursor: pointer;
  }
 /* CUSTOM SCROLLBAR
 
@@ -260,6 +272,15 @@ label.star::before{
     border-radius: 10px;
 }
 
+.basicc-container {
+    background-color: white;
+    border: 1px solid #c0c0c0;
+    border-radius: 20px;
+    color: #A6A6A6;
+    /* padding: 15px; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    position: relative;
+}
 .snack-bar-front-error {
     background: #ef476f;
    }

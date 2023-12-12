@@ -3,10 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using nvt_back;
 using System.Text;
+using nvt_back.InfluxDB;
+using nvt_back.Mqtt;
 using nvt_back.Repositories;
 using nvt_back.Repositories.Interfaces;
 using nvt_back.Services;
 using nvt_back.Services.Interfaces;
+using System.Configuration;
+using Coravel;
+using nvt_back.InfluxDB.Invocables;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +22,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseNpgsql(connectionString);
     options.UseLoggerFactory(LoggerFactory.Create(builder => builder.ClearProviders()));
-}, ServiceLifetime.Transient);
+}, ServiceLifetime.Scoped);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.Configure<EmailSettings>
@@ -60,12 +65,23 @@ builder.Services.AddTransient<ICountryRepository, CountryRepository>();
 builder.Services.AddTransient<IAddressRepository, AddressRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 
+builder.Services.AddTransient<IDeviceRegistrationRepository, DeviceRegistrationRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
-builder.Services.AddTransient<ILocationService, LocationService>();
+
+builder.Services.AddTransient<IDeviceRegistrationService, DeviceRegistrationService>();
+builder.Services.AddTransient<IDeviceOnlineStatusService, DeviceOnlineStatusService>();
+builder.Services.AddTransient<IDeviceService, DeviceService>();
+builder.Services.AddTransient<IDeviceRepository, DeviceRepository>();
+builder.Services.Configure<MqttConfiguration>(builder.Configuration.GetSection("MqttConfiguration"));
+builder.Services.AddTransient<IMqttClientService, MqttClientService>();
+builder.Services.AddHostedService<MqttInitializationService>();
 builder.Services.AddTransient<IMailService, MailService>();
 
+builder.Services.AddSingleton<InfluxDBService>();
+builder.Services.AddTransient<DeviceActivityCheckInvocable>();
+builder.Services.AddScheduler();
 
 builder.Services.AddCors(options =>
 {
@@ -78,6 +94,7 @@ builder.Services.AddCors(options =>
                       .AllowCredentials();
            });
 });
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -105,6 +122,29 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+/*var mqttClientService = app.Services.GetService<IMqttClientService>();
+
+if (mqttClientService != null)
+{
+    mqttClientService.Connect();
+} else
+{
+    Console.WriteLine("MqttClientService is null!");
+}*/
+
+app.Services.UseScheduler(scheduler =>
+{
+    scheduler
+        .Schedule<DeviceActivityCheckInvocable>()
+        .EverySeconds(30);
+});
+
 
 app.Run();
 

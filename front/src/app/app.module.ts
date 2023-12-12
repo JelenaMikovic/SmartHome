@@ -22,6 +22,8 @@ import { AddPropertyDialogComponent } from './add-property-dialog/add-property-d
 import { HomepageComponent } from './homepage/homepage.component';
 import { LoginComponent } from './login/login.component';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
+import { ChooseDeviceTypeDialogComponent } from './choose-device-type-dialog/choose-device-type-dialog.component';
+import { AddDeviceDialogComponent } from './add-device-dialog/add-device-dialog.component';
 import { MapComponent } from './map/map.component';
 import { PropertyCardComponent } from './property-card/property-card.component';
 
@@ -41,6 +43,9 @@ import { RegisterAdminComponent } from './register-admin/register-admin.componen
     AddPropertyDialogComponent,
     HomepageComponent,
     SideNavbarComponent,
+    ChooseDeviceTypeDialogComponent,
+    AddDeviceDialogComponent,
+    PropertyCardComponent,
     MapComponent,
     PropertyCardComponent,
     RejectPropertyDialogComponent,

@@ -1368,3 +1368,6 @@ appsettings*.json
 **appsettings.json
 
 **images/
+**env
+*.env
+**config.ini
