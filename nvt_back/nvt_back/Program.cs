@@ -77,22 +77,24 @@ builder.Services.AddTransient<IDeviceRepository, DeviceRepository>();
 builder.Services.Configure<MqttConfiguration>(builder.Configuration.GetSection("MqttConfiguration"));
 builder.Services.AddTransient<IMqttClientService, MqttClientService>();
 builder.Services.AddHostedService<MqttInitializationService>();
-builder.Services.AddCors(options =>
-builder.Services.AddCors(options =>
+builder.Services.AddTransient<IMailService, MailService>();
 
 builder.Services.AddSingleton<InfluxDBService>();
 builder.Services.AddTransient<DeviceActivityCheckInvocable>();
 builder.Services.AddScheduler();
 
+builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
            builder =>
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
+           {
+               builder.WithOrigins("http://localhost:4200") // Add the origin of your Angular app
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+           });
+});
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -38,7 +38,7 @@ namespace nvt_back.InfluxDB.Invocables
                 var devices = await _deviceService.GetAll();
                 foreach (Device device in devices)
                 {
-                    if ((DateTime.UtcNow - device.LastHeartbeatTime).TotalSeconds > 30)
+                    if ((DateTime.UtcNow - device.LastHeartbeatTime).TotalSeconds > 30 && device.IsOnline)
                     {
                         await _deviceOnlineStatusService.UpdateOnlineStatus(device.Id, false);
                         await _influxDBService.WriteHeartbeatToInfluxDBForDevice(device.Id, 0);

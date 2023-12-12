@@ -67,7 +67,7 @@ namespace nvt_back.Services
             }
         }
 
-        public string GetBaseNemanja64StringFromImage(string fileName)
+        public string GetBase64StringFromImage(string fileName)
         {
             try
             {
@@ -88,12 +88,12 @@ namespace nvt_back.Services
 
     }
 
-        public string GetBase64StringFromImage(string fileName)
+        /*public string GetBase64StringFromImage(string fileName)
         {
             byte[] imageBytes = File.ReadAllBytes(fileName);
             string base64String = Convert.ToBase64String(imageBytes);
             // imgElement.src = 'data:image/jpeg;base64,' + base64String;
             return base64String;
-        }
-    }
+        }*/
+    //}
 }
