@@ -9,24 +9,19 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  public loggedInSubject = new BehaviorSubject<boolean>(false);
+  private loggedInSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  loggedIn$: Observable<boolean> = this.loggedInSubject.asObservable();
+
 
   constructor(private http: HttpClient, public jwtHelper: JwtHelperService) {}
 
-  get isLoggedIn(): Observable<boolean> {
-    return this.loggedInSubject.asObservable();
-  }
-
-  login(credentials: any): Observable<boolean> {
+  login(credentials: any): Observable<any> {
     return this.http.post<any>(environment.apiHost + '/user/login', credentials, { withCredentials: true })
       .pipe(
         tap(response => {
-          if (response.email) {
-            this.loggedInSubject.next(true);
-            sessionStorage.setItem("loggedIn", "true");
-          }
+          this.loggedInSubject.next(response.email ? true : false);
+          return response;
         }),
-        map(response => response.email ? true : false),
         catchError((error: HttpErrorResponse) => {
           console.error('Login error:', error);
           return throwError(error);
@@ -51,9 +46,7 @@ export class AuthService {
     return this.http.post<any>(environment.apiHost + '/user/login', dto)
       .pipe(
         tap(response => {
-          if (response.email) {
-            this.loggedInSubject.next(true);
-          }
+          this.loggedInSubject.next(response.email ? true : false);
         }),
         map(response => response.email ? true : false),
         catchError((error: HttpErrorResponse) => {
@@ -83,16 +76,11 @@ export class AuthService {
     return this.http.get<any>(environment.apiHost + '/user/authenticate', { withCredentials: true })
       .pipe(
         tap(response => {
-          if (response.email) {
-            this.loggedInSubject.next(true);
-          } else {
-            this.loggedInSubject.next(false);
-          }
+          this.loggedInSubject.next(response.email ? true : false);
         }),
         map(response => response.email ? true : false),
         catchError((error: any) => {
           console.error('Authentication error:', error);
-          this.loggedInSubject.next(false);
           return of(false);
         })
       );
@@ -106,6 +94,19 @@ export class AuthService {
     return this.http.get<any>(environment.apiHost + '/user/authenticate', { withCredentials: true })
       .pipe(
         map(response => response.email ? response : null)
+      );
+  }
+
+  changePassword(dto: any) {
+    return this.http.post<any>(environment.apiHost + '/user/changePassword', dto, { withCredentials: true })
+      .pipe(
+        tap(response => {
+          return true;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Login error:', error);
+          return throwError(error);
+        })
       );
   }
 }

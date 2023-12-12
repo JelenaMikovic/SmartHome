@@ -15,11 +15,13 @@ namespace nvt_back.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IImageService _imageService;
+        private readonly IMailService _mailService;
 
-        public UserService(IUserRepository userRepository, IImageService imageService)
+        public UserService(IUserRepository userRepository, IImageService imageService, IMailService mailService)
         {
             this._userRepository = userRepository;
             _imageService = imageService;   
+            _mailService = mailService;
         }
 
         public void CreateUser(CreateUserDTO userDTO)
@@ -37,26 +39,15 @@ namespace nvt_back.Services
 
             _userRepository.AddUser(user);
 
+            if(user.Role == UserRole.USER) { 
             ActivationCode activationCode = new ActivationCode();
             activationCode.User = user;
             activationCode.Code = Guid.NewGuid().ToString();
             activationCode.Expiration = DateTime.UtcNow.AddDays(1);
 
             _userRepository.AddActivationCode(activationCode);
-            //_ = sendEmail(activationCode);
-        }
-
-        public async Task sendEmail(ActivationCode activationCode)
-        {
-            var apiKey = "SEND_GRID_API_KEY";
-            var client = new SendGridClient(apiKey);
-            var from = new EmailAddress("?", "La Casa De Smart");
-            var subject = "Account activation";
-            var to = new EmailAddress(activationCode.User.Email, activationCode.User.Name);
-            var plainTextContent = $"Hello {activationCode.User.Name}! Your activation code is: {activationCode.Code}";
-            var htmlContent = $"<strong>{activationCode.Code}</strong>";
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-            var response = await client.SendEmailAsync(msg);
+            _mailService.SendAccountActiationEmail(user.Email, user.Name, activationCode.Code);
+            }
         }
 
         public Task<User> GetByEmailAndPassword(string email, string password)
@@ -82,5 +73,13 @@ namespace nvt_back.Services
             _userRepository.ActivateUser(user.Id);
         }
 
+        public void ChangePassword(ChangePasswordDTO changePasswordDTO, string email)
+        {
+            User user = _userRepository.GetByEmailAndPassword(email, changePasswordDTO.OldPassword).Result;
+            if (user == null) {
+                throw new Exception("Old password not valid.");
+            }
+            _userRepository.ChangePassword(changePasswordDTO.NewPassword, user);
+        }
     }
 }

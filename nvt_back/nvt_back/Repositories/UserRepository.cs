@@ -26,6 +26,7 @@ namespace nvt_back.Repositories
         public void AddUser(User user)
         {
             _context.Users.Add(user);
+            _context.SaveChanges();
         }
 
         public Task<User> GetByEmail(string email)
@@ -44,5 +45,13 @@ namespace nvt_back.Repositories
             user.IsActivated = true;
             _context.SaveChanges();
         }
+
+        public void ChangePassword(string newPassword, User user)
+        {
+            user.Password = newPassword;
+            user.IsActivated = true;
+            _context.SaveChanges();
+        }
+
     }
 }

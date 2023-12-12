@@ -32,6 +32,8 @@ import { JwtModule } from "@auth0/angular-jwt";
 import { RejectPropertyDialogComponent } from './reject-property-dialog/reject-property-dialog.component';
 import { RegisterComponent } from './register/register.component';
 import { CodeDialogComponent } from './code-dialog/code-dialog.component';
+import { ChangePasswordComponent } from './chang-password/chang-password.component';
+import { RegisterAdminComponent } from './register-admin/register-admin.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,9 @@ import { CodeDialogComponent } from './code-dialog/code-dialog.component';
     MapComponent,
     PropertyCardComponent,
     RejectPropertyDialogComponent,
-    CodeDialogComponent
+    CodeDialogComponent,
+    ChangePasswordComponent,
+    RegisterAdminComponent
   ],
   imports: [
     BrowserModule,
