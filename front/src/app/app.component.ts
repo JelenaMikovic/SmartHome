@@ -10,8 +10,9 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class AppComponent {
 
+
   title = "La Casa De Smart";
-  loggedIn: boolean = true; 
+  loggedIn: boolean = false; 
   sideVisible: Boolean = false;
   smallScreen: boolean = window.innerWidth < 900;
   private destroy$: Subject<void> = new Subject<void>();
@@ -23,11 +24,18 @@ export class AppComponent {
   }
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this.authService.isLoggedIn.pipe(takeUntil(this.destroy$)).subscribe(loggedIn => {
-        this.loggedIn = loggedIn;
-      });
-    }, 100); 
+    this.authService.loggedIn$.pipe(takeUntil(this.destroy$)).subscribe((isAuthenticated: boolean) => {
+      this.loggedIn = isAuthenticated;
+      this.sideVisible = isAuthenticated;
+    });
+
+    // Check authentication status on component initialization
+    this.authService.checkAuthenticationStatus();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   @HostListener('window:resize', ['$event'])

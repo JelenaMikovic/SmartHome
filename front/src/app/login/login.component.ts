@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
         },
         (error) => {
           console.error('Login error:', error);
-          this.snackBar.open('An error occurred while logging in', 'Close', { duration: 3000 });
+          this.snackBar.open(error.error, 'Close', { duration: 3000 });
         }
       );
     } else {

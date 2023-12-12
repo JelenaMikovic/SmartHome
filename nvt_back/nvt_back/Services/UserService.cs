@@ -38,6 +38,7 @@ namespace nvt_back.Services
 
             _userRepository.AddUser(user);
 
+            if(user.Role == UserRole.USER) { 
             ActivationCode activationCode = new ActivationCode();
             activationCode.User = user;
             activationCode.Code = Guid.NewGuid().ToString();
@@ -45,6 +46,7 @@ namespace nvt_back.Services
 
             _userRepository.AddActivationCode(activationCode);
             _mailService.SendAccountActiationEmail(user.Email, user.Name, activationCode.Code);
+            }
         }
 
         public Task<User> GetByEmailAndPassword(string email, string password)

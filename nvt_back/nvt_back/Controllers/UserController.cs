@@ -31,7 +31,7 @@ namespace nvt_back.Controllers
                     return BadRequest("Invalid credentials");
                 }
 
-                if (user.Role == UserRole.USER || user.IsActivated!)
+                if (user.Role == UserRole.USER && user.IsActivated == false)
                 {
                     return BadRequest("Account not activated");
                 }
