@@ -5,7 +5,7 @@
 namespace nvt_back.Migrations
 {
     /// <inheritdoc />
-    public partial class propfork2 : Migration
+    public partial class niji : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

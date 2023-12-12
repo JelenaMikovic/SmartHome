@@ -22,12 +22,13 @@ parser.add_argument("-did", type=int, help="device id", required=True)
 args = parser.parse_args()
 
 # PUB_SUB_TOPIC = "property/" + str(args.pid) + "/device" + str(args.did) + "/" + args.tt
-PUB_SUB_TOPIC = "topic/device/" + str(args.did) + "/" + args.tt
-IS_ONLINE = False
+PUBLISHER_TOPIC = "topic/device/" + str(args.did) + "/" + args.tt
+SUBSCRIBER_TOPIC = "topic/deviSDASce/" + str(args.did) + "/" + args.tt
+IS_ONLINE = True
 
 def on_connect(client: mqtt.Client, userdata: any, flags, result_code):
     print("Connected with result code "+str(result_code))
-    client.subscribe(PUB_SUB_TOPIC)
+    client.subscribe(SUBSCRIBER_TOPIC)
 
 def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
     global IS_ONLINE
@@ -46,7 +47,7 @@ def on_publish(client: mqtt.Client, userdata: any, mid: any):
         published_message = userdata.get('published_message', 'No message stored')
         print(f"Sent message: {published_message}")
     except:
-        print(f"Sent message to " + PUB_SUB_TOPIC)
+        print(f"Sent message to " + PUBLISHER_TOPIC)
 
 def on_disconnect(client: mqtt.Client, userdata: any, on_disconnect):
     print(f"Disconnected with result code {on_disconnect}.")
@@ -64,7 +65,7 @@ def publish():
     global IS_ONLINE
     while True:
         if IS_ONLINE:
-            client.publish(PUB_SUB_TOPIC, status_on_heartbeat_to_json(args.did))
+            client.publish(PUBLISHER_TOPIC, status_on_heartbeat_to_json(args.did))
             time.sleep(3)
             if stop_event:
                 break

@@ -8,98 +8,49 @@ using InfluxDB.Client.Writes;
 using Microsoft.AspNetCore.Mvc;
 using nvt_back.Model.Devices;
 using nvt_back.Repositories.Interfaces;
+using nvt_back.Services;
 using nvt_back.Services.Interfaces;
 
 namespace nvt_back.InfluxDB.Invocables
 {
     public class DeviceActivityCheckInvocable : IInvocable
     {
-        private readonly InfluxDBService _service;
-        private readonly IDeviceRepository _deviceRepository;
+        private readonly InfluxDBService _influxDBService;
+        private readonly IDeviceOnlineStatusService _deviceOnlineStatusService;
+        private readonly IDeviceService _deviceService;
 
-        public DeviceActivityCheckInvocable(InfluxDBService service, IDeviceRepository deviceRepository)
+        public DeviceActivityCheckInvocable(InfluxDBService influxDBService, 
+            IDeviceOnlineStatusService deviceOnlineStatusService,
+            IDeviceService deviceService)
         {
-            _service = service;
-            _deviceRepository = deviceRepository;
+            _influxDBService = influxDBService;
+            _deviceOnlineStatusService = deviceOnlineStatusService;
+            _deviceService = deviceService;
         }
 
 
         public async Task Invoke()
         {
-            Console.WriteLine("\nScheduled method started...");
-
-            /*using var client = new FluxClient(
-                new FluxConnectionOptions("http://localhost:8086/", "client", "password".ToCharArray(),
-                FluxConnectionOptions.AuthenticationType.BasicAuthentication));*/
-
-            var fluxQuery = "from(bucket: \"measurements\")\n" +
-                            "  |> range(start: -8s)\n" +
-                            "  |> filter(fn: (r) => r[\"_measurement\"] == \"mesonline\")\n" +
-                            "  |> filter(fn: (r) => r[\"_field\"] == \"status\" and r[\"_value\"] == 0)" +
-                            "  |> distinct()";
-
-            /*client.QueryAsync(fluxQuery, record =>
+            try
             {
-                // process the flux query records
-                Console.WriteLine(record.GetTime() + ": " + record.GetValue());
-            },
-                            (error) =>
-                            {
-                                // error handling while processing result
-                                Console.WriteLine(error.ToString());
+                Console.WriteLine("\nScheduled method started...");
 
-                            }, () =>
-                            {
-                                // on complete
-                                Console.WriteLine("Query completed");
-                            }).GetAwaiter().GetResult();*/
-
-
-            /* using var client = new InfluxDBClient("http://localhost:8086", "lcAh7AldxWNn_Yctss3wyFB_iNTnA32rFVJ47qfmIf2cDQ1WRjPHJTPWCDuxMkkbluR5fjx1DBosdwrjLLux9g==");
-             List<Device> onlineDevices = _deviceRepository.GetOnlineDevices();
-             *//*var newOfflineDevices = onlineDevices
-                     .Where(device => !devicesIdAndStatus.Any(das => das.Id == device.Id.ToString()))
-                     .ToList();*//*
-
-             var fluxTables = await client.GetQueryApi().QueryAsync(fluxQuery, "nwt");
-             fluxTables.ForEach(fluxTable =>
-             {
-                 var fluxRecords = fluxTable.Records;
-                 fluxRecords.ForEach(fluxRecord =>
-                 {
-                     string id = fluxRecord.GetValueByKey("device_id").ToString().Substring(2);
-                     int status = (int)fluxRecord.GetValueByKey("_value");
-                     Console.WriteLine(id);
-                 });
-             }).Wait();*/
-
-            var devicesIdAndStatus = await _service.QueryAsync(async query =>
-            {
-                var flux = "from(bucket: \"measurements\")\n" +
-                            "  |> range(start: -8s)\n" +
-                            "  |> filter(fn: (r) => r[\"_measurement\"] == \"mesonline\")\n" +
-                            "  |> filter(fn: (r) => r[\"_field\"] == \"status\" and r[\"_value\"] == 0)" +
-                            "  |> distinct()";
-
-                var tables = await query.QueryAsync(flux, "nwt");
-                return tables.SelectMany(table => table.Records)
-                    .Select(record => new
+                var devices = await _deviceService.GetAll();
+                foreach (Device device in devices)
+                {
+                    if ((DateTime.UtcNow - device.LastHeartbeatTime).TotalSeconds > 30)
                     {
-                        Id = record.GetValueByKey("device_id").ToString().Substring(2),
-                        Status = (int)(record.GetValueByKey("_field"))
-                    }).ToList();
-            });
+                        await _deviceOnlineStatusService.UpdateOnlineStatus(device.Id, false);
+                        await _influxDBService.WriteHeartbeatToInfluxDBForDevice(device.Id, 0);
+                    }
+                }
 
-            List<Device> onlineDevices = _deviceRepository.GetOnlineDevices();
-
-            var newOfflineDevices = onlineDevices
-                .Where(device => !devicesIdAndStatus.Any(das => das.Id == device.Id.ToString()))
-                .ToList();
-
-            foreach (Device newOfflineDevice in newOfflineDevices)
-                _deviceRepository.ChangeOnlineStatus(newOfflineDevice.Id, false);
-
-            Console.WriteLine("\nScheduled method finished...");
+                Console.WriteLine("\nScheduled method finished...");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

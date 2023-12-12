@@ -12,10 +12,10 @@ namespace nvt_back.Repositories
             _context = context;
         }
 
-        public void Add(Device device)
+        public async Task Add(Device device)
         {
-            _context.Devices.Add(device);
-            _context.SaveChanges();
+            await _context.Devices.AddAsync(device);
+            await _context.SaveChangesAsync();
         }
     }
 }

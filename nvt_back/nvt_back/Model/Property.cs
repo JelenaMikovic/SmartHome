@@ -26,7 +26,7 @@ namespace nvt_back
 
         public User Owner { get; set; }
 
-        //public List<Device> Devices { get; set; }
+        public List<Device> Devices { get; set; }
 
     }
 }

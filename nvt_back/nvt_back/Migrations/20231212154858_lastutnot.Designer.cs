@@ -12,8 +12,8 @@ using nvt_back;
 namespace nvt_back.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231124070105_prop-for-k2")]
-    partial class propfork2
+    [Migration("20231212154858_lastutnot")]
+    partial class lastutnot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,12 +124,7 @@ namespace nvt_back.Migrations
                     b.Property<int>("PowerSource")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PropertyId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PropertyId");
 
                     b.ToTable("Devices", (string)null);
 
@@ -360,17 +355,6 @@ namespace nvt_back.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
-                {
-                    b.HasOne("nvt_back.Property", "Property")
-                        .WithMany("Devices")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Property");
-                });
-
             modelBuilder.Entity("nvt_back.Property", b =>
                 {
                     b.HasOne("nvt_back.User", "Owner")
@@ -461,11 +445,6 @@ namespace nvt_back.Migrations
                         .HasForeignKey("nvt_back.Model.Devices.WashingMachine", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Property", b =>
-                {
-                    b.Navigation("Devices");
                 });
 
             modelBuilder.Entity("nvt_back.User", b =>

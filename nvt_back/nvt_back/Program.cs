@@ -19,7 +19,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseNpgsql(connectionString);
     options.UseLoggerFactory(LoggerFactory.Create(builder => builder.ClearProviders()));
-}, ServiceLifetime.Transient);
+}, ServiceLifetime.Scoped);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
@@ -27,10 +27,13 @@ builder.Services.AddTransient<IDeviceRegistrationRepository, DeviceRegistrationR
 builder.Services.AddTransient<IPropertyService, PropertyService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<IDeviceRegistrationService, DeviceRegistrationService>();
-builder.Services.AddTransient<IDeviceActivationService, DeviceActivationService>();
+builder.Services.AddTransient<IDeviceOnlineStatusService, DeviceOnlineStatusService>();
+builder.Services.AddTransient<IDeviceService, DeviceService>();
 builder.Services.AddTransient<IDeviceRepository, DeviceRepository>();
 builder.Services.Configure<MqttConfiguration>(builder.Configuration.GetSection("MqttConfiguration"));
-builder.Services.AddSingleton<MqttClientService>();
+builder.Services.AddTransient<IMqttClientService, MqttClientService>();
+builder.Services.AddHostedService<MqttInitializationService>();
+
 
 builder.Services.AddSingleton<InfluxDBService>();
 builder.Services.AddTransient<DeviceActivityCheckInvocable>();
@@ -75,7 +78,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-var mqttClientService = app.Services.GetService<MqttClientService>();
+/*var mqttClientService = app.Services.GetService<IMqttClientService>();
 
 if (mqttClientService != null)
 {
@@ -83,13 +86,13 @@ if (mqttClientService != null)
 } else
 {
     Console.WriteLine("MqttClientService is null!");
-}
+}*/
 
 app.Services.UseScheduler(scheduler =>
 {
     scheduler
         .Schedule<DeviceActivityCheckInvocable>()
-        .EverySeconds(20);
+        .EverySeconds(30);
 });
 
 

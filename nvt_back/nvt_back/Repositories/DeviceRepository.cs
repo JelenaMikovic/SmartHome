@@ -1,4 +1,6 @@
-﻿using nvt_back.Model.Devices;
+﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.Model.Devices;
+using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
 
 namespace nvt_back.Repositories
@@ -12,26 +14,37 @@ namespace nvt_back.Repositories
             _context = context;
         }
 
-        public Device GetById(int deviceId)
+        public async Task<Device> GetById(int deviceId)
         {
-            return _context.Devices.FirstOrDefault(device => device.Id == deviceId);
+            return await _context.Devices.FirstOrDefaultAsync(device => device.Id == deviceId);
         }
 
-        public Device ChangeOnlineStatus(int deviceId, bool activate)
+        public async Task<List<Device>> GetAll()
         {
-            var device = GetById(deviceId);
+            return await _context.Devices.ToListAsync();
+        }
+
+        public async Task<List<Device>> GetOnlineDevices()
+        {
+            return await _context.Devices.Where(device => device.IsOnline).ToListAsync();
+        }
+
+        public async Task UpdateOnlineStatus(int deviceId, bool activate)
+        {
+            var device = await GetById(deviceId);
             if (device == null)
                 throw new KeyNotFoundException("Device with id: " + deviceId.ToString() + " doesn't exist!");
-            if (device.IsOnline == activate)
-                return device;
             device.IsOnline = activate;
-            _context.SaveChanges();
-            return device;
+            await _context.SaveChangesAsync();
         }
 
-        public List<Device> GetOnlineDevices()
+        public async Task UpdateLatestHeartbeat(Heartbeat heartbeat, DateTime time)
         {
-            return _context.Devices.Where(device => device.IsOnline).ToList();
+            var device = await GetById(heartbeat.DeviceId);
+            if (device == null)
+                throw new KeyNotFoundException("Device with id: " + heartbeat.DeviceId.ToString() + " doesn't exist!");
+            device.LastHeartbeatTime = time;
+            await _context.SaveChangesAsync();
         }
     }
 }

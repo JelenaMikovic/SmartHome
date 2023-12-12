@@ -4,6 +4,6 @@ namespace nvt_back.Services
 {
     public interface IDeviceRegistrationService
     {
-        public void Add(DeviceRegistrationDTO dto);
+        public Task Add(DeviceRegistrationDTO dto);
     }
 }

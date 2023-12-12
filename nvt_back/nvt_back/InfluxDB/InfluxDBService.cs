@@ -27,20 +27,18 @@ namespace nvt_back.InfluxDB
             return await action(query);
         }
 
-        public Task WriteHeartbeatToInfluxDBForDevice(int deviceId, string status)
+        public Task WriteHeartbeatToInfluxDBForDevice(int deviceId, int status)
         {
             var client = InfluxDBClientFactory.Create("http://localhost:8086", _token.ToCharArray());
 
-            string statusEnum = "0";
-            if (status == "OFF")
-                statusEnum = "1";
+            string statusToString = status.ToString();
 
-            string data = "mesonline,device_id=id" + deviceId.ToString() + " status=" + statusEnum;
+            string data = "mesonline,device_id=id" + deviceId.ToString() + " status=" + statusToString;
 
             using (var writeApi = client.GetWriteApi())
             {
                 writeApi.WriteRecord(data, WritePrecision.Ns, _bucket, _org);
-                //Console.WriteLine("\nWriting to InfluxDB, device id: " + deviceId.ToString());
+                Console.WriteLine("Writing to InfluxDB, device id: " + deviceId.ToString());
             }
 
             return Task.CompletedTask;

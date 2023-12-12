@@ -18,7 +18,7 @@ namespace nvt_back.Services
             _imageService = imageService;
         }
 
-        public void Add(DeviceRegistrationDTO dto)
+        public async Task Add(DeviceRegistrationDTO dto)
         {
             Device deviceForDb = null;
             if (dto is AirConditionerRegistrationDTO)
@@ -42,7 +42,7 @@ namespace nvt_back.Services
 
             string filePath = this._imageService.SaveImage(dto.Image);
             deviceForDb.Image = filePath;
-            this._deviceRegistrationRepository.Add(deviceForDb);
+            await this._deviceRegistrationRepository.Add(deviceForDb);
         }
     }
 }

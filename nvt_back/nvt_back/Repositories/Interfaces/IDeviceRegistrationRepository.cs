@@ -4,6 +4,6 @@ namespace nvt_back.Repositories.Interfaces
 {
     public interface IDeviceRegistrationRepository
     {
-        public void Add(Device device);
+        public Task Add(Device device);
     }
 }

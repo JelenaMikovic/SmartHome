@@ -22,7 +22,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new AC!"));
             }
             catch (Exception ex)
@@ -37,7 +37,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new ambient sensor!"));
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new EV charger!"));
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new home battery!"));
             }
             catch (Exception ex)
@@ -82,7 +82,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new irrigation system!"));
             }
             catch (Exception ex)
@@ -97,7 +97,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new solar panel!"));
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new vehicle gate!"));
             }
             catch (Exception ex)
@@ -127,7 +127,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new washing machine!"));
             }
             catch (Exception ex)
@@ -142,7 +142,7 @@ namespace nvt_back.Controllers
         {
             try
             {
-                this._deviceRegistrationService.Add(dto);
+                await this._deviceRegistrationService.Add(dto);
                 return Ok(new MessageDTO("You have successfully added new lamp!"));
             } catch (Exception ex)
             {

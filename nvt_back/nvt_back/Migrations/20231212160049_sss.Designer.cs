@@ -12,8 +12,8 @@ using nvt_back;
 namespace nvt_back.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231124065138_prop-for-k")]
-    partial class propfork
+    [Migration("20231212160049_sss")]
+    partial class sss
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,6 +107,10 @@ namespace nvt_back.Migrations
                     b.Property<int>("DeviceType")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("text");
@@ -124,16 +128,13 @@ namespace nvt_back.Migrations
                     b.Property<int>("PowerSource")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PropertyId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("PropertyId");
+                    b.ToTable("Devices");
 
-                    b.ToTable("Devices", (string)null);
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Device");
 
-                    b.UseTptMappingStrategy();
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("nvt_back.Property", b =>
@@ -217,7 +218,7 @@ namespace nvt_back.Migrations
                         .IsRequired()
                         .HasColumnType("integer[]");
 
-                    b.ToTable("AirConditioners", (string)null);
+                    b.HasDiscriminator().HasValue("AirConditioner");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.AmbientSensor", b =>
@@ -233,7 +234,7 @@ namespace nvt_back.Migrations
                     b.Property<int>("UpdateIntervalSeconds")
                         .HasColumnType("integer");
 
-                    b.ToTable("AmbientSensors", (string)null);
+                    b.HasDiscriminator().HasValue("AmbientSensor");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.EVCharger", b =>
@@ -249,7 +250,7 @@ namespace nvt_back.Migrations
                     b.Property<int>("NumberOfPorts")
                         .HasColumnType("integer");
 
-                    b.ToTable("EVChargers", (string)null);
+                    b.HasDiscriminator().HasValue("EVCharger");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.HomeBattery", b =>
@@ -265,7 +266,7 @@ namespace nvt_back.Migrations
                     b.Property<double>("Health")
                         .HasColumnType("double precision");
 
-                    b.ToTable("HomeBatteries", (string)null);
+                    b.HasDiscriminator().HasValue("HomeBattery");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.IrrigationSystem", b =>
@@ -275,7 +276,7 @@ namespace nvt_back.Migrations
                     b.Property<bool>("IsOn")
                         .HasColumnType("boolean");
 
-                    b.ToTable("IrrigationSystems", (string)null);
+                    b.HasDiscriminator().HasValue("IrrigationSystem");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.Lamp", b =>
@@ -291,7 +292,13 @@ namespace nvt_back.Migrations
                     b.Property<bool>("IsOn")
                         .HasColumnType("boolean");
 
-                    b.ToTable("Lamps", (string)null);
+                    b.ToTable("Devices", t =>
+                        {
+                            t.Property("IsOn")
+                                .HasColumnName("Lamp_IsOn");
+                        });
+
+                    b.HasDiscriminator().HasValue("Lamp");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.SolarPanel", b =>
@@ -307,7 +314,13 @@ namespace nvt_back.Migrations
                     b.Property<double>("Size")
                         .HasColumnType("double precision");
 
-                    b.ToTable("SolarPanels", (string)null);
+                    b.ToTable("Devices", t =>
+                        {
+                            t.Property("IsOn")
+                                .HasColumnName("SolarPanel_IsOn");
+                        });
+
+                    b.HasDiscriminator().HasValue("SolarPanel");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.VehicleGate", b =>
@@ -324,7 +337,7 @@ namespace nvt_back.Migrations
                     b.Property<bool>("IsPrivateModeOn")
                         .HasColumnType("boolean");
 
-                    b.ToTable("VehicleGates", (string)null);
+                    b.HasDiscriminator().HasValue("VehicleGate");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.WashingMachine", b =>
@@ -335,7 +348,13 @@ namespace nvt_back.Migrations
                         .IsRequired()
                         .HasColumnType("integer[]");
 
-                    b.ToTable("WashingMachines", (string)null);
+                    b.ToTable("Devices", t =>
+                        {
+                            t.Property("SupportedModes")
+                                .HasColumnName("WashingMachine_SupportedModes");
+                        });
+
+                    b.HasDiscriminator().HasValue("WashingMachine");
                 });
 
             modelBuilder.Entity("nvt_back.Address", b =>
@@ -360,17 +379,6 @@ namespace nvt_back.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
-                {
-                    b.HasOne("nvt_back.Property", "Property")
-                        .WithMany("Devices")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Property");
-                });
-
             modelBuilder.Entity("nvt_back.Property", b =>
                 {
                     b.HasOne("nvt_back.User", "Owner")
@@ -380,92 +388,6 @@ namespace nvt_back.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.AirConditioner", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.AirConditioner", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.AmbientSensor", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.AmbientSensor", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.EVCharger", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.EVCharger", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.HomeBattery", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.HomeBattery", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.IrrigationSystem", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.IrrigationSystem", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.Lamp", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.Lamp", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.SolarPanel", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.SolarPanel", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.VehicleGate", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.VehicleGate", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Model.Devices.WashingMachine", b =>
-                {
-                    b.HasOne("nvt_back.Model.Devices.Device", null)
-                        .WithOne()
-                        .HasForeignKey("nvt_back.Model.Devices.WashingMachine", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("nvt_back.Property", b =>
-                {
-                    b.Navigation("Devices");
                 });
 
             modelBuilder.Entity("nvt_back.User", b =>

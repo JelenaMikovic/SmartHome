@@ -5,8 +5,8 @@ namespace nvt_back.Mqtt
 {
     public enum Status
     {
-        ON,
-        OFF
+        OFF,
+        ON
     }
 
     public enum Sender

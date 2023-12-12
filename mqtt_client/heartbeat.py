@@ -4,7 +4,7 @@ import json
 class Heartbeat(object):
     def __init__(self, sender: str, status: str, device_id):
         self.sender = 0 if sender == "PLATFORM" else 1
-        self.status = 0 if status == "ON" else 1
+        self.status = 0 if status == "OFF" else 1
         self.device_id = device_id
         # self.timestamp = datetime.now()
 
