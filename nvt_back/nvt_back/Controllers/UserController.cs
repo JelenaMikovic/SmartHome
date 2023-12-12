@@ -129,5 +129,19 @@ namespace nvt_back.Controllers
                 return Ok(new UserDTO(_user));
             }
         }
+
+        [HttpPost("changePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
+        {
+            try
+            {
+                _userService.ChangePassword(changePasswordDTO, _user.Email);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
     }
 }

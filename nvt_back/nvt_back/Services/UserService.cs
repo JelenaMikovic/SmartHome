@@ -17,10 +17,11 @@ namespace nvt_back.Services
         private readonly IImageService _imageService;
         private readonly IMailService _mailService;
 
-        public UserService(IUserRepository userRepository, IImageService imageService)
+        public UserService(IUserRepository userRepository, IImageService imageService, IMailService mailService)
         {
             this._userRepository = userRepository;
             _imageService = imageService;   
+            _mailService = mailService;
         }
 
         public void CreateUser(CreateUserDTO userDTO)
@@ -72,5 +73,13 @@ namespace nvt_back.Services
             _userRepository.ActivateUser(user.Id);
         }
 
+        public void ChangePassword(ChangePasswordDTO changePasswordDTO, string email)
+        {
+            User user = _userRepository.GetByEmailAndPassword(email, changePasswordDTO.OldPassword).Result;
+            if (user == null) {
+                throw new Exception("Old password not valid.");
+            }
+            _userRepository.ChangePassword(changePasswordDTO.NewPassword, user);
+        }
     }
 }

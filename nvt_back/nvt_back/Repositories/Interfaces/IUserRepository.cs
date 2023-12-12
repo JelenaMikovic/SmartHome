@@ -10,5 +10,6 @@ namespace nvt_back.Repositories.Interfaces
         Task<ActivationCode> GetByUser(User user);
         Task<User> GetByEmailAndPassword(string email, string password);
         void ActivateUser(int userId);
+        void ChangePassword(string newPassword, User user);
     }
 }

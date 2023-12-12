@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/services/auth.service';
 import { CodeDialogComponent } from '../code-dialog/code-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ChangePasswordComponent } from '../chang-password/chang-password.component';
 
 @Component({
   selector: 'app-login',
@@ -41,7 +42,14 @@ export class LoginComponent implements OnInit {
         (success) => {
           console.log(success)
           if (success) {
+            if(success.isActivated)
+            {
             this.router.navigate(['/home']);
+            }
+            else
+            {
+              const dialogRef = this.dialog.open(ChangePasswordComponent);
+            }
           } else {
             this.snackBar.open('Invalid credentials', 'Close', { duration: 3000 });
           }

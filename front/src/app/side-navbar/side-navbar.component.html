@@ -23,6 +23,10 @@
         <i class="fa-solid fa-home" style="cursor: pointer"></i>
         <p>Properties</p>
     </div>
+    <div class="nav-item" [routerLink]="['/registerAdmin']" [ngClass]="url == '/registerAdmin' ? 'selected-option': ''">
+        <i class="fa-solid fa-home" style="cursor: pointer"></i>
+        <p>Register admin</p>
+    </div>
     <div id="logout-container">
         <button id="logout-btn" class="outline-btn" (click)="logout()">Logout</button>
     </div>

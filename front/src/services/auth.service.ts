@@ -15,11 +15,12 @@ export class AuthService {
 
   constructor(private http: HttpClient, public jwtHelper: JwtHelperService) {}
 
-  login(credentials: any): Observable<boolean> {
+  login(credentials: any): Observable<any> {
     return this.http.post<any>(environment.apiHost + '/user/login', credentials, { withCredentials: true })
       .pipe(
         tap(response => {
           this.loggedInSubject.next(response.email ? true : false);
+          return response;
         }),
         catchError((error: HttpErrorResponse) => {
           console.error('Login error:', error);
@@ -93,6 +94,19 @@ export class AuthService {
     return this.http.get<any>(environment.apiHost + '/user/authenticate', { withCredentials: true })
       .pipe(
         map(response => response.email ? response : null)
+      );
+  }
+
+  changePassword(dto: any) {
+    return this.http.post<any>(environment.apiHost + '/user/changePassword', dto, { withCredentials: true })
+      .pipe(
+        tap(response => {
+          return true;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Login error:', error);
+          return throwError(error);
+        })
       );
   }
 }
