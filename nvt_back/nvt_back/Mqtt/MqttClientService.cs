@@ -200,7 +200,6 @@ namespace nvt_back.Mqtt
                 Action = status
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
-            Console.WriteLine("Sent command to: " + topic);
             await this.Publish(topic, payloadJSON);
         }
     }
