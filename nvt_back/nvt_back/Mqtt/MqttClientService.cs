@@ -113,7 +113,7 @@ namespace nvt_back.Mqtt
                 if (heartbeat.InitializeParameters)
                 {
                     var payload = await _deviceSimulatorInitializationService.Initialize(heartbeat.DeviceId);
-                    this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+                    await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
                 }
             }
         }
@@ -201,6 +201,7 @@ namespace nvt_back.Mqtt
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
             await this.Publish(topic, payloadJSON);
+
         }
     }
 }

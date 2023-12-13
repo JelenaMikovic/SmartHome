@@ -39,6 +39,7 @@ namespace nvt_back.Services
                 Size = panel.Size,
                 Lat = panel.Property.Address.Lat,
                 Lng = panel.Property.Address.Lng,
+                //TODO: da li treba dodati on
             };
         }
     }
