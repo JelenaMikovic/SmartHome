@@ -30,18 +30,6 @@ services:
     env_file:
       - .env
     entrypoint: ["./entrypoint.sh"]
-      
-  telegraf:
-    image: telegraf
-    depends_on:
-      - influxdb
-      - mqtt5
-    volumes:
-      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:rw
-    networks:
-      - nvt-network
-    env_file:
-      - .env
 
 volumes:
   config:
