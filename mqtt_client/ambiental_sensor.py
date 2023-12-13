@@ -5,6 +5,7 @@ import time
 import threading
 import json
 import random
+from heartbeat import status_on_heartbeat_to_json
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -45,23 +46,25 @@ client.connect(mqtt_host, mqtt_port)
 
 def publish_heartbeat():
     while True:
-        client.publish(PUBLISHER_HEARTBEAT_TOPIC, generate_heartbeat_data(args.did))
+        client.publish(PUBLISHER_HEARTBEAT_TOPIC, status_on_heartbeat_to_json(args.did))
         time.sleep(generate_heartbeat_sleep_time())
+
+def publish_data():
+    while True:
+        client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did))
+        time.sleep(60)
 
 def generate_heartbeat_sleep_time():
     import random
     return random.randint(1, 10)
 
-def generate_heartbeat_data(device_id):
-    temperature = simulate_room_temperature()
-    humidity = simulate_room_humidity()
-    data = {
-        "Type": "Heartbeat",
-        "DeviceID": device_id,
-        "Temperature": temperature,
-        "Humidity": humidity
-    }
-    return json.dumps(data)
+def generate_data(device_id):
+    measurement = "ambiental_sensor"
+    tags = f"device_id={device_id}"
+    fields = "humidity=" + str(simulate_room_humidity()) + ",temperature=" + str(simulate_room_temperature())
+
+    influx_line_protocol = f"{measurement},{tags} {fields}"
+    return influx_line_protocol
 
 def simulate_room_temperature():
     return round(random.uniform(20, 25), 2)
@@ -72,7 +75,8 @@ def simulate_room_humidity():
 if __name__ == "__main__":
     publish_heartbeat_thread = threading.Thread(target=publish_heartbeat, daemon=True)
     publish_heartbeat_thread.start()
-
+    publish_data_thread = threading.Thread(target=publish_data, daemon=True)
+    publish_data_thread.start()
     try:
         client.loop_forever()
     except KeyboardInterrupt:
