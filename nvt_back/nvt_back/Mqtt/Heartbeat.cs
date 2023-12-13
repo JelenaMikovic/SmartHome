@@ -23,5 +23,7 @@ namespace nvt_back.Mqtt
         [JsonConverter(typeof(StringEnumConverter))]
         public Sender Sender { get; set; }
         public int DeviceId { get; set; }
+
+        public bool InitializeParameters { get; set; }
     }
 }

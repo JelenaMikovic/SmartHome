@@ -31,9 +31,11 @@ namespace nvt_back.Mqtt
         private readonly InfluxDBService _influxDBService;
         private readonly IDeviceOnlineStatusService _deviceOnlineStatusService;
         private readonly IDeviceService _deviceService;
+        private readonly IDeviceSimulatorInitializationService _deviceSimulatorInitializationService;
 
         public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService,
-            IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService)
+            IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService,
+            IDeviceSimulatorInitializationService deviceSimulatorInitializationService)
         {
             var config = mqttConfiguration.Value;
             _username = config.Username;
@@ -43,6 +45,7 @@ namespace nvt_back.Mqtt
             _influxDBService = influxDBService;
             _deviceOnlineStatusService = deviceOnlineStatusService;
             _deviceService = deviceService;
+            _deviceSimulatorInitializationService = deviceSimulatorInitializationService;
         }
 
         public async Task Connect()
@@ -106,6 +109,12 @@ namespace nvt_back.Mqtt
                         await _influxDBService.WriteHeartbeatToInfluxDBForDevice(heartbeat.DeviceId, (int)heartbeat.Status);
                     }
                 }
+                Console.WriteLine(heartbeat.InitializeParameters);
+                if (heartbeat.InitializeParameters)
+                {
+                    var payload = await _deviceSimulatorInitializationService.Initialize(heartbeat.DeviceId);
+                    this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+                }
             }
         }
 
@@ -138,7 +147,8 @@ namespace nvt_back.Mqtt
                 .WithPayload(payload)
                 .WithRetainFlag()
                 .Build();
-            await Connect();
+            if (_mqttClient == null)
+                await Connect();
             await _mqttClient.PublishAsync(message);
             Console.WriteLine($"\nPublished message to topic: {topic}");
         }
