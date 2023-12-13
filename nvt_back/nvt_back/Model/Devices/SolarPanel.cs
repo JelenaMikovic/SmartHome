@@ -16,6 +16,9 @@ namespace nvt_back.Model.Devices
         [Required(ErrorMessage = "Is on field is required")]
         public bool IsOn { get; set; }
 
+        [Required(ErrorMessage = "Number of panels field is required")]
+        public int NumberOfPanels { get; set; }
+
         public SolarPanel() { }
         public SolarPanel(SolarPanelRegistrationDTO dto) : base(dto)
         { 
@@ -23,6 +26,7 @@ namespace nvt_back.Model.Devices
             Efficiency = dto.Efficiency;
             IsOn = false;
             DeviceType = DeviceType.SOLAR_PANEL;
+            NumberOfPanels = dto.NumberOfPanels;
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.Migrations;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
@@ -16,7 +17,7 @@ namespace nvt_back.Repositories
 
         public async Task<Device> GetById(int deviceId)
         {
-            return await _context.Devices.FirstOrDefaultAsync(device => device.Id == deviceId);
+            return await _context.Devices.Include(device => device.Property).ThenInclude(property => property.Address).FirstOrDefaultAsync(device => device.Id == deviceId);
         }
 
         public async Task<List<Device>> GetAll()
@@ -45,6 +46,28 @@ namespace nvt_back.Repositories
                 throw new KeyNotFoundException("Device with id: " + heartbeat.DeviceId.ToString() + " doesn't exist!");
             device.LastHeartbeatTime = time;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ToggleState(int id, string status)
+        {
+            var device = await GetById(id);
+            if (device == null)
+                throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
+            bool isTurnedOn = (status == "ON");
+
+            if (device.DeviceType == DeviceType.SOLAR_PANEL)
+            {
+                SolarPanel solarPanel = (SolarPanel)device;
+                if (solarPanel.IsOn == isTurnedOn)
+                    return false;
+                else
+                {
+                    solarPanel.IsOn = isTurnedOn;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

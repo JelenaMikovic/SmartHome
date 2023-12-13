@@ -31,9 +31,11 @@ namespace nvt_back.Mqtt
         private readonly InfluxDBService _influxDBService;
         private readonly IDeviceOnlineStatusService _deviceOnlineStatusService;
         private readonly IDeviceService _deviceService;
+        private readonly IDeviceSimulatorInitializationService _deviceSimulatorInitializationService;
 
         public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService,
-            IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService)
+            IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService,
+            IDeviceSimulatorInitializationService deviceSimulatorInitializationService)
         {
             var config = mqttConfiguration.Value;
             _username = config.Username;
@@ -43,13 +45,13 @@ namespace nvt_back.Mqtt
             _influxDBService = influxDBService;
             _deviceOnlineStatusService = deviceOnlineStatusService;
             _deviceService = deviceService;
+            _deviceSimulatorInitializationService = deviceSimulatorInitializationService;
         }
 
         public async Task Connect()
         {
             var factory = new MqttFactory();
-            var mqttClient = factory.CreateMqttClient();
-            _mqttClient = mqttClient;
+            _mqttClient = factory.CreateMqttClient();
 
             var options = new MqttClientOptionsBuilder()
                 .WithClientId(Guid.NewGuid().ToString())
@@ -107,6 +109,12 @@ namespace nvt_back.Mqtt
                         await _influxDBService.WriteHeartbeatToInfluxDBForDevice(heartbeat.DeviceId, (int)heartbeat.Status);
                     }
                 }
+                Console.WriteLine(heartbeat.InitializeParameters);
+                if (heartbeat.InitializeParameters)
+                {
+                    var payload = await _deviceSimulatorInitializationService.Initialize(heartbeat.DeviceId);
+                    await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+                }
             }
         }
 
@@ -137,10 +145,10 @@ namespace nvt_back.Mqtt
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
                 .WithPayload(payload)
-                .WithQualityOfServiceLevel(qos)
-                .WithRetainFlag(retain)
+                .WithRetainFlag()
                 .Build();
-
+            if (_mqttClient == null)
+                await Connect();
             await _mqttClient.PublishAsync(message);
             Console.WriteLine($"\nPublished message to topic: {topic}");
         }
@@ -148,6 +156,11 @@ namespace nvt_back.Mqtt
         public string GetHeartbeatTopicForDevice(int deviceId)
         {
             return "topic/device/" + deviceId + "/heartbeat";
+        }
+
+        public string GetCommandTopicForDevice(int deviceId)
+        {
+            return "topic/device/" + deviceId + "/command";
         }
 
         public async Task PublishActivatedStatus(int deviceId)
@@ -176,6 +189,19 @@ namespace nvt_back.Mqtt
             var payloadJSON = JsonConvert.SerializeObject(payload);
 
             await this.Publish(topic, payloadJSON);
+        }
+
+        public async Task PublishStatusUpdate(int deviceId, string status)
+        {
+            string topic = GetCommandTopicForDevice(deviceId);
+            var payload = new
+            {
+                Type = "Status",
+                Action = status
+            };
+            var payloadJSON = JsonConvert.SerializeObject(payload);
+            await this.Publish(topic, payloadJSON);
+
         }
     }
 }
