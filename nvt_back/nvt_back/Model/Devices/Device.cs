@@ -26,10 +26,10 @@ namespace nvt_back.Model.Devices
         [Required(ErrorMessage = "Image field is required")]
         public string Image { get; set; }
 
-        [ForeignKey("Property")]
+        /*[ForeignKey("Property")]
         [Required(ErrorMessage = "Property id field is required")]
         public int PropertyId { get; set; }
-        public Property Property { get; set; }
+        public Property Property { get; set; }*/
         public DateTime LastHeartbeatTime { get; set; }
 
         public Device() { }
@@ -39,7 +39,7 @@ namespace nvt_back.Model.Devices
             IsOnline = false;
             PowerConsumption = dto.PowerConsumption;
             PowerSource = dto.PowerSource;
-            PropertyId = dto.PropertyId;
+            //PropertyId = dto.PropertyId;
             LastHeartbeatTime = DateTime.UtcNow;
         }
     }
