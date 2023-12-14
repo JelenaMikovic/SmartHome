@@ -9,10 +9,18 @@ import { InfluxDBDataService } from 'src/services/influx-dbdata.service';
 })
 export class AmbientalSensorComponent implements OnInit {
   private readonly deviceId = "5";
+  private updateInterval: any;
 
   constructor(private db: InfluxDBDataService) { }
 
   ngOnInit(): void {
+    this.updateCharts();
+    this.updateInterval = setInterval(() => {
+      this.updateCharts();
+    }, 0.5 * 60 * 1000);
+  }
+
+  updateCharts(){
     this.db.getAmbientalTemperature(this.deviceId)
     .then((value) => {
       this.createChart(value);
