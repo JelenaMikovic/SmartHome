@@ -24,6 +24,8 @@ namespace nvt_back.Services
             }
             if (device.DeviceType == DeviceType.SOLAR_PANEL)
                 return initializeSolarPanel(device);
+            if (device.DeviceType != DeviceType.AMBIENT_SENSOR)
+                return initializeAmbientalSensor(device);
             return null;
         }
 
@@ -40,6 +42,18 @@ namespace nvt_back.Services
                 Lat = panel.Property.Address.Lat,
                 Lng = panel.Property.Address.Lng,
                 //TODO: da li treba dodati on
+            };
+        }
+
+        private AmbientSensorInitializationDTO initializeAmbientalSensor(Device device)
+        {
+            AmbientSensor ambientSensor = (AmbientSensor)device;
+
+            return new AmbientSensorInitializationDTO
+            {
+                Type = "Initialization",
+                Lat = ambientSensor.Property.Address.Lat,
+                Lng = ambientSensor.Property.Address.Lng,
             };
         }
     }

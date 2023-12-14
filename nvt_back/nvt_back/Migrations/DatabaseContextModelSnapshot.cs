@@ -373,6 +373,9 @@ namespace nvt_back.Migrations
                     b.Property<bool>("IsOn")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("NumberOfPanels")
+                        .HasColumnType("integer");
+
                     b.Property<double>("Size")
                         .HasColumnType("double precision");
 

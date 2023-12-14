@@ -5,6 +5,7 @@ import { AddPropertyDialogComponent } from '../add-property-dialog/add-property-
 import { ChooseDeviceTypeDialogComponent } from '../choose-device-type-dialog/choose-device-type-dialog.component';
 import { AuthService } from 'src/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { InfluxDBDataService } from 'src/services/influx-dbdata.service';
 
 @Component({
   selector: 'app-homepage',
