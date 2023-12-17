@@ -48,7 +48,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("nvt_back.City", b =>
@@ -74,7 +74,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
                 });
 
             modelBuilder.Entity("nvt_back.Country", b =>
@@ -91,7 +91,7 @@ namespace nvt_back.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
                 });
 
             modelBuilder.Entity("nvt_back.Model.ActivationCode", b =>
@@ -116,7 +116,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ActivationCodes");
+                    b.ToTable("ActivationCodes", (string)null);
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
@@ -150,7 +150,7 @@ namespace nvt_back.Migrations
                     b.Property<int>("PowerSource")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PropertyId")
+                    b.Property<int?>("PropertyId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -202,7 +202,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Properties");
+                    b.ToTable("Properties", (string)null);
                 });
 
             modelBuilder.Entity("nvt_back.User", b =>
@@ -214,10 +214,6 @@ namespace nvt_back.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -241,14 +237,13 @@ namespace nvt_back.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             Email = "bob@mail.com",
-                            ImagePath = "dsada",
                             IsActivated = true,
                             Name = "Bob",
                             Password = "123",
@@ -259,12 +254,21 @@ namespace nvt_back.Migrations
                         {
                             Id = 2,
                             Email = "rob@mail.com",
-                            ImagePath = "dsada",
                             IsActivated = true,
                             Name = "Rob",
                             Password = "123",
                             Role = 0,
                             Surname = "Boss"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Email = "lob@mail.com",
+                            IsActivated = true,
+                            Name = "Lob",
+                            Password = "123",
+                            Role = 2,
+                            Surname = "Loss"
                         });
                 });
 
@@ -369,6 +373,9 @@ namespace nvt_back.Migrations
                     b.Property<bool>("IsOn")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("NumberOfPanels")
+                        .HasColumnType("integer");
+
                     b.Property<double>("Size")
                         .HasColumnType("double precision");
 
@@ -438,13 +445,9 @@ namespace nvt_back.Migrations
 
             modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
                 {
-                    b.HasOne("nvt_back.Property", "Property")
+                    b.HasOne("nvt_back.Property", null)
                         .WithMany("Devices")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Property");
+                        .HasForeignKey("PropertyId");
                 });
 
             modelBuilder.Entity("nvt_back.Property", b =>

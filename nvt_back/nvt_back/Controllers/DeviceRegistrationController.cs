@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using nvt_back.DTOs;
 using nvt_back.DTOs.DeviceRegistration;
 using nvt_back.Services;
@@ -7,7 +8,7 @@ namespace nvt_back.Controllers
 {
     [ApiController]
     [Route("api/device-registration")]
-    public class DeviceRegistrationController : ControllerBase
+    public class DeviceRegistrationController : Controller
     {
         private readonly IDeviceRegistrationService _deviceRegistrationService;
 
@@ -18,6 +19,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("ac")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(AirConditionerRegistrationDTO dto)
         {
             try
@@ -33,6 +35,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("ambient-sensor")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(AmbientSensorRegistrationDTO dto)
         {
             try
@@ -48,6 +51,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("evcharger")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(EVChargerRegistrationDTO dto)
         {
             try
@@ -63,6 +67,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("home-battery")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(HomeBatteryRegistrationDTO dto)
         {
             try
@@ -78,6 +83,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("irrigation-system")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(IrrigationSystemRegistrationDTO dto)
         {
             try
@@ -93,6 +99,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("solar-panel")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(SolarPanelRegistrationDTO dto)
         {
             try
@@ -108,6 +115,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("vehicle-gate")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(VehicleGateRegistrationDTO dto)
         {
             try
@@ -123,6 +131,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("washing-machine")]
+        [Authorize(Roles = "USER, ADMIN, SUPERADMIN")]
         public async Task<ActionResult<MessageDTO>> Add(WashingMachineRegistrationDTO dto)
         {
             try
@@ -138,6 +147,7 @@ namespace nvt_back.Controllers
 
         [HttpPost]
         [Route("lamp")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> Add(LampRegistrationDTO dto)
         {
             try

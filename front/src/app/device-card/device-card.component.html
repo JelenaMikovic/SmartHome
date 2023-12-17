@@ -1,0 +1,83 @@
+<div class="basic-container" id="card-container" [ngClass]="{'card-container-50 transition': !isDetails}">
+    <div [ngClass]="isDetails ? 'image-container' : 'image-container-details'">
+        <img src={{device.image}} style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;"/>
+    </div>
+
+    <div id="info-container">
+        <div>
+            <h2 class="light-blue">{{ device.name }}</h2>
+        </div>
+        <div>
+            <i class="fa-solid fa-plug"></i>
+            <span class="black">{{device.powerConsumption}} kWh consumption</span>
+        </div>
+        <div>
+            <i class="fa-solid fa-plug"></i>
+            <span class="black">{{ device.powerSource == 0 ? 'Alkaline' : (device.powerSource == 1 ? 'Battery' : 'Electrical grid') }} power source</span>
+        </div>
+
+        <div *ngIf="isDetails">
+            <div>
+                <i class="fa-solid fa-maximize"></i>
+                <span class="black">{{ device.size }} m2</span>
+            </div>
+            <div>
+                <i class="fa-solid fa-hashtag"></i>
+                <span class="black">{{device.numberOfPanels}} panels</span>
+            </div>
+            <div>
+                <i class="fa-solid fa-percent"></i>
+                <span class="black">{{device.efficiency}} efficiency</span>
+            </div>
+        </div>
+
+        <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
+            <div [ngClass]="{
+                'active-status': device.isOnline == true,
+                'denied-status': device.isOnline == false,
+                'status': true
+              }" class="active-button">{{ device.isOnline ? 'Online' : 'Offline' }}</div>
+        </div>
+    </div>
+    <!-- && device.deviceType == 'SOLAR_PANEL' -->
+</div>
+
+<div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="isDetails">
+    <div class="basic-container smaller-container" style="width: 30%;" id="card-container">
+        <div id="info-container">
+            <div>
+                <h2 style="font-size: 1.2em" class="light-blue">Device actions</h2>
+            </div>
+            <div>
+                <span class="black">power: </span>
+                <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()">
+                </mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+    <div class="basic-container smaller-container" style="width:55%" id="card-container">
+        <div id="info-container">
+            <div class="hover-opacity" style="display: flex; flex-direction: row; justify-content: space-around;">
+                <div>
+                    <h2 (click)="clickedReportsBy('interval')" style="font-size: 1.2em; cursor: pointer;" class="light-blue">Reports by interval</h2>
+                </div>
+                <div>
+                    <h2 (click)="clickedReportsBy('date')" style="font-size: 1.2em; cursor: pointer;" class="light-blue">Reports by date</h2>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="reportsBy=='interval'">
+                <mat-form-field  id="type-dd">
+                    <mat-label>Interval</mat-label>
+                    <mat-select [(value)]="this.selectedTimeInterval" (selectionChange)="onIntervalSelected()">
+                      <mat-option *ngFor="let item of timeIntervals" [value]="item" >
+                        {{item}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <button class="conf-button add-prop-btn back-light-blue">generate</button>
+            
+            </div>
+        </div>
+    </div>
+</div>

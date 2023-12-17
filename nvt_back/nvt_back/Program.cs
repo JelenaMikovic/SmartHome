@@ -58,7 +58,6 @@ builder.Services.AddAuthorization(o =>
     o.AddPolicy("User", p => p.RequireRole("USER"));
 });
 
-
 builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
 builder.Services.AddTransient<ICityRepository, CityRepository>();
 builder.Services.AddTransient<ICountryRepository, CountryRepository>();
@@ -78,7 +77,9 @@ builder.Services.Configure<MqttConfiguration>(builder.Configuration.GetSection("
 builder.Services.AddTransient<IMqttClientService, MqttClientService>();
 builder.Services.AddHostedService<MqttInitializationService>();
 builder.Services.AddTransient<IMailService, MailService>();
-
+builder.Services.AddTransient<IDeviceStateService, DeviceStateService>();
+builder.Services.AddTransient<IDeviceSimulatorInitializationService, DeviceSimulatorInitializationService>();
+builder.Services.AddTransient<IDeviceDetailsService, DeviceDetailsService>();
 builder.Services.AddSingleton<InfluxDBService>();
 builder.Services.AddTransient<DeviceActivityCheckInvocable>();
 builder.Services.AddScheduler();
