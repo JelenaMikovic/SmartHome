@@ -29,7 +29,7 @@ PUBLISHER_DATA_TOPIC = "topic/device/" + str(args.did) + "/data"
 SUBSCRIBER_COMMAND_TOPIC = "topic/device/" + str(args.did) + "/command"
 
 IS_ONLINE = True
-IS_ON = True
+IS_ON = False
 INITIALIZE_PARAMETERS = True
 IS_AUTOMATIC = False
 lamp_initialization = None

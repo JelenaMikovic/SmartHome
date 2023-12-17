@@ -9,7 +9,7 @@ namespace nvt_back.DTOs
         public int DeviceId { get; set; }
 
         [Required(ErrorMessage = "DeviceType field is required")]
-        public DeviceType DeviceType { get; set; }
+        public String DeviceType { get; set; }
 
         [Required(ErrorMessage = "Action field is required")]
         public String Action { get; set; }

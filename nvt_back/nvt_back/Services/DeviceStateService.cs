@@ -20,10 +20,12 @@ namespace nvt_back.Services
 
         public async Task<bool> ChangeRegime(CommandDTO dto, int userId)
         {
+            DeviceType type = (DeviceType)Enum.Parse(typeof(DeviceType), dto.DeviceType, true);
+
             switch (dto.Action)
             {
                 case "regime":
-                    if (dto.DeviceType == DeviceType.LAMP)
+                    if (type == DeviceType.LAMP)
                         return await changeLampRegime(dto, userId);
                     break;
             }
@@ -48,6 +50,7 @@ namespace nvt_back.Services
                 throw new Exception("The lamp doesnt support the given regime.");
             }
 
+            Console.WriteLine(regime + " " + lamp.Regime);
             if (regime != lamp.Regime)
             {
                 await _mqttClientService.PublishRegimeUpdate(dto.DeviceId, regime.ToString());

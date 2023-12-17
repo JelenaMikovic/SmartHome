@@ -18,20 +18,17 @@ namespace nvt_back.Controllers
             _deviceStateService = deviceStateService;
         }
 
-        [HttpPut]
+        [HttpGet]
         [Route("on/{id}")]
-        [Authorize(Roles = "USER")]
+        //[Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> ToggleOn(int id)
         {
+            Console.WriteLine("TU");
+            var ID = _user.Id;
+            Console.WriteLine("TU");
             try
             {
-<<<<<<< HEAD
                 bool hasStatusChanged = await this._deviceStateService.Toggle(id, "ON", _user.Id);
-=======
-                Console.WriteLine("tu");
-                return Ok();
-                bool hasStatusChanged = await this._deviceStateService.Toggle(id, "ON");
->>>>>>> dev
                 if (hasStatusChanged)
                 {
                     return Ok(new MessageDTO("You changed device status to: ON"));
@@ -47,9 +44,9 @@ namespace nvt_back.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpGet]
         [Route("off/{id}")]
-        [Authorize(Roles = "USER")]
+        //[Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> ToggleOff(int id)
         {
             try

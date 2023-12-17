@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using nvt_back.DTOs.DeviceDetailsDTO;
-using nvt_back.Migrations;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
@@ -117,11 +116,34 @@ namespace nvt_back.Repositories
                 throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
             if (device.DeviceType == DeviceType.SOLAR_PANEL) {
                 return await getSolarPanelDetailsById(device);
-            } else if (device.DeviceType == DeviceType.AMBIENT_SENSOR)
+            } 
+            else if (device.DeviceType == DeviceType.AMBIENT_SENSOR)
             {
                 return await getAmbientSensorDetailsById(device);
             }
+            else if (device.DeviceType == DeviceType.LAMP)
+            {
+                return await getLampDetailsById(device);
+            }
             return null;
+        }
+
+        private async Task<object> getLampDetailsById(Device device)
+        {
+            Lamp lamp = (Lamp)device;
+            return new LampDetailsDTO
+            {
+                Id = lamp.Id,
+                IsOn = lamp.IsOn,
+                IsOnline = lamp.IsOnline,
+                Name = lamp.Name,
+                PowerConsumption = lamp.PowerConsumption,
+                PowerSource = lamp.PowerSource,
+                Image = lamp.Image,
+                DeviceType = lamp.DeviceType.ToString(),
+                BrightnessLevel = lamp.BrightnessLevel,
+                Regime = lamp.Regime.ToString()
+            };
         }
 
         private async Task<object> getSolarPanelDetailsById(Device device)
