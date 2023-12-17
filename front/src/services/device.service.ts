@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -26,5 +27,11 @@ export class DeviceService {
     else 
       return this.http.put<any>(environment.apiHost + "/device-details/off/" + deviceId
     , {withCredentials: true});
+  }
+
+  getAmbientSensorReport(ambientSensorReportDTO: any): Observable<any> {
+    const url = `${environment.apiHost}/device/reports`;
+
+    return this.http.post<any>(url, ambientSensorReportDTO , { withCredentials: true });
   }
 }

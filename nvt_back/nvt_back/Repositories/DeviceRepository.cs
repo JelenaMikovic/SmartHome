@@ -104,6 +104,9 @@ namespace nvt_back.Repositories
                 throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
             if (device.DeviceType == DeviceType.SOLAR_PANEL) {
                 return await getSolarPanelDetailsById(device);
+            } else if (device.DeviceType == DeviceType.AMBIENT_SENSOR)
+            {
+                return await getAmbientSensorDetailsById(device);
             }
             return null;
         }
@@ -124,6 +127,24 @@ namespace nvt_back.Repositories
                 Size = sp.Size,
                 Image = sp.Image,
                 DeviceType = sp.DeviceType.ToString()
+            };
+        }
+
+        private async Task<object> getAmbientSensorDetailsById(Device device)
+        {
+            AmbientSensor amb = (AmbientSensor)device;
+            return new AmbientSensorDetailsDTO
+            {
+                Id = amb.Id,
+                IsOnline = amb.IsOnline,
+                Name = amb.Name,
+                PowerConsumption = amb.PowerConsumption,
+                PowerSource = amb.PowerSource,
+                Image = amb.Image,
+                DeviceType = amb.DeviceType.ToString(),
+                UpdateIntervalSeconds = amb.UpdateIntervalSeconds,
+                CurrentHumidity = amb.CurrentHumidity,
+                CurrentTemperature = amb.CurrentTemperature
             };
         }
     }

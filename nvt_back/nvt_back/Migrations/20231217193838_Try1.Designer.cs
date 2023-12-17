@@ -13,8 +13,8 @@ using nvt_back;
 namespace nvt_back.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231213002746_panelno")]
-    partial class panelno
+    [Migration("20231217193838_Try1")]
+    partial class Try1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
