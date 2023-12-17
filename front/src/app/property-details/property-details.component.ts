@@ -61,10 +61,10 @@ export class PropertyDetailsComponent implements OnInit {
       },
     })
     let id = this.route.snapshot.paramMap.get('id')!;
+    this.propertyId = id;
     this.propertyService.getDetails(id).subscribe({
       next: (value) => {
-        this.property = value
-        this.propertyId = id;
+        this.property = value;
       }, 
       error: (err) => {
         console.log(err);
@@ -74,13 +74,11 @@ export class PropertyDetailsComponent implements OnInit {
   }
 
   loadItems() {
-    this.deviceService.getPropertyDeviceDetails("5", this.currentPage, this.pageSize).subscribe({
+    this.deviceService.getPropertyDeviceDetails(this.propertyId, this.currentPage, this.pageSize).subscribe({
       next: (value) => {
-        console.log(value)
         this.currentPage = value.pageIndex;
         this.count = value.count;
         this.devices = value.items;
-        console.log(this.devices)
       }, 
       error: (err) => {
         console.log(err);

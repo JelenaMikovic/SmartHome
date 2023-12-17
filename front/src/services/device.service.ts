@@ -13,4 +13,18 @@ export class DeviceService {
     return this.http.get<any>(environment.apiHost + "/device-details/paginated?propertyId=" + propertyId + "&page="+page + "&size=" + size
     , {withCredentials: true});
   }
+
+  getDeviceDetailsById(deviceId: string) {
+    return this.http.get<any>(environment.apiHost + "/device-details/" + deviceId
+    , {withCredentials: true});
+  }
+
+  toggleOnOff(deviceId: string, isOn: boolean) {
+    if (isOn)
+      return this.http.put<any>(environment.apiHost + "/device-toggle/on/" + deviceId
+    , {withCredentials: true});
+    else 
+      return this.http.put<any>(environment.apiHost + "/device-details/off/" + deviceId
+    , {withCredentials: true});
+  }
 }

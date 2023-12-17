@@ -1,4 +1,6 @@
 ﻿using nvt_back.DTOs;
+using nvt_back.DTOs.DeviceDetailsDTO;
+using nvt_back.Model.Devices;
 using nvt_back.Repositories.Interfaces;
 using nvt_back.Services.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
@@ -14,6 +16,13 @@ namespace nvt_back.Services
         {
             _deviceRepository = deviceRepository;
             _imageService = imageService;
+        }
+
+        public async Task<object> GetById(int id)
+        {
+            var device = (DeviceDetailsDTO) await _deviceRepository.GetDetailsById(id);
+            device.Image = _imageService.GetBase64StringFromImage(device.Image);
+            return device;
         }
 
         public async Task<PageResultDTO<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size)

@@ -3,6 +3,7 @@ using nvt_back.DTOs.DeviceRegistration;
 using nvt_back.DTOs;
 using nvt_back.Services;
 using nvt_back.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace nvt_back.Controllers
 {
@@ -19,10 +20,13 @@ namespace nvt_back.Controllers
 
         [HttpPut]
         [Route("on/{id}")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> ToggleOn(int id)
         {
             try
             {
+                Console.WriteLine("tu");
+                return Ok();
                 bool hasStatusChanged = await this._deviceStateService.Toggle(id, "ON");
                 if (hasStatusChanged)
                 {
@@ -41,6 +45,7 @@ namespace nvt_back.Controllers
 
         [HttpPut]
         [Route("off/{id}")]
+        [Authorize(Roles = "USER")]
         public async Task<ActionResult<MessageDTO>> ToggleOff(int id)
         {
             try

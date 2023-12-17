@@ -1,4 +1,4 @@
-﻿using nvt_back.DTOs;
+﻿using nvt_back.DTOs.DeviceDetailsDTO;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 
@@ -14,5 +14,6 @@ namespace nvt_back.Repositories.Interfaces
         public Task<bool> ToggleState(int id, string status);
         Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size);
         public Task<int> GetDeviceCountForProperty(int propertyId);
+        Task<object> GetDetailsById(int id);
     }
 }
