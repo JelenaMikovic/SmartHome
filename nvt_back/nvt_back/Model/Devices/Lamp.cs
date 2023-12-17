@@ -6,24 +6,30 @@ using nvt_back.DTOs;
 
 namespace nvt_back.Model.Devices
 {
+    public enum LampRegime
+    {
+        MANUAL,
+        AUTOMATIC
+    }
+
     public class Lamp : Device
     {
         public bool IsOn { get; set; }
-        [Required(ErrorMessage = "Color field is required")]
+
+        [Required(ErrorMessage = "Brightness field is required")]
         [Range(0, 100000, ErrorMessage = "Brightness should be between 0 and 100.000")]
         public int BrightnessLevel { get; set; }
 
-        [Required(ErrorMessage = "Color field is required")]
-        [JsonConverter(typeof(StringEnumConverter))]
-        public LampColor Color { get; set; }
+        [Required(ErrorMessage = "Regime field is required")]
+        public LampRegime Regime { get; set; }
 
         public Lamp() { }
         public Lamp(LampRegistrationDTO dto) : base(dto)
         {
             IsOn = dto.IsOn;
             BrightnessLevel = dto.BrightnessLevel;
-            Color = dto.Color;
             DeviceType = DeviceType.LAMP;
+            Regime = LampRegime.MANUAL;
         }
     }
 }

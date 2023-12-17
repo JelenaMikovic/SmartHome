@@ -37,6 +37,10 @@
                 <i class="fa-solid fa-percent"></i>
                 <span class="black">{{device.currentHumidity}} %</span>
             </div>
+            <div *ngIf="device.deviceType === 'LAMP'">
+                <i class="fa-solid fa-sun"></i>
+                <span class="black">{{device.brightnessLevel}} lux</span>
+            </div>
         </div>
 
         <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
@@ -62,6 +66,25 @@
             </div>
         </div>
     </div>
+
+    <div class="basic-container smaller-container" style="width: 30%;" id="card-container">
+        <div id="info-container">
+            <div>
+                <h2 style="font-size: 1.2em" class="light-blue">Device actions</h2>
+            </div>
+            <div>
+                <span class="black">power: </span>
+                <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()">
+                </mat-slide-toggle>
+            </div>
+            <div *ngIf="device.deviceType == 'LAMP'">
+                <span class="black">automatic regime: </span>
+                <mat-slide-toggle [(ngModel)]="checkedAutomatic" (change)="toggleAutomaticRegime()">
+                </mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+
     <div class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' ? '100%' : '55%'}" id="card-container">        
         <div id="info-container">
             <div class="hover-opacity" style="display: flex; flex-direction: row; justify-content: space-around;">

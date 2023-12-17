@@ -16,6 +16,7 @@ export class DeviceCardComponent implements OnInit {
   @Input() device: any = {};
   @Input() isDetails: boolean = false;
   checkedOnOff: boolean = false;
+  checkedAutomatic: boolean = false;
   selectedTimeInterval: string = "";
   isSelected: boolean = false;
   timeIntervals: string[] = [
@@ -207,4 +208,22 @@ export class DeviceCardComponent implements OnInit {
 
     Highcharts.chart(name, options);
   }
+
+  toggleAutomaticRegime() {
+    this.deviceService.toggleAutomaticRegime(this.device, this.checkedAutomatic).subscribe({
+      next: (res: any) => {
+        this.snackBar.open("You toggled device regime!", "", {
+            duration: 2700, panelClass: ['snack-bar-success']
+        });
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
+         });
+          console.log(err);
+        }
+    })
+  }
 }
+
+

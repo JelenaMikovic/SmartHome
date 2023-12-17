@@ -22,16 +22,38 @@ export class DeviceService {
 
   toggleOnOff(deviceId: string, isOn: boolean) {
     if (isOn)
-      return this.http.put<any>(environment.apiHost + "/device-toggle/on/" + deviceId
+      return this.http.get<any>(environment.apiHost + "/device-toggle/on/" + deviceId
     , {withCredentials: true});
     else 
-      return this.http.put<any>(environment.apiHost + "/device-details/off/" + deviceId
+      return this.http.get<any>(environment.apiHost + "/device-toggle/off/" + deviceId
     , {withCredentials: true});
   }
+
+  toggleAutomaticRegime(device: any, isAutomatic: boolean) {
+    let dto: CommandDTO = {
+      deviceId: device.id,
+      deviceType: device.deviceType,
+      action: "regime",
+      value: isAutomatic? "automatic": "manual"
+    }
+
+    console.log(dto)
+    return this.http.put<any>(environment.apiHost + "/device-toggle/regime", dto, {withCredentials: true});
+    
+  }
+
 
   getAmbientSensorReport(ambientSensorReportDTO: any): Observable<any> {
     const url = `${environment.apiHost}/device/reports`;
 
     return this.http.post<any>(url, ambientSensorReportDTO , { withCredentials: true });
   }
+}
+
+export interface CommandDTO
+{
+  deviceId: number,
+  deviceType: number,
+  action: string,
+  value: string
 }

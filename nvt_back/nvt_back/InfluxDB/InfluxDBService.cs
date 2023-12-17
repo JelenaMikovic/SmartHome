@@ -58,11 +58,11 @@ namespace nvt_back.InfluxDB
             return Task.CompletedTask;
         }
 
-        public Task WriteStateToInfluxDBForDevice(int deviceId, string state)
+        public Task WriteStateToInfluxDBForDevice(int deviceId, string state, int userId)
         {
             var client = InfluxDBClientFactory.Create("http://localhost:8086", _token.ToCharArray());
 
-            string data = "state,device_id=id" + deviceId.ToString() + " status=" + state;
+            string data = "state,device_id=id" + deviceId.ToString() + " status=" + state + ",userId=" + userId.ToString();
 
             using (var writeApi = client.GetWriteApi())
             {

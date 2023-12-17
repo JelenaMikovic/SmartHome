@@ -1371,3 +1371,6 @@ appsettings*.json
 **env
 *.env
 **config.ini
+
+**Image/
+**Migrations/

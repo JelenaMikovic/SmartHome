@@ -22,11 +22,29 @@ namespace nvt_back.Services
             {
                 throw new ArgumentException("err");
             }
+
             if (device.DeviceType == DeviceType.SOLAR_PANEL)
                 return initializeSolarPanel(device);
-            if (device.DeviceType != DeviceType.AMBIENT_SENSOR)
+            if (device.DeviceType == DeviceType.LAMP)
+                return initializeLamp(device);
+            if (device.DeviceType == DeviceType.AMBIENT_SENSOR)
                 return initializeAmbientalSensor(device);
+
             return null;
+        }
+
+        private LampInitializationDTO initializeLamp(Device device)
+        {
+            Lamp lamp = (Lamp)device;
+
+            return new LampInitializationDTO
+            {
+                Type = "Initialization",
+                Lat = lamp.Property.Address.Lat,
+                Lng = lamp.Property.Address.Lng,
+                Regime = lamp.Regime.ToString()
+            };
+
         }
 
         private SolarPanelInitializationDTO initializeSolarPanel(Device device)
