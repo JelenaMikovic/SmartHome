@@ -79,6 +79,7 @@ builder.Services.AddHostedService<MqttInitializationService>();
 builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddTransient<IDeviceStateService, DeviceStateService>();
 builder.Services.AddTransient<IDeviceSimulatorInitializationService, DeviceSimulatorInitializationService>();
+builder.Services.AddTransient<IDeviceDetailsService, DeviceDetailsService>();
 builder.Services.AddSingleton<InfluxDBService>();
 builder.Services.AddTransient<DeviceActivityCheckInvocable>();
 builder.Services.AddScheduler();

@@ -9,8 +9,8 @@
         <hr>
     </div>
     <div class="card-holder">
-        <div *ngFor="let property of properties">
-            <app-property-card [property]="property" (rejectionCompleted)="processRejection($event)"></app-property-card>
+        <div *ngFor="let property of properties; let i = index">
+            <app-property-card [property]="property" [enableClick]="true" (click)="openPropertyDetails(i)" (rejectionCompleted)="processRejection($event)"></app-property-card>
             <!-- <p>{{ property.name }}</p> -->
         </div> 
     </div>

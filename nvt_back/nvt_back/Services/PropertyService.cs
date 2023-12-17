@@ -210,5 +210,31 @@ namespace nvt_back.Services
                 throw new Exception("Property with the given id doesn't exist");
             }
         }
+
+        public async Task<PropertyDTO> GetDetailsById(int id)
+        {
+            Property property = await _propertyRepository.GetDetailsById(id);
+            return new PropertyDTO
+            {
+                Id = property.Id,
+                Area = property.Area,
+                Image = this._imageService.GetBase64StringFromImage(property.ImagePath),
+                Address = new ReturnedAddressDTO
+                {
+                    Id = property.Address.Id,
+                    Lat = property.Address.Lat,
+                    Lng = property.Address.Lng,
+                    Name = property.Address.Name,
+                    City = property.Address.City.Name,
+                    Country = property.Address.City.Country.Name
+                },
+                Name = property.Name,
+                NumOfFloors = property.NumOfFloors,
+                Status = property.Status.ToString(),
+                Owner = null
+            };
+        }
+
+
     }
 }

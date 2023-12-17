@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Coravel.Invocable;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Core.Flux.Domain;
 using InfluxDB.Client.Writes;
 
 namespace nvt_back.InfluxDB
@@ -10,21 +11,34 @@ namespace nvt_back.InfluxDB
     public class InfluxDBService
     {
         private readonly string _token;
+        private readonly string _adminToken;
         private readonly string _org;
+        private readonly string _orgId;
         private readonly string _bucket;
 
         public InfluxDBService(IConfiguration configuration)
         {
             _token = configuration.GetValue<string>("InfluxDB:Token");
+            _adminToken = configuration.GetValue<string>("InfluxDB:AdminToken");
             _org = configuration.GetValue<string>("InfluxDB:Org");
+            _orgId = configuration.GetValue<string>("InfluxDB:OrgId");
             _bucket = configuration.GetValue<string>("InfluxDB:Bucket");
         }
 
-        public async Task<T> QueryAsync<T>(Func<QueryApi, Task<T>> action)
+
+        public async Task<IEnumerable<FluxRecord>> QueryAsync(string query)
         {
-            using var client = new InfluxDBClient("http://localhost:8086", _token);
-            var query = client.GetQueryApi();
-            return await action(query);
+            using var client = InfluxDBClientFactory.Create("http://localhost:8086", _adminToken.ToCharArray());
+            var fluxTables = await client.GetQueryApi().QueryAsync(query, _orgId);
+
+            var records = new List<FluxRecord>();
+
+            foreach (var fluxTable in fluxTables)
+            {
+                records.AddRange(fluxTable.Records);
+            }
+
+            return records;
         }
 
         public Task WriteHeartbeatToInfluxDBForDevice(int deviceId, int status)
@@ -58,5 +72,7 @@ namespace nvt_back.InfluxDB
 
             return Task.CompletedTask;
         }
+
+        
     }
 }

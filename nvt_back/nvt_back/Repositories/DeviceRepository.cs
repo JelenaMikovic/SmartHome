@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.DTOs.DeviceDetailsDTO;
+using nvt_back.Migrations;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
@@ -80,6 +82,83 @@ namespace nvt_back.Repositories
                 }
             }
             return false;
+        }
+
+        public async Task<int> GetDeviceCountForProperty(int propertyId)
+        {
+            return await _context.Devices.Where(x => x.PropertyId == propertyId).CountAsync();
+        }
+
+        public async Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size)
+        {
+            List<Device> devices = await _context.Devices.Where(x => x.PropertyId == propertyId).OrderByDescending(x => x.Id)
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync();
+            
+            IEnumerable<DeviceDetailsDTO> details =  devices.Select(device => new DeviceDetailsDTO
+            {
+                Id = device.Id,
+                Name = device.Name,
+                PowerConsumption = device.PowerConsumption,
+                PowerSource = device.PowerSource,
+                Image = device.Image,
+                IsOnline = device.IsOnline,
+            });
+
+            Console.WriteLine(details);
+            return details;
+        }
+
+        public async Task<object> GetDetailsById(int id)
+        {
+            var device = await GetById(id);
+            if (device == null)
+                throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
+            if (device.DeviceType == DeviceType.SOLAR_PANEL) {
+                return await getSolarPanelDetailsById(device);
+            } else if (device.DeviceType == DeviceType.AMBIENT_SENSOR)
+            {
+                return await getAmbientSensorDetailsById(device);
+            }
+            return null;
+        }
+
+        private async Task<object> getSolarPanelDetailsById(Device device)
+        {
+            SolarPanel sp = (SolarPanel)device;
+            return new SolarPanelDetailsDTO
+            {
+                Id = sp.Id,
+                Efficiency = sp.Efficiency,
+                IsOn = sp.IsOn,
+                IsOnline = sp.IsOn,
+                Name = sp.Name,
+                NumberOfPanels = sp.NumberOfPanels,
+                PowerConsumption = sp.PowerConsumption,
+                PowerSource = sp.PowerSource,
+                Size = sp.Size,
+                Image = sp.Image,
+                DeviceType = sp.DeviceType.ToString()
+            };
+        }
+
+        private async Task<object> getAmbientSensorDetailsById(Device device)
+        {
+            AmbientSensor amb = (AmbientSensor)device;
+            return new AmbientSensorDetailsDTO
+            {
+                Id = amb.Id,
+                IsOnline = amb.IsOnline,
+                Name = amb.Name,
+                PowerConsumption = amb.PowerConsumption,
+                PowerSource = amb.PowerSource,
+                Image = amb.Image,
+                DeviceType = amb.DeviceType.ToString(),
+                UpdateIntervalSeconds = amb.UpdateIntervalSeconds,
+                CurrentHumidity = amb.CurrentHumidity,
+                CurrentTemperature = amb.CurrentTemperature
+            };
         }
     }
 }

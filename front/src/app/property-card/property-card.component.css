@@ -2,11 +2,28 @@
 #card-container {
     display: flex;
     position: relative;
+    
 }
 
-#image-container {
+.transition {
+    transition: transform 0.2s ease-in-out;
+}
+
+.transition:hover{
+    transform: scale(1.02);
+    cursor: pointer;
+}
+
+.image-container {
     height: 220px;
     width: 200px;
+    /* flex: 1; */
+    object-fit: cover;
+}
+
+.image-container-details {
+    height: 220px;
+    width: 50%;
     /* flex: 1; */
     object-fit: cover;
 }
@@ -16,6 +33,11 @@ h2 {
     font-size: 1.4em;
     margin-top: 12px;
     margin-bottom: 10px;
+}
+
+.h2-bigger-font {
+    font-size: 1.7em;
+    font-weight: 700;
 }
 
 #info-container {
@@ -30,6 +52,10 @@ h2 {
 
 #info-container i {
     margin-right: 8px;
+}
+
+.custom-font {
+    font-size: 18px;
 }
 
 #info-container span {

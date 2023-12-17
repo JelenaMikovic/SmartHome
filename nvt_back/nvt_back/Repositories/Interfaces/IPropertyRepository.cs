@@ -12,5 +12,6 @@ namespace nvt_back.Repositories.Interfaces
         IEnumerable<Property> GetAllPaginatedForOwner(int page, int size, int id);
         Property GetById(int id);
         void Update(Property property);
+        public Task<Property> GetDetailsById(int id);
     }
 }

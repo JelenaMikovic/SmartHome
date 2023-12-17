@@ -148,6 +148,10 @@ mat-paginator {
     cursor: pointer;
 }
 
+mat-paginator{
+    height: 45px;
+}
+
 .outline-btn {
     background-color: white;
     border-radius: 15px;

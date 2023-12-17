@@ -14,6 +14,10 @@ export class PropertyService {
     return this.http.post<any>(environment.apiHost + "/property", dto, {withCredentials: true});
   }
 
+  getDetails(id: string) {
+    return this.http.get<any>(environment.apiHost + "/property/details/" + id, {withCredentials: true});
+  }
+
   getPaginatedProperties(page: number, size: number, ) {
     return this.http.get<any>(environment.apiHost + "/property/paginated?page=" + page +"&size=" + size, {withCredentials: true});
   }

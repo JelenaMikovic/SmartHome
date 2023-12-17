@@ -30,7 +30,7 @@ services:
     env_file:
       - .env
     entrypoint: ["./entrypoint.sh"]
-      
+    
   telegraf:
     image: telegraf
     depends_on:
@@ -41,7 +41,7 @@ services:
     networks:
       - nvt-network
     env_file:
-      - .env
+      - .env   
 
 volumes:
   config:

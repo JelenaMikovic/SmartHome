@@ -8,7 +8,6 @@ export function minMaxValidator(min_cal: string, max_cal: string) {
         const maxValue = form.get(max_cal)?.value;
         console.log(minValue, maxValue)
         if (minValue <= maxValue) {
-            console.log("usao")
             return null;
         }
 

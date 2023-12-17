@@ -1,0 +1,42 @@
+<div class="details-container">
+    <div class="title-container">
+        <div class="title-topper">
+            <p class="title">Property details</p>
+            <!-- <button *ngIf="loggedUser.role == 'USER'" class="conf-button add-prop-btn back-light-blue" (click)="openAddPropertyDialog()"><i class="fa fa-circle-plus"></i>Request a new property</button> -->
+        </div>
+        <hr>
+    </div>
+    <div class="card-holder">
+        <app-property-card [property]="property" [enableClick]="false" (click)="details()"></app-property-card>
+    </div>
+    <div class="title-container" style="margin-top: 20px;">
+        <div class="subtitle-topper">
+            <p class="subtitle">Devices</p>
+            <button *ngIf="loggedUser.role == 'USER'" (click)="openAddDeviceDialog()" class="conf-button add-prop-btn back-light-blue"><i class="fa fa-circle-plus"></i>Add new device</button>
+            <!-- <mat-form-field  id="type-dd">
+                <mat-label>Device type</mat-label>
+                <mat-select [(value)]="this.selectedDeviceType" (selectionChange)="onDeviceTypeSelected()">
+                  <mat-option *ngFor="let item of deviceType" [value]="item" >
+                    {{item}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>  -->
+        </div>
+        <hr>
+    </div>
+    <!-- <div id="no-type-chosen-container" *ngIf="this.selectedDeviceType == ''">
+        <span style="font-weight: 600; color: #A9A9A9; font-size: 1.2em;">Please, select device type for show</span>
+    </div> -->
+    <div class="card-holder">
+      <div *ngFor="let device of devices; let i = index">
+          <app-device-card [device]="device" (click)="openDeviceDetails(i)"></app-device-card>
+          <!-- <p>{{ property.name }}</p> -->
+      </div> 
+    </div>
+    <mat-paginator style-paginator showFirstLastButtons style="margin: 0;"
+      [length]="count" 
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[2]"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+</div>
