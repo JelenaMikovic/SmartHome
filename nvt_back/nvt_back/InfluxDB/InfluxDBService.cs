@@ -33,7 +33,7 @@ namespace nvt_back.InfluxDB
 
             string statusToString = status.ToString();
 
-            string data = "mesonline,device_id=id" + deviceId.ToString() + " status=" + statusToString;
+            string data = "online,device_id=id" + deviceId.ToString() + " status=" + statusToString;
 
             using (var writeApi = client.GetWriteApi())
             {
@@ -42,6 +42,21 @@ namespace nvt_back.InfluxDB
             }
 
             return Task.CompletedTask;
-        } 
+        }
+
+        public Task WriteStateToInfluxDBForDevice(int deviceId, string state)
+        {
+            var client = InfluxDBClientFactory.Create("http://localhost:8086", _token.ToCharArray());
+
+            string data = "state,device_id=id" + deviceId.ToString() + " status=" + state;
+
+            using (var writeApi = client.GetWriteApi())
+            {
+                writeApi.WriteRecord(data, WritePrecision.Ns, _bucket, _org);
+                Console.WriteLine("Writing to InfluxDB, device id: " + deviceId.ToString());
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

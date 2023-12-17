@@ -10,11 +10,10 @@ namespace nvt_back.Model.Devices
     {
         public bool IsOn { get; set; }
         [Required(ErrorMessage = "Color field is required")]
-        [Range(0, 100, ErrorMessage = "Brightness should be between 0 and 100")]
+        [Range(0, 100000, ErrorMessage = "Brightness should be between 0 and 100.000")]
         public int BrightnessLevel { get; set; }
 
         [Required(ErrorMessage = "Color field is required")]
-        [Range(0, 100, ErrorMessage = "Brightness should be between 0 and 100")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LampColor Color { get; set; }
 

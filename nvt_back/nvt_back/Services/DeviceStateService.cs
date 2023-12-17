@@ -20,6 +20,7 @@ namespace nvt_back.Services
             if (hasStatusChanged)
             {
                 await _mqttClientService.PublishStatusUpdate(id, status);
+                //TODO: dodati u influx upis promene statusa
             }
             return hasStatusChanged;
         }

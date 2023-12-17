@@ -34,6 +34,7 @@ def on_connect(client: mqtt.Client, userdata: any, flags, result_code):
     print("Connected with result code "+str(result_code))
     client.subscribe(SUBSCRIBER_COMMAND_TOPIC)
 
+#TODO: napravi pubsub da bude data
 def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
     print(f"Got message {msg.payload} from {msg.topic}.")
 
