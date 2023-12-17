@@ -79,7 +79,7 @@ namespace nvt_back.Mqtt
 
         private Task _mqttClient_DisconnectedAsync(MqttClientDisconnectedEventArgs arg)
         {
-            Console.WriteLine("\nDisconnected from MQTT, with reason: " + arg.ConnectResult.ReasonString);
+            //Console.WriteLine("\nDisconnected from MQTT, with reason: " + arg.ConnectResult.ReasonString);
             return Task.CompletedTask;
         }
 

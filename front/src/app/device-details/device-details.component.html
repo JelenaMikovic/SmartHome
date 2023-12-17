@@ -1,0 +1,12 @@
+<div class="details-container">
+    <div class="title-container">
+        <div class="title-topper">
+            <p class="title">Device details</p>
+            <!-- <button *ngIf="loggedUser.role == 'USER'" class="conf-button add-prop-btn back-light-blue" (click)="openAddPropertyDialog()"><i class="fa fa-circle-plus"></i>Request a new property</button> -->
+        </div>
+        <hr>
+    </div>
+    <div class="card-holder">
+        <app-device-card [deviceId]="deviceId" [isDetails]="true"></app-device-card>
+    </div>
+</div>

@@ -113,5 +113,20 @@ namespace nvt_back.Controllers
                 return StatusCode(500, "Internal Server Error. " + ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("details/{id}")]
+        [Authorize(Roles = "ADMIN, SUPERADMIN, USER")]
+        public async Task<ActionResult<PropertyDTO>> GetPropertyDetails(int id)
+        {
+            try
+            {
+                return Ok(await this._propertyService.GetDetailsById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error. " + ex.Message);
+            }
+        }
     }
 }

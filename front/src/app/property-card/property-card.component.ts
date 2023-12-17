@@ -17,6 +17,7 @@ export class PropertyCardComponent implements OnInit {
   loggedUser: any = {};
 
   @Input() property: ReturnedPropertyDTO = {} as ReturnedPropertyDTO;
+  @Input() enableClick: boolean = {} as boolean;
   @Output() rejectionCompleted = new EventEmitter<any>();
 
   constructor(private dialog: MatDialog, private authService: AuthService, private router: Router, private propertyService: PropertyService, private snackBar: MatSnackBar) {

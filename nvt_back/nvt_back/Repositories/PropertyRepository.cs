@@ -49,6 +49,11 @@ namespace nvt_back.Repositories
             return this._context.Properties.Include(x => x.Owner).FirstOrDefault(x => x.Id == id);
         }
 
+        public async Task<Property> GetDetailsById(int id)
+        {
+            return await this._context.Properties.Include(x => x.Address).Include(x => x.Address.City).Include(x => x.Address.City.Country).FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public void Update(Property property)
         {
             _context.Entry(property).State = EntityState.Modified;

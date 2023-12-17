@@ -5,7 +5,8 @@ import { AddPropertyDialogComponent } from '../add-property-dialog/add-property-
 import { ChooseDeviceTypeDialogComponent } from '../choose-device-type-dialog/choose-device-type-dialog.component';
 import { AuthService } from 'src/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { InfluxDBDataService } from 'src/services/influx-dbdata.service';
+import { Router } from '@angular/router';
+import { PropertyDetailsService } from 'src/services/property-details.service';
 
 @Component({
   selector: 'app-homepage',
@@ -20,7 +21,10 @@ export class HomepageComponent implements OnInit {
 
   loggedUser: any = {};
 
-  constructor(private dialog: MatDialog, private propertyService: PropertyService, private authService: AuthService, private snackBar: MatSnackBar) { }
+  constructor(private dialog: MatDialog, private propertyService: PropertyService, 
+    private authService: AuthService, private snackBar: MatSnackBar,
+    private router: Router,
+    private propertyDetailsService: PropertyDetailsService) { }
 
   ngOnInit(): void {
     this.authService.getUser().subscribe({
@@ -73,6 +77,11 @@ export class HomepageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       this.loadItems();
     });
+  }
+  openPropertyDetails(index: number){
+    console.log(this.properties[index]);
+    //this.propertyDetailsService.setSelectedProperty(this.properties[index]);
+    this.router.navigate(['/property-details', {id: this.properties[index].id}])
   }
 
   openChooseDeviceTypeDialog() {
