@@ -9,5 +9,6 @@ namespace nvt_back.Services.Interfaces
         PageResultDTO<PropertyDTO> GetAllPaginated(int page, int size);
         void AcceptProperty(int id);
         void DenyProperty(int id, ReasonDTO reasonDTO);
+        public Task<PropertyDTO> GetDetailsById(int id);
     }
 }

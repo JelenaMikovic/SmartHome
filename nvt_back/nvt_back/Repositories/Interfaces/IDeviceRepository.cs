@@ -1,4 +1,5 @@
-﻿using nvt_back.Model.Devices;
+﻿using nvt_back.DTOs;
+using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 
 namespace nvt_back.Repositories.Interfaces
@@ -11,5 +12,7 @@ namespace nvt_back.Repositories.Interfaces
         public Task<List<Device>> GetAll();
         public Task UpdateLatestHeartbeat(Heartbeat heartbeat, DateTime time);
         public Task<bool> ToggleState(int id, string status);
+        Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size);
+        public Task<int> GetDeviceCountForProperty(int propertyId);
     }
 }

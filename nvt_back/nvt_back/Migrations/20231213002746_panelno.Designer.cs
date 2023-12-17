@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using nvt_back;
@@ -12,9 +13,11 @@ using nvt_back;
 namespace nvt_back.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20231213002746_panelno")]
+    partial class panelno
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +51,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("nvt_back.City", b =>
@@ -74,7 +77,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Cities", (string)null);
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("nvt_back.Country", b =>
@@ -91,7 +94,7 @@ namespace nvt_back.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Countries", (string)null);
+                    b.ToTable("Countries");
                 });
 
             modelBuilder.Entity("nvt_back.Model.ActivationCode", b =>
@@ -116,7 +119,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ActivationCodes", (string)null);
+                    b.ToTable("ActivationCodes");
                 });
 
             modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
@@ -150,7 +153,7 @@ namespace nvt_back.Migrations
                     b.Property<int>("PowerSource")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PropertyId")
+                    b.Property<int>("PropertyId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -202,7 +205,7 @@ namespace nvt_back.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Properties", (string)null);
+                    b.ToTable("Properties");
                 });
 
             modelBuilder.Entity("nvt_back.User", b =>
@@ -237,7 +240,7 @@ namespace nvt_back.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
@@ -445,9 +448,13 @@ namespace nvt_back.Migrations
 
             modelBuilder.Entity("nvt_back.Model.Devices.Device", b =>
                 {
-                    b.HasOne("nvt_back.Property", null)
+                    b.HasOne("nvt_back.Property", "Property")
                         .WithMany("Devices")
-                        .HasForeignKey("PropertyId");
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
                 });
 
             modelBuilder.Entity("nvt_back.Property", b =>

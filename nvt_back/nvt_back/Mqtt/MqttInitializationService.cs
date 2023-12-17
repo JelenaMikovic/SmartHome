@@ -16,8 +16,14 @@
 
             if (mqttClientService != null)
             {
-                await mqttClientService.Connect();
-                await mqttClientService.SubscribeToHeartbeatTopics();
+                try
+                {
+                    await mqttClientService.Connect();
+                    await mqttClientService.SubscribeToHeartbeatTopics();
+                } catch (Exception ex)
+                {
+                    Console.WriteLine("Unable to connect to MQTT");
+                }
             }
             else
             {

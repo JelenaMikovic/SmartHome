@@ -1,0 +1,41 @@
+<div class="basic-container transition" id="card-container">
+    <div class="image-container-details">
+        <img src="" style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;"/>
+    </div>
+
+    <div id="info-container">
+        <div>
+            <h2 class="light-blue">{{ device.name }}</h2>
+        </div>
+        <div>
+            <i class="fa-solid fa-plug"></i>
+            <span class="black">{{device.powerConsumption}} kWh consumption</span>
+        </div>
+        <div>
+            <i class="fa-solid fa-plug"></i>
+            <span class="black">{{ device.powerSource == 0 ? 'Alkaline' : (device.powerSource == 1 ? 'Battery' : 'Electrical grid') }} power source</span>
+        </div>
+
+        <!-- <div>
+            <i class="fa-solid fa-maximize"></i>
+            <span class="black">{{ device.size }} m2</span>
+        </div>
+        <div>
+            <i class="fa-solid fa-hashtag"></i>
+            <span class="black">{{device.numberOfPanels}} panels</span>
+        </div>
+        <div>
+            <i class="fa-solid fa-percent"></i>
+            <span class="black">{{device.efficiency}} efficency</span>
+        </div> -->
+
+
+        <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
+            <div [ngClass]="{
+                'active-status': device.isOnline == true,
+                'denied-status': device.isOnline == false,
+                'status': true
+              }" class="active-button">{{ device.isOnline ? 'Online' : 'Offline' }}</div>
+        </div>
+    </div>
+</div>

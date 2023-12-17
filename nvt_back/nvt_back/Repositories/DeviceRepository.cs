@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using nvt_back.DTOs;
 using nvt_back.Migrations;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
@@ -68,6 +69,32 @@ namespace nvt_back.Repositories
                 }
             }
             return false;
+        }
+
+        public async Task<int> GetDeviceCountForProperty(int propertyId)
+        {
+            return await _context.Devices.Where(x => x.PropertyId == propertyId).CountAsync();
+        }
+
+        public async Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size)
+        {
+            List<Device> devices = await _context.Devices.Where(x => x.PropertyId == propertyId).OrderByDescending(x => x.Id)
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync();
+            
+            IEnumerable<DeviceDetailsDTO> details =  devices.Select(device => new DeviceDetailsDTO
+            {
+                Id = device.Id,
+                Name = device.Name,
+                PowerConsumption = device.PowerConsumption,
+                PowerSource = device.PowerSource,
+                Image = device.Image,
+                IsOnline = device.IsOnline,
+            });
+
+            Console.WriteLine(details);
+            return details;
         }
     }
 }
