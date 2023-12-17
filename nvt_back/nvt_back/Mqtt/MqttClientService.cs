@@ -3,6 +3,8 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
 using Newtonsoft.Json;
+using nvt_back.DTOs.DeviceCommunication;
+using nvt_back.DTOs.Mqtt;
 using nvt_back.InfluxDB;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
@@ -89,32 +91,57 @@ namespace nvt_back.Mqtt
             return Task.CompletedTask;
         }
 
+        private async void handleHeartbeatReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
+        {
+            var heartbeat = JsonConvert.DeserializeObject<Heartbeat>(payloadString)!;
+            bool hasStatusChanged = await _deviceOnlineStatusService.HasDeviceOnlineStatusChanged(heartbeat.DeviceId, heartbeat.Status == Status.ON);
+
+            if (heartbeat.Status == Status.ON)
+            {
+                await _deviceOnlineStatusService.UpdateLatestHeartbeat(heartbeat, DateTime.UtcNow);
+
+                if (hasStatusChanged)
+                {
+                    await _deviceOnlineStatusService.UpdateOnlineStatus(heartbeat.DeviceId, true);
+                    await _influxDBService.WriteHeartbeatToInfluxDBForDevice(heartbeat.DeviceId, (int)heartbeat.Status);
+                }
+            }
+            Console.WriteLine(heartbeat.InitializeParameters);
+            if (heartbeat.InitializeParameters)
+            {
+                var payload = await _deviceSimulatorInitializationService.Initialize(heartbeat.DeviceId);
+                await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+            }
+        }
+
         private async Task _mqttClient_ApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg)
         {
             string topic = arg.ApplicationMessage.Topic;
-            if (topic.Split("/").Last() == "heartbeat")
+            string topicType = topic.Split("/").Last();
+
+            string payloadString = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
+            Console.WriteLine($"\nGot message {payloadString} from topic {topic}");
+
+            switch (topicType)
             {
-                string payloadString = Encoding.UTF8.GetString(arg.ApplicationMessage.Payload);
-                Console.WriteLine($"\nGot message {payloadString} from topic {topic}");
+                case "heartbeat":
+                    handleHeartbeatReceived(arg, topic, payloadString);
+                    break;
+                case "command":
+                    handleCommandReceived(arg, topic, payloadString);
+                    break;
+            }
+        }
 
-                var heartbeat = JsonConvert.DeserializeObject<Heartbeat>(payloadString)!;
-                bool hasStatusChanged = await _deviceOnlineStatusService.HasDeviceOnlineStatusChanged(heartbeat.DeviceId, heartbeat.Status == Status.ON);
+        private async void handleCommandReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
+        {
+            var command = JsonConvert.DeserializeObject<CommandResultDTO>(payloadString)!;
 
-                if (heartbeat.Status == Status.ON)
-                {
-                    await _deviceOnlineStatusService.UpdateLatestHeartbeat(heartbeat, DateTime.UtcNow);
-
-                    if (hasStatusChanged) {
-                        await _deviceOnlineStatusService.UpdateOnlineStatus(heartbeat.DeviceId, true);
-                        await _influxDBService.WriteHeartbeatToInfluxDBForDevice(heartbeat.DeviceId, (int)heartbeat.Status);
-                    }
-                }
-                Console.WriteLine(heartbeat.InitializeParameters);
-                if (heartbeat.InitializeParameters)
-                {
-                    var payload = await _deviceSimulatorInitializationService.Initialize(heartbeat.DeviceId);
-                    await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
-                }
+            if (command.Action == "OnOff")
+            {
+                //handle device turn off / on
+                Console.WriteLine("Evo porukice *****************");
+                Console.WriteLine(payloadString);
             }
         }
 
@@ -177,14 +204,15 @@ namespace nvt_back.Mqtt
             await this.Publish(topic, payloadJSON);
         }
 
+        // TODO: kako ovo?
         public async Task PublishDeactivatedStatus(int deviceId)
         {
-            string topic = GetHeartbeatTopicForDevice(deviceId);
-            var payload = new Heartbeat
+            string topic = GetCommandTopicForDevice(deviceId);
+            var payload = new 
             {
-                PlatformResponse = "You are offline!",
+                Type = "OnlineOffline",
                 Sender = Sender.PLATFORM,
-                Status = Status.OFF
+                Action = "offline"
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
 
@@ -196,8 +224,23 @@ namespace nvt_back.Mqtt
             string topic = GetCommandTopicForDevice(deviceId);
             var payload = new
             {
-                Type = "Status",
+                Type = "OnOff",
+                Sender = Sender.PLATFORM,
                 Action = status
+            };
+            var payloadJSON = JsonConvert.SerializeObject(payload);
+            await this.Publish(topic, payloadJSON);
+
+        }
+
+        public async Task PublishRegimeUpdate(int deviceId, string value)
+        {
+            string topic = GetCommandTopicForDevice(deviceId);
+            var payload = new
+            {
+                Type = "Regime",
+                Sender = Sender.PLATFORM,
+                Value = value,
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
             await this.Publish(topic, payloadJSON);

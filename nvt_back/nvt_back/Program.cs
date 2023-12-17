@@ -29,7 +29,7 @@ builder.Services.Configure<EmailSettings>
    (options => builder.Configuration.GetSection("EmailSettings").Bind(options));
 
 
-/*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -49,14 +49,14 @@ builder.Services.Configure<EmailSettings>
                 return Task.CompletedTask;
             }
         };
-    });*/
+    });
 
-/*builder.Services.AddAuthorization(o =>
+builder.Services.AddAuthorization(o =>
 {
     o.AddPolicy("SuperAdmin", p => p.RequireRole("SUPERADMIN"));
     o.AddPolicy("Admin", p => p.RequireRole("ADMIN", "SUPERADMIN"));
     o.AddPolicy("User", p => p.RequireRole("USER"));
-});*/
+});
 
 builder.Services.AddTransient<IPropertyRepository, PropertyRepository>();
 builder.Services.AddTransient<ICityRepository, CityRepository>();
@@ -114,9 +114,9 @@ app.UseRouting();
 
 app.UseCors();
 
-//app.UseAuthentication();
-//app.UseAuthorization();
-//app.UseMiddleware<ClaimsMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<ClaimsMiddleware>();
 
 app.UseEndpoints(endpoints =>
 {

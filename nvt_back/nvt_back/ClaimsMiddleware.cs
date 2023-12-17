@@ -18,7 +18,7 @@ namespace nvt_back
             if (context.User.Identity is ClaimsIdentity identity)
             {
                 Console.WriteLine("Middleware sdsadsad");
-                /*try
+                try
                 {
                     User loggedUser = new User();
                     loggedUser.Id = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -36,7 +36,7 @@ namespace nvt_back
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Exception in middleware: {ex}");
-                }*/
+                }
             }
 
             await _next(context);

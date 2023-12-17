@@ -217,10 +217,6 @@ namespace nvt_back.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ImagePath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActivated")
                         .HasColumnType("boolean");
 
@@ -248,7 +244,6 @@ namespace nvt_back.Migrations
                         {
                             Id = 1,
                             Email = "bob@mail.com",
-                            ImagePath = "dsada",
                             IsActivated = true,
                             Name = "Bob",
                             Password = "123",
@@ -259,12 +254,21 @@ namespace nvt_back.Migrations
                         {
                             Id = 2,
                             Email = "rob@mail.com",
-                            ImagePath = "dsada",
                             IsActivated = true,
                             Name = "Rob",
                             Password = "123",
                             Role = 0,
                             Surname = "Boss"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Email = "lob@mail.com",
+                            IsActivated = true,
+                            Name = "Lob",
+                            Password = "123",
+                            Role = 2,
+                            Surname = "Loss"
                         });
                 });
 
@@ -350,11 +354,11 @@ namespace nvt_back.Migrations
                     b.Property<int>("BrightnessLevel")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Color")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsOn")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("Regime")
+                        .HasColumnType("integer");
 
                     b.ToTable("Lamps", (string)null);
                 });
@@ -368,6 +372,9 @@ namespace nvt_back.Migrations
 
                     b.Property<bool>("IsOn")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("NumberOfPanels")
+                        .HasColumnType("integer");
 
                     b.Property<double>("Size")
                         .HasColumnType("double precision");

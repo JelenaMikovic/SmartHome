@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using nvt_back.Migrations;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
@@ -55,6 +54,7 @@ namespace nvt_back.Repositories
                 throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
             bool isTurnedOn = (status == "ON");
 
+
             if (device.DeviceType == DeviceType.SOLAR_PANEL)
             {
                 SolarPanel solarPanel = (SolarPanel)device;
@@ -63,6 +63,18 @@ namespace nvt_back.Repositories
                 else
                 {
                     solarPanel.IsOn = isTurnedOn;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            } 
+            else
+            {
+                Lamp lamp = (Lamp)device;
+                if (lamp.IsOn == isTurnedOn)
+                    return false;
+                else
+                {
+                    lamp.IsOn = isTurnedOn;
                     await _context.SaveChangesAsync();
                     return true;
                 }

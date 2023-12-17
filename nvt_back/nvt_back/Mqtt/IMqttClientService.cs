@@ -13,6 +13,7 @@ namespace nvt_back.Mqtt
         public Task PublishActivatedStatus(int deviceId);
         public Task PublishDeactivatedStatus(int deviceId);
         public Task PublishStatusUpdate(int deviceId, string status);
+        public Task PublishRegimeUpdate(int deviceId, string value);
         public Task SubscribeToHeartbeatTopics();
     }
 }
