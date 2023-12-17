@@ -11,7 +11,7 @@ export class AmbientalSensorComponent implements OnInit {
   private readonly deviceId = "5";
   private updateInterval: any;
 
-  constructor(private db: InfluxDBDataService) { }
+  constructor(private deviceService: InfluxDBDataService) { }
 
   ngOnInit(): void {
     this.updateCharts();
@@ -21,26 +21,46 @@ export class AmbientalSensorComponent implements OnInit {
   }
 
   updateCharts(){
-    this.db.getAmbientalTemperature(this.deviceId)
-    .then((value) => {
-      this.createChart(value);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    // this.db.getAmbientalTemperature(this.deviceId)
+    // .then((value) => {
+    //   this.createChart(value);
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
 
-    this.db.getAmbientalHumidity(this.deviceId)
-    .then((value) => {
-      this.createChartHumidity(value);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    // this.db.getAmbientalHumidity(this.deviceId)
+    // .then((value) => {
+    //   this.createChartHumidity(value);
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
+    const currentDate = new Date();
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(currentDate.getDate() - 3);
+
+    const ambientSensorReportDTO = {
+      deviceId: 5,
+      startDate: threeDaysAgo.toISOString(),
+      endDate: currentDate.toISOString(),
+    };
+
+    this.deviceService.getAmbientSensorReport(ambientSensorReportDTO).subscribe(
+      (response) => {
+        console.log('Response:', response);
+        this.createChart(response.temperatureData)
+        this.createChartHumidity(response.humidityData)
+      },
+      (error) => {
+        console.error('Error:', error);
+      }
+    );
   }
 
-  createChart(data: { timestamp: string; temperature: string }[]): void {
+  createChart(data: { timestamp: string; value: string }[]): void {
     const timestamps = data.map((entry) => entry.timestamp);
-    const temperatures = data.map((entry) => parseFloat(entry.temperature));
+    const temperatures = data.map((entry) => parseFloat(entry.value));
 
     const options: Highcharts.Options = {
       chart: {
@@ -69,9 +89,9 @@ export class AmbientalSensorComponent implements OnInit {
     Highcharts.chart('temperature-chart-container', options);
   }
 
-  createChartHumidity(data: { timestamp: string; humidity: string }[]): void {
+  createChartHumidity(data: { timestamp: string; value: string }[]): void {
     const timestamps = data.map((entry) => entry.timestamp);
-    const humidities = data.map((entry) => parseFloat(entry.humidity));
+    const humidities = data.map((entry) => parseFloat(entry.value));
 
     const options: Highcharts.Options = {
       chart: {
