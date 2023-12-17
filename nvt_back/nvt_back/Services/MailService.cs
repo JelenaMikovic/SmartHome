@@ -87,7 +87,7 @@ namespace nvt_back.Services
 
         public async void SendAccountActiationEmail(string email, string name, string activationCode)
         {
-            string templateId = "";
+            string templateId = "d-f28365b27f904d8c911a0ec381b4e21e";
 
             try
             {

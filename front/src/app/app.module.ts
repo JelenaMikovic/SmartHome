@@ -34,6 +34,7 @@ import { RegisterComponent } from './register/register.component';
 import { CodeDialogComponent } from './code-dialog/code-dialog.component';
 import { ChangePasswordComponent } from './chang-password/chang-password.component';
 import { RegisterAdminComponent } from './register-admin/register-admin.component';
+import { AmbientalSensorComponent } from './ambiental-sensor/ambiental-sensor.component';
 import { PropertyDetailsComponent } from './property-details/property-details.component';
 import { DeviceCardComponent } from './device-card/device-card.component';
 import { DeviceDetailsComponent } from './device-details/device-details.component';
@@ -55,6 +56,7 @@ import { DeviceDetailsComponent } from './device-details/device-details.componen
     CodeDialogComponent,
     ChangePasswordComponent,
     RegisterAdminComponent,
+    AmbientalSensorComponent,
     PropertyDetailsComponent,
     DeviceCardComponent,
     DeviceDetailsComponent
