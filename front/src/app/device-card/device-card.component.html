@@ -1,81 +1,61 @@
-<div class="basic-container" id="card-container" [ngClass]="{'card-container-50 transition': !isDetails}">
-    <div [ngClass]="isDetails ? 'image-container' : 'image-container-details'">
-        <img src={{device.image}} style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;"/>
-    </div>
-
-    <div id="info-container">
-        <div>
-            <h2 class="light-blue">{{ device.name }}</h2>
-        </div>
-        <div>
-            <i class="fa-solid fa-plug"></i>
-            <span class="black">{{device.powerConsumption}} kWh consumption</span>
-        </div>
-        <div>
-            <i class="fa-solid fa-plug"></i>
-            <span class="black">{{ device.powerSource == 0 ? 'Alkaline' : (device.powerSource == 1 ? 'Battery' : 'Electrical grid') }} power source</span>
+<div class="first-row">
+    <div class="basic-container" id="card-container" [ngClass]="{'card-container-50 transition': !isDetails}">
+        <div [ngClass]="isDetails ? 'image-container' : 'image-container-details'">
+            <img src={{device.image}} style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;"/>
         </div>
 
-        <div *ngIf="isDetails">
-            <div *ngIf="device.deviceType === 'SOLAR_PANEL'">
-                <i class="fa-solid fa-maximize"></i>
-                <span class="black">{{ device.size }} m2</span>
-            </div>
-            <div *ngIf="device.deviceType === 'SOLAR_PANEL'">
-                <i class="fa-solid fa-hashtag"></i>
-                <span class="black">{{device.numberOfPanels}} panels</span>
-            </div>
-            <div *ngIf="device.deviceType === 'SOLAR_PANEL'">
-                <i class="fa-solid fa-percent"></i>
-                <span class="black">{{device.efficiency}} efficiency</span>
-            </div>
-            <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
-                <i class="fa-solid fa-sun"></i>
-                <span class="black">{{device.currentTemperature}} C</span>
-            </div>
-            <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
-                <i class="fa-solid fa-percent"></i>
-                <span class="black">{{device.currentHumidity}} %</span>
-            </div>
-            <div *ngIf="device.deviceType === 'LAMP'">
-                <i class="fa-solid fa-sun"></i>
-                <span class="black">{{device.brightnessLevel}} lux</span>
-            </div>
-        </div>
-
-        <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
-            <div [ngClass]="{
-                'active-status': device.isOnline == true,
-                'denied-status': device.isOnline == false,
-                'status': true
-              }" class="active-button">{{ device.isOnline ? 'Online' : 'Offline' }}</div>
-        </div>
-    </div>
-    <!-- && device.deviceType == 'SOLAR_PANEL' -->
-</div>
-
-<div *ngIf="isDetails" style="display: block; flex-direction: row; justify-content: space-between;">
-    <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
         <div id="info-container">
-            <h2>Current Values</h2>
-            <div class="ambiental-sensor-container">
-                <div id="current-temperature-chart-container" style="height: 400px;"></div>
+            <div>
+                <h2 class="light-blue">{{ device.name }}</h2>
             </div>
-            <div class="ambiental-sensor-container">
-                <div id="current-humidity-chart-container" style="height: 400px;"></div>
+            <div>
+                <i class="fa fa-bolt orange" aria-hidden="true"></i>
+                <span class="black">{{device.powerConsumption}} kWh consumption</span>
+            </div>
+            <div>
+                <i class="fa-solid fa-plug green"></i>
+                <span class="black">{{ device.powerSource == 0 ? 'Alkaline' : (device.powerSource == 1 ? 'Battery' : 'Electrical grid') }} power source</span>
+            </div>
+
+            <div *ngIf="isDetails">
+                <div *ngIf="device.deviceType === 'SOLAR_PANEL'">
+                    <i class="fa-solid fa-maximize"></i>
+                    <span class="black">{{ device.size }} m2</span>
+                </div>
+                <div *ngIf="device.deviceType === 'SOLAR_PANEL'">
+                    <i class="fa-solid fa-hashtag"></i>
+                    <span class="black">{{device.numberOfPanels}} panels</span>
+                </div>
+                <div *ngIf="device.deviceType === 'SOLAR_PANEL'">
+                    <i class="fa-solid fa-percent"></i>
+                    <span class="black">{{device.efficiency}} efficiency</span>
+                </div>
+                <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
+                    <i class="fa-solid fa-sun"></i>
+                    <span class="black">{{device.currentTemperature}} C</span>
+                </div>
+                <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
+                    <i class="fa-solid fa-percent"></i>
+                    <span class="black">{{device.currentHumidity}} %</span>
+                </div>
+                <div *ngIf="device.deviceType === 'LAMP'">
+                    <i class="fa-solid fa-sun yellow"></i>
+                    <span class="black">{{device.brightnessLevel}} lux</span>
+                </div>
+            </div>
+
+            <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
+                <div [ngClass]="{
+                    'active-status': device.isOnline == true,
+                    'denied-status': device.isOnline == false,
+                    'status': true
+                }" class="active-button">{{ device.isOnline ? 'Online' : 'Offline' }}</div>
             </div>
         </div>
-    </div>
-    <div *ngIf="device.deviceType === 'LAMP'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
-        <div id="info-container">
-            <h2>Current Values</h2>
-            <div class="lamp-container">
-                <div id="current-brightness-chart-container" style="height: 400px;"></div>
-            </div>
-        </div>
+        <!-- && device.deviceType == 'SOLAR_PANEL' -->
     </div>
 
-    <div class="basic-container smaller-container" style="width: 30%;" id="card-container" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">
+    <div class="basic-container smaller-container" id="card-container" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">
         <div id="info-container">
             <div>
                 <h2 style="font-size: 1.2em" class="light-blue">Device actions</h2>
@@ -92,6 +72,30 @@
             </div>
         </div>
     </div>
+</div>
+
+<div *ngIf="isDetails" style="display: block; flex-direction: row; justify-content: space-between;">
+    <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
+        <div id="info-container">
+            <h2>Current Values</h2>
+            <div class="ambiental-sensor-container">
+                <div id="current-temperature-chart-container" style="height: 400px;"></div>
+            </div>
+            <div class="ambiental-sensor-container">
+                <div id="current-humidity-chart-container" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- <div *ngIf="device.deviceType === 'LAMP'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
+        <div id="info-container">
+            <h2>Current Values</h2>
+            <div class="lamp-container">
+                <div id="current-brightness-chart-container" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div> -->
+
+    
 
     <div class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '55%'}" id="card-container">        
         <div id="info-container">
@@ -126,8 +130,8 @@
             </div>
         </div>
     </div>
-    <div>      
-        <mat-form-field  appearance="fill">
+    <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AMBIENT-SENSOR'">      
+        <mat-form-field>
             <mat-label>Search</mat-label>
             <input matInput placeholder="please enter a value" (input)="applyFilter($event)">
           </mat-form-field>

@@ -186,9 +186,11 @@ def generate_data(device_id):
 
     measurement = "illuminance"
     tags = f"device_id={device_id}"
-    fields = "illuminance=" + str()
+    fields = "illuminance=" + str(illuminance)
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
+
+    print(influx_line_protocol)
     return influx_line_protocol
 
 def publish_data():
@@ -197,7 +199,7 @@ def publish_data():
         if IS_ONLINE and not INITIALIZE_PARAMETERS:
             print(calculate_illuminance())
             client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did))
-            time.sleep(60)
+            time.sleep(10)
 
 if __name__ == "__main__":
     publish_heartbeat_thread = threading.Thread(target=publish_heartbeat, daemon=True)

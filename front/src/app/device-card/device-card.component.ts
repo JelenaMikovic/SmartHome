@@ -48,6 +48,7 @@ export class DeviceCardComponent implements OnInit {
       this.deviceService.getDeviceDetailsById(this.deviceId).subscribe({
         next: (value: any) => {
           this.device = value;
+          this.initDevice();
           console.log(this.device)
           this.lastHour()
         },
@@ -58,6 +59,13 @@ export class DeviceCardComponent implements OnInit {
     
     } else{
       console.log(this.device);
+    }
+  }
+
+  initDevice() {
+    if (this.device.deviceType == "LAMP") {
+      this.checkedAutomatic = this.device.regime == "AUTOMATIC"? true: false;
+      this.checkedOnOff = this.device.isOn;
     }
   }
 
@@ -101,17 +109,17 @@ export class DeviceCardComponent implements OnInit {
         }
       );
     }
-    if(this.device.deviceType == "LAMP"){
-      this.deviceService.getLampReport(dto).subscribe(
-        (response) => {
-          console.log('Response:', response);
-          this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
-        },
-        (error) => {
-          console.error('Error:', error);
-        }
-      );
-    }
+    // if(this.device.deviceType == "LAMP"){
+    //   this.deviceService.getLampReport(dto).subscribe(
+    //     (response) => {
+    //       console.log('Response:', response);
+    //       this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
+    //     },
+    //     (error) => {
+    //       console.error('Error:', error);
+    //     }
+    //   );
+    // }
   }
 
   onIntervalSelected(){
