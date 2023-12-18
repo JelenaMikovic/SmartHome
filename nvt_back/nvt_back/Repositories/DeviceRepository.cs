@@ -48,39 +48,30 @@ namespace nvt_back.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> ToggleState(int id, string status)
+        public async Task ToggleState(int id, string status)
         {
             var device = await GetById(id);
-            if (device == null)
-                throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
             bool isTurnedOn = (status == "ON");
 
 
             if (device.DeviceType == DeviceType.SOLAR_PANEL)
             {
                 SolarPanel solarPanel = (SolarPanel)device;
-                if (solarPanel.IsOn == isTurnedOn)
-                    return false;
-                else
+                if (solarPanel.IsOn != isTurnedOn)
                 {
                     solarPanel.IsOn = isTurnedOn;
                     await _context.SaveChangesAsync();
-                    return true;
                 }
             } 
             else
             {
                 Lamp lamp = (Lamp)device;
-                if (lamp.IsOn == isTurnedOn)
-                    return false;
-                else
-                {
+                if (lamp.IsOn != isTurnedOn)
+                { 
                     lamp.IsOn = isTurnedOn;
                     await _context.SaveChangesAsync();
-                    return true;
                 }
             }
-            return false;
         }
 
         public async Task<int> GetDeviceCountForProperty(int propertyId)

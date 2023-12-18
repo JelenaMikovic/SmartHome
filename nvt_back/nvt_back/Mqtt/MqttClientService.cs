@@ -33,11 +33,13 @@ namespace nvt_back.Mqtt
         private readonly InfluxDBService _influxDBService;
         private readonly IDeviceOnlineStatusService _deviceOnlineStatusService;
         private readonly IDeviceService _deviceService;
+        private readonly IDeviceRepository _deviceRepository;
         private readonly IDeviceSimulatorInitializationService _deviceSimulatorInitializationService;
 
         public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService,
             IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService,
-            IDeviceSimulatorInitializationService deviceSimulatorInitializationService)
+            IDeviceSimulatorInitializationService deviceSimulatorInitializationService,
+            IDeviceRepository deviceRepository)
         {
             var config = mqttConfiguration.Value;
             _username = config.Username;
@@ -48,6 +50,7 @@ namespace nvt_back.Mqtt
             _deviceOnlineStatusService = deviceOnlineStatusService;
             _deviceService = deviceService;
             _deviceSimulatorInitializationService = deviceSimulatorInitializationService;
+            _deviceRepository = deviceRepository;
         }
 
         public async Task Connect()
@@ -153,6 +156,18 @@ namespace nvt_back.Mqtt
                 //handle device turn off / on
                 Console.WriteLine("Evo porukice SVE OK *****************");
                 Console.WriteLine(payloadString);
+
+                _deviceRepository.ToggleState(command.DeviceId, command.Value);
+            } 
+            else
+            {
+                if (command.Action == "Regime")
+                {
+                    Console.WriteLine("Evo porukice SVE OK *****************");
+                    Console.WriteLine(payloadString);
+
+                    _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                }
             }
         }
 

@@ -60,15 +60,50 @@ namespace nvt_back.Services
             return false;
         }
 
+        private async Task<bool> hasStateChanged(int id, string status)
+        {
+            var device = await _deviceRepository.GetById(id);
+            if (device == null)
+                throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
+            bool isTurnedOn = (status == "ON");
+
+
+            if (device.DeviceType == DeviceType.SOLAR_PANEL)
+            {
+                SolarPanel solarPanel = (SolarPanel)device;
+                if (solarPanel.IsOn == isTurnedOn)
+                    return false;
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                Lamp lamp = (Lamp)device;
+                if (lamp.IsOn == isTurnedOn)
+                    return false;
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public async Task<bool> Toggle(int id, string status, int userId)
         {
-            bool hasStatusChanged = await _deviceRepository.ToggleState(id, status);
+            bool hasStatusChanged = await hasStateChanged(id, status);
             if (hasStatusChanged)
             {
                 await _mqttClientService.PublishStatusUpdate(id, status, userId);
-                //TODO: dodati u influx upis promene statusa
             }
             return hasStatusChanged;
+        }
+
+        public async Task UpdateOnOff(int id, string status)
+        {
+            await this._deviceRepository.ToggleState(id, status);
         }
     }
 }

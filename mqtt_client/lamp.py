@@ -29,7 +29,7 @@ PUBLISHER_DATA_TOPIC = "topic/device/" + str(args.did) + "/data"
 SUBSCRIBER_COMMAND_TOPIC = "topic/device/" + str(args.did) + "/command"
 
 IS_ONLINE = True
-IS_ON = False
+IS_ON = True
 INITIALIZE_PARAMETERS = True
 IS_AUTOMATIC = False
 lamp_initialization = None
@@ -44,8 +44,12 @@ def update_on_off_status(data):
     previous_status = IS_ON
     IS_ON = False if data['Action'] == 'OFF' else True
     if not IS_ON and previous_status:
+        save_to_influx(data["Type"], data["Action"], data["Actor"])
+        client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
         print("Going to sleep...")
     elif IS_ON and not previous_status:
+        save_to_influx(data["Type"], data["Action"], data["Actor"])
+        client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
         print("I'm back!")
 
 def change_regime(data):
@@ -176,16 +180,18 @@ def turn_on():
     print("turn_on *******************")
     IS_ON = True
 
-    client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
     save_to_influx("OnOff", "ON", "self")
+    client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
+    
 
 def turn_off():
     global IS_ON
     print("turn_off ******************")
     IS_ON = False
 
-    client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
     save_to_influx("OnOff", "OFF", "self")
+    client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
+
 
 def generate_data(device_id):
     global IS_AUTOMATIC
