@@ -12,8 +12,9 @@ namespace nvt_back.Mqtt
         public string GetCommandTopicForDevice(int deviceId);
         public Task PublishActivatedStatus(int deviceId);
         public Task PublishDeactivatedStatus(int deviceId);
-        public Task PublishStatusUpdate(int deviceId, string status);
-        public Task PublishRegimeUpdate(int deviceId, string value);
+        public Task PublishStatusUpdate(int deviceId, string status, int userId);
+        public Task PublishRegimeUpdate(int deviceId, string value, int userId);
         public Task SubscribeToHeartbeatTopics();
+        public Task SubscribeToCommandTopics();
     }
 }

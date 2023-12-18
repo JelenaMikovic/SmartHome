@@ -137,10 +137,21 @@ namespace nvt_back.Mqtt
         {
             var command = JsonConvert.DeserializeObject<CommandResultDTO>(payloadString)!;
 
+            if (command.Sender == Sender.PLATFORM)
+                return;
+
+            if (command.Result == CommandResult.FAILIURE)
+            {
+                Console.WriteLine("Error");
+                Console.WriteLine(payloadString);
+
+                //TODO: posalji na front preko soketa
+            }
+
             if (command.Action == "OnOff")
             {
                 //handle device turn off / on
-                Console.WriteLine("Evo porukice *****************");
+                Console.WriteLine("Evo porukice SVE OK *****************");
                 Console.WriteLine(payloadString);
             }
         }
@@ -153,10 +164,20 @@ namespace nvt_back.Mqtt
 
         public async Task SubscribeToHeartbeatTopics()
         {
-            Console.WriteLine("Subscribing to online devices...");
+            Console.WriteLine("Subscribing to devices' heartbeat topic...");
             var devices = await _deviceService.GetAll();
             var subscriptionTasks = devices
                 .Select(device => this.Subscribe(this.GetHeartbeatTopicForDevice(device.Id)))
+                .ToList();
+            await Task.WhenAll(subscriptionTasks);
+        }
+
+        public async Task SubscribeToCommandTopics()
+        {
+            Console.WriteLine("Subscribing to devices' command topic...");
+            var devices = await _deviceService.GetAll();
+            var subscriptionTasks = devices
+                .Select(device => this.Subscribe(this.GetCommandTopicForDevice(device.Id)))
                 .ToList();
             await Task.WhenAll(subscriptionTasks);
         }
@@ -219,21 +240,22 @@ namespace nvt_back.Mqtt
             await this.Publish(topic, payloadJSON);
         }
 
-        public async Task PublishStatusUpdate(int deviceId, string status)
+        public async Task PublishStatusUpdate(int deviceId, string status, int userId)
         {
             string topic = GetCommandTopicForDevice(deviceId);
             var payload = new
             {
                 Type = "OnOff",
                 Sender = Sender.PLATFORM,
-                Action = status
+                Action = status,
+                Actor = userId
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
             await this.Publish(topic, payloadJSON);
 
         }
 
-        public async Task PublishRegimeUpdate(int deviceId, string value)
+        public async Task PublishRegimeUpdate(int deviceId, string value, int userId)
         {
             string topic = GetCommandTopicForDevice(deviceId);
             var payload = new
@@ -241,6 +263,7 @@ namespace nvt_back.Mqtt
                 Type = "Regime",
                 Sender = Sender.PLATFORM,
                 Value = value,
+                Actor = userId
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
             await this.Publish(topic, payloadJSON);

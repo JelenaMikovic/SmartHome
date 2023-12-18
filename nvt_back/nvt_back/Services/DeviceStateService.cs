@@ -53,7 +53,7 @@ namespace nvt_back.Services
             Console.WriteLine(regime + " " + lamp.Regime);
             if (regime != lamp.Regime)
             {
-                await _mqttClientService.PublishRegimeUpdate(dto.DeviceId, regime.ToString());
+                await _mqttClientService.PublishRegimeUpdate(dto.DeviceId, regime.ToString(), userId);
                 return true;
             }
 
@@ -65,7 +65,7 @@ namespace nvt_back.Services
             bool hasStatusChanged = await _deviceRepository.ToggleState(id, status);
             if (hasStatusChanged)
             {
-                await _mqttClientService.PublishStatusUpdate(id, status);
+                await _mqttClientService.PublishStatusUpdate(id, status, userId);
                 //TODO: dodati u influx upis promene statusa
             }
             return hasStatusChanged;

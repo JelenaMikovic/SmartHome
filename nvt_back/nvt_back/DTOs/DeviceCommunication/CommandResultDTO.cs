@@ -1,4 +1,5 @@
 ﻿using nvt_back.DTOs.Mqtt;
+using nvt_back.Mqtt;
 using System.ComponentModel.DataAnnotations;
 
 namespace nvt_back.DTOs.DeviceCommunication
@@ -31,5 +32,6 @@ namespace nvt_back.DTOs.DeviceCommunication
 
         [Required(ErrorMessage = "Message field is required")]
         public String Message { get; set; }
+        public Sender? Sender{ get; set; }
     }
 }
