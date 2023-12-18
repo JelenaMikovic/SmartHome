@@ -66,8 +66,16 @@
             </div>
         </div>
     </div>
+    <div *ngIf="device.deviceType === 'LAMP'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
+        <div id="info-container">
+            <h2>Current Values</h2>
+            <div class="lamp-container">
+                <div id="current-brightness-chart-container" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
 
-    <div class="basic-container smaller-container" style="width: 30%;" id="card-container">
+    <div class="basic-container smaller-container" style="width: 30%;" id="card-container" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">
         <div id="info-container">
             <div>
                 <h2 style="font-size: 1.2em" class="light-blue">Device actions</h2>
@@ -85,7 +93,7 @@
         </div>
     </div>
 
-    <div class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' ? '100%' : '55%'}" id="card-container">        
+    <div class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '55%'}" id="card-container">        
         <div id="info-container">
             <div class="hover-opacity" style="display: flex; flex-direction: row; justify-content: space-around;">
                 <div>
@@ -105,14 +113,16 @@
                       </mat-option>
                     </mat-select>
                   </mat-form-field>
-                  <button class="conf-button add-prop-btn back-light-blue">generate</button>
             
             </div>
-            <div *ngIf="isSelected" class="ambiental-sensor-container">
+            <div *ngIf="isSelected && device.deviceType === 'AMBIENT_SENSOR'" class="ambiental-sensor-container">
                 <div id="temperature-chart-container" style="height: 400px;"></div>
             </div>
-            <div *ngIf="isSelected" class="ambiental-sensor-container">
+            <div *ngIf="isSelected && device.deviceType === 'AMBIENT_SENSOR'" class="ambiental-sensor-container">
                 <div id="humidity-chart-container" style="height: 400px;"></div>
+            </div>
+            <div *ngIf="isSelected && device.deviceType === 'LAMP' " class="lamp-sensor-container">
+                <div id="brightness-chart-container" style="height: 400px;"></div>
             </div>
         </div>
     </div>

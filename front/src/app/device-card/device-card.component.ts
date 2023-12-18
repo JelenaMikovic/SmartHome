@@ -83,22 +83,35 @@ export class DeviceCardComponent implements OnInit {
     startDate.setHours(currentDate.getHours() - 1)
  
 
-    const ambientSensorReportDTO = {
+    const dto = {
       deviceId: this.deviceId,
       startDate: startDate.toISOString(),
       endDate: currentDate.toISOString(),
     };
 
-    this.deviceService.getAmbientSensorReport(ambientSensorReportDTO).subscribe(
-      (response) => {
-        console.log('Response:', response);
-        this.createTemperatureChart(response.temperatureData, "current-temperature-chart-container")
-        this.createHumidityChart(response.humidityData, 'current-humidity-chart-container')
-      },
-      (error) => {
-        console.error('Error:', error);
-      }
-    );
+    if(this.device.deviceType == "AMBIENT_SENSOR"){
+      this.deviceService.getAmbientSensorReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createTemperatureChart(response.temperatureData, "current-temperature-chart-container")
+          this.createHumidityChart(response.humidityData, 'current-humidity-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
+    if(this.device.deviceType == "LAMP"){
+      this.deviceService.getLampReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
   }
 
   onIntervalSelected(){
@@ -122,22 +135,35 @@ export class DeviceCardComponent implements OnInit {
       startDate.setDate(currentDate.getDate() - 30)
     }
 
-    const ambientSensorReportDTO = {
+    const dto = {
       deviceId: this.deviceId,
       startDate: startDate.toISOString(),
       endDate: currentDate.toISOString(),
     };
 
-    this.deviceService.getAmbientSensorReport(ambientSensorReportDTO).subscribe(
-      (response) => {
-        console.log('Response:', response);
-        this.createTemperatureChart(response.temperatureData, 'temperature-chart-container')
-        this.createHumidityChart(response.humidityData, 'humidity-chart-container')
-      },
-      (error) => {
-        console.error('Error:', error);
-      }
-    );
+    if(this.device.deviceType == "AMBIENT_SENSOR"){
+      this.deviceService.getAmbientSensorReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createTemperatureChart(response.temperatureData, 'temperature-chart-container')
+          this.createHumidityChart(response.humidityData, 'humidity-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
+    if(this.device.deviceType == "LAMP"){
+      this.deviceService.getLampReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createBrightnessChart(response.brightnessData, 'brightness-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
   }
 
   reportsBy: string = "interval";
@@ -202,6 +228,37 @@ export class DeviceCardComponent implements OnInit {
           type: 'spline',
           name: 'Humidity',
           data: humidities,
+        },
+      ],
+    };
+
+    Highcharts.chart(name, options);
+  }
+
+  createBrightnessChart(data: { timestamp: string; value: string }[], name: string): void {
+    const timestamps = data.map((entry) => entry.timestamp);
+    const brightnesses = data.map((entry) => parseFloat(entry.value));
+
+    const options: Highcharts.Options = {
+      chart: {
+        type: 'spline',
+      },
+      title: {
+        text: 'Brightness level Chart',
+      },
+      xAxis: {
+        categories: timestamps,
+      },
+      yAxis: {
+        title: {
+          text: 'lux',
+        },
+      },
+      series: [
+        {
+          type: 'spline',
+          name: 'Brightness level',
+          data: brightnesses,
         },
       ],
     };

@@ -29,8 +29,10 @@ namespace nvt_back.InfluxDB
         public async Task<IEnumerable<FluxRecord>> QueryAsync(string query)
         {
             using var client = InfluxDBClientFactory.Create("http://localhost:8086", _adminToken.ToCharArray());
+            Console.WriteLine(_adminToken);
+            Console.WriteLine(_orgId);
             var fluxTables = await client.GetQueryApi().QueryAsync(query, _orgId);
-
+            Console.WriteLine("tri");
             var records = new List<FluxRecord>();
 
             foreach (var fluxTable in fluxTables)

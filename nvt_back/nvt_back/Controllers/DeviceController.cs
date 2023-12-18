@@ -18,8 +18,8 @@ namespace nvt_back.Controllers
         }
 
         [HttpPost]
-        [Route("reports")]
-        public async Task<ActionResult<MessageDTO>> GetAmbientSensorReport(AmbientSensorReportDTO ambientSensorReportDTO)
+        [Route("ambient-reports")]
+        public async Task<ActionResult<MessageDTO>> GetAmbientSensorReport(ReportDTO ambientSensorReportDTO)
         {
             try
             {
@@ -30,6 +30,27 @@ namespace nvt_back.Controllers
                 {
                     TemperatureData = temperature.Result.ToList(),
                     HumidityData = humidity.Result.ToList()
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("lamp-reports")]
+        public async Task<ActionResult<MessageDTO>> GetLampReport(ReportDTO lampReportDTO)
+        {
+            try
+            {
+                Console.WriteLine(lampReportDTO.DeviceId);
+                var brightness = this._deviceService.GetBrightnessLevelData(lampReportDTO);
+                var response = new
+                {
+                    BrightnessData = brightness.Result.ToList(),
                 };
 
                 return Ok(response);

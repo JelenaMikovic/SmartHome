@@ -44,9 +44,13 @@ export class DeviceService {
 
 
   getAmbientSensorReport(ambientSensorReportDTO: any): Observable<any> {
-    const url = `${environment.apiHost}/device/reports`;
+    const url = `${environment.apiHost}/device/ambient-reports`;
+    return this.http.post<any>(url, ambientSensorReportDTO, { withCredentials: true });
+  }
 
-    return this.http.post<any>(url, ambientSensorReportDTO , { withCredentials: true });
+  getLampReport(ambientSensorReportDTO: any): Observable<any> {
+    const url = `${environment.apiHost}/device/lamp-reports`;
+    return this.http.post<any>(url, ambientSensorReportDTO, { withCredentials: true });
   }
 }
 
