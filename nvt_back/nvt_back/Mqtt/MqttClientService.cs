@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
@@ -10,6 +11,7 @@ using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
 using nvt_back.Services.Interfaces;
+using nvt_back.WebSockets;
 using System.Text;
 
 namespace nvt_back.Mqtt
@@ -34,12 +36,13 @@ namespace nvt_back.Mqtt
         private readonly IDeviceOnlineStatusService _deviceOnlineStatusService;
         private readonly IDeviceService _deviceService;
         private readonly IDeviceRepository _deviceRepository;
+        private readonly IHubContext<DeviceHub> _hubContext;
         private readonly IDeviceSimulatorInitializationService _deviceSimulatorInitializationService;
 
         public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService,
             IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService,
             IDeviceSimulatorInitializationService deviceSimulatorInitializationService,
-            IDeviceRepository deviceRepository)
+            IDeviceRepository deviceRepository, IHubContext<DeviceHub> hubContext)
         {
             var config = mqttConfiguration.Value;
             _username = config.Username;
@@ -51,6 +54,7 @@ namespace nvt_back.Mqtt
             _deviceService = deviceService;
             _deviceSimulatorInitializationService = deviceSimulatorInitializationService;
             _deviceRepository = deviceRepository;
+            _hubContext = hubContext;
         }
 
         public async Task Connect()
@@ -133,8 +137,83 @@ namespace nvt_back.Mqtt
                 case "command":
                     handleCommandReceived(arg, topic, payloadString);
                     break;
+                case "data":
+                    await handleDataReceived(arg, topic, payloadString);
+                    break;
             }
         }
+
+        private MeasurementDTO ParseInfluxDbLine(string line)
+        {
+            var parts = line.Split(' ');
+
+            if (parts.Length != 2)
+            {
+                throw new ArgumentException("Invalid input format");
+            }
+
+            var measurement = parts[0].Split(',')[0];
+            var deviceId = int.Parse(parts[0].Split('=')[1]);
+            var illuminance = int.Parse(parts[1].Split('=')[1]);
+
+            return new MeasurementDTO
+            {
+                Measurement = measurement,
+                DeviceId = deviceId,
+                Value = illuminance
+            };
+        }
+
+        private async Task handleDataReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
+        {
+            var data = ParseInfluxDbLine(payloadString);
+            Console.WriteLine(data.DeviceId);
+            Console.WriteLine("evo" + data.Value);
+
+            Device device = await _deviceRepository.GetById(data.DeviceId);
+
+            //if (device == null)
+            //{
+            //    Console.WriteLine("Device with the given id doesn't exist.");
+            //}
+
+            //Console.WriteLine(device.DeviceType);
+            //Console.WriteLine(device.Id);
+
+            //switch (device.DeviceType)
+            //{
+            //    case DeviceType.LAMP:
+            //        await sendLampUpdate(data, device);
+            //        break;
+
+            //}
+
+            //await sendLampUpdate(data);
+
+        }
+
+        private async Task sendLampUpdate(MeasurementDTO data)
+        {
+            var message = new
+            {
+                DeviceId = data.DeviceId,
+                DeviceType = "LAMP",
+                Value = data.Value
+            };
+            await _hubContext.Clients.All.SendAsync("illumUpdate", JsonConvert.SerializeObject(message));
+        }
+
+        //private async Task sendLampUpdate(MeasurementDTO data, Device device)
+        //{
+        //    Lamp lamp = (Lamp)device;
+
+              //provera da li se razlikuje od prethodne vrednosti, samo tada salji
+
+        //    lamp.BrightnessLevel = (int)data.Value;
+        //    Console.WriteLine(lamp.BrightnessLevel);
+        //    await _deviceRepository.SaveChanges();
+
+        //}
 
         private async void handleCommandReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
         {
@@ -157,7 +236,7 @@ namespace nvt_back.Mqtt
                 Console.WriteLine("Evo porukice SVE OK *****************");
                 Console.WriteLine(payloadString);
 
-                _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                await _deviceRepository.ToggleState(command.DeviceId, command.Value);
             } 
             else
             {
@@ -166,13 +245,15 @@ namespace nvt_back.Mqtt
                     Console.WriteLine("Evo porukice SVE OK *****************");
                     Console.WriteLine(payloadString);
 
-                    _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
+                    await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
                 }
             }
         }
 
         public async Task Subscribe(string topic)
         {
+            if (_mqttClient == null)
+                await Connect();
             await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).Build());
             Console.WriteLine($"Subscribed to topic: {topic}");
         }
@@ -195,6 +276,19 @@ namespace nvt_back.Mqtt
                 .Select(device => this.Subscribe(this.GetCommandTopicForDevice(device.Id)))
                 .ToList();
             await Task.WhenAll(subscriptionTasks);
+        }
+
+        public async Task SubscribeToDataTopic(int deviceId)
+        {
+            Console.WriteLine("Subscribing to device's data topic...");
+            await this.Subscribe(this.GetDataTopicForDevice(deviceId));
+        }
+
+        public async Task UnsubscribeFromDataTopic(int deviceId)
+        {
+            string topic = this.GetDataTopicForDevice(deviceId);
+            Console.WriteLine($"\nUnsubscribed from topic: {topic}");
+            await this.Unsubscribe(topic);
         }
 
         public async Task Unsubscribe(string topic)
@@ -224,6 +318,11 @@ namespace nvt_back.Mqtt
         public string GetCommandTopicForDevice(int deviceId)
         {
             return "topic/device/" + deviceId + "/command";
+        }
+
+        public string GetDataTopicForDevice(int deviceId)
+        {
+            return "topic/device/" + deviceId + "/data";
         }
 
         public async Task PublishActivatedStatus(int deviceId)

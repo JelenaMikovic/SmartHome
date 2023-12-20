@@ -17,7 +17,15 @@ namespace nvt_back.Repositories
 
         public async Task<Device> GetById(int deviceId)
         {
-            return await _context.Devices.Include(device => device.Property).ThenInclude(property => property.Address).FirstOrDefaultAsync(device => device.Id == deviceId);
+            try
+            {
+                return await _context.Devices.Include(device => device.Property).ThenInclude(property => property.Address).FirstOrDefaultAsync(device => device.Id == deviceId);
+
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                return null;
+            }
         }
 
         public async Task<List<Device>> GetAll()
@@ -196,5 +204,11 @@ namespace nvt_back.Repositories
                 }
             }
         }
+
+        public async Task SaveChanges()
+        {
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { SocketService } from './../../services/socket.service';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
@@ -10,7 +11,7 @@ import { DeviceService } from 'src/services/device.service';
   templateUrl: './device-card.component.html',
   styleUrls: ['./device-card.component.css', '../property-card/property-card.component.css'],
 })
-export class DeviceCardComponent implements OnInit {
+export class DeviceCardComponent implements OnInit, OnDestroy {
 
   @Input() deviceId: any = {};
   @Input() device: any = {};
@@ -40,7 +41,11 @@ export class DeviceCardComponent implements OnInit {
   } 
 
   constructor(private deviceService: DeviceService,
-    private snackBar: MatSnackBar) { }
+    private snackBar: MatSnackBar, private socketService: SocketService) { }
+  
+  ngOnDestroy(): void {
+    this.socketService.stopConnection();
+  }
 
   ngOnInit(): void {
     if (this.isDetails){
@@ -51,6 +56,11 @@ export class DeviceCardComponent implements OnInit {
           this.initDevice();
           console.log(this.device)
           this.lastHour()
+          this.socketService.startConnection(this.device.id);
+          this.socketService.addIlluminanceUpdateListener((deviceId, illuminance) => {
+            // Handle illuminance update in the component
+            console.log(`Received update for ${deviceId}: ${illuminance}`);
+          });
         },
         error: (err) => {
           console.log(err);
