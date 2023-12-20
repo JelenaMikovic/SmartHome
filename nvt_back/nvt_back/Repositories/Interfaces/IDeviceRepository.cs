@@ -16,6 +16,6 @@ namespace nvt_back.Repositories.Interfaces
         public Task<int> GetDeviceCountForProperty(int propertyId);
         Task<object> GetDetailsById(int id);
         public Task ToggleRegime(int deviceId, string value);
-        public Task SaveChanges();
+        public Task SaveChanges(Device device);
     }
 }

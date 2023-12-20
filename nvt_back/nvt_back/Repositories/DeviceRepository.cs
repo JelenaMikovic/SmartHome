@@ -205,8 +205,9 @@ namespace nvt_back.Repositories
             }
         }
 
-        public async Task SaveChanges()
+        public async Task SaveChanges(Device device)
         {
+            _context.Entry(device).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 

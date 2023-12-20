@@ -38,11 +38,12 @@ namespace nvt_back.Mqtt
         private readonly IDeviceRepository _deviceRepository;
         private readonly IHubContext<DeviceHub> _hubContext;
         private readonly IDeviceSimulatorInitializationService _deviceSimulatorInitializationService;
+        protected readonly IServiceScopeFactory _scopeFactory;
 
         public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService,
             IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService,
             IDeviceSimulatorInitializationService deviceSimulatorInitializationService,
-            IDeviceRepository deviceRepository, IHubContext<DeviceHub> hubContext)
+            IDeviceRepository deviceRepository, IHubContext<DeviceHub> hubContext, IServiceScopeFactory serviceScopeFactory)
         {
             var config = mqttConfiguration.Value;
             _username = config.Username;
@@ -55,6 +56,7 @@ namespace nvt_back.Mqtt
             _deviceSimulatorInitializationService = deviceSimulatorInitializationService;
             _deviceRepository = deviceRepository;
             _hubContext = hubContext;
+            _scopeFactory = serviceScopeFactory;
         }
 
         public async Task Connect()
@@ -170,30 +172,48 @@ namespace nvt_back.Mqtt
             Console.WriteLine(data.DeviceId);
             Console.WriteLine("evo" + data.Value);
 
-            //Device device = await _deviceRepository.GetById(data.DeviceId);
+            Device device = null;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                device = await repository.GetById(data.DeviceId);
+            }
 
-            //if (device == null)
-            //{
-            //    Console.WriteLine("Device with the given id doesn't exist.");
-            //}
+            if (device == null)
+            {
+                Console.WriteLine("Device with the given id doesn't exist.");
+            }
 
-            //Console.WriteLine(device.DeviceType);
-            //Console.WriteLine(device.Id);
 
-            //switch (device.DeviceType)
-            //{
-            //    case DeviceType.LAMP:
-            //        await sendLampUpdate(data, device);
-            //        break;
+            switch (device.DeviceType)
+            {
+                case DeviceType.LAMP:
+                    await sendLampUpdate(data, device);
+                    break;
 
-            //}
+            }
 
-            await sendLampUpdate(data);
+            
 
         }
 
-        private async Task sendLampUpdate(MeasurementDTO data)
+        private async Task sendLampUpdate(MeasurementDTO data, Device device)
         {
+            Lamp lamp = (Lamp)device;
+
+            if (lamp.BrightnessLevel == (int)data.Value)
+                return;
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                lamp.BrightnessLevel = (int)data.Value;
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                await repository.SaveChanges(lamp);
+
+            }
+
             var message = new
             {
                 DeviceId = data.DeviceId,
@@ -208,23 +228,9 @@ namespace nvt_back.Mqtt
             }
             catch (Exception ex)
             {
-                // Log or print the exception details
                 Console.Error.WriteLine($"Error sending message: {ex.Message}");
             }
-            //await _hubContext.Clients.All.SendAsync("illumUpdate", JsonConvert.SerializeObject(message));
         }
-
-        //private async Task sendLampUpdate(MeasurementDTO data, Device device)
-        //{
-        //    Lamp lamp = (Lamp)device;
-
-              //provera da li se razlikuje od prethodne vrednosti, samo tada salji
-
-        //    lamp.BrightnessLevel = (int)data.Value;
-        //    Console.WriteLine(lamp.BrightnessLevel);
-        //    await _deviceRepository.SaveChanges();
-
-        //}
 
         private async void handleCommandReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
         {
@@ -243,8 +249,6 @@ namespace nvt_back.Mqtt
 
             if (command.Action == "OnOff")
             {
-                //handle device turn off / on
-                Console.WriteLine("Evo porukice SVE OK *****************");
                 Console.WriteLine(payloadString);
 
                 await _deviceRepository.ToggleState(command.DeviceId, command.Value);
@@ -253,7 +257,6 @@ namespace nvt_back.Mqtt
             {
                 if (command.Action == "Regime")
                 {
-                    Console.WriteLine("Evo porukice SVE OK *****************");
                     Console.WriteLine(payloadString);
 
                     await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
