@@ -5,3 +5,4 @@ class SolarPanelInitialization(object):
         self.efficiency = json_data['Efficiency']
         self.latitude = json_data['Lat']
         self.longitude = json_data['Lng']
+        self.propertyId = json_data['PropertyId']

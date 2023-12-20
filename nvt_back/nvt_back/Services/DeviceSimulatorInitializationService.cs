@@ -29,6 +29,8 @@ namespace nvt_back.Services
                 return initializeLamp(device);
             if (device.DeviceType == DeviceType.AMBIENT_SENSOR)
                 return initializeAmbientalSensor(device);
+            if (device.DeviceType == DeviceType.HOME_BATTERY) 
+                return initializeBattery(device);
 
             return null;
         }
@@ -59,6 +61,7 @@ namespace nvt_back.Services
                 Size = panel.Size,
                 Lat = panel.Property.Address.Lat,
                 Lng = panel.Property.Address.Lng,
+                PropertyId = panel.PropertyId,
                 //TODO: da li treba dodati on
             };
         }
@@ -72,6 +75,17 @@ namespace nvt_back.Services
                 Type = "Initialization",
                 Lat = ambientSensor.Property.Address.Lat,
                 Lng = ambientSensor.Property.Address.Lng,
+            };
+        }
+
+        private BatteryInitializationDTO initializeBattery(Device device)
+        {
+            HomeBattery battery = (HomeBattery)device;
+
+            return new BatteryInitializationDTO
+            {
+                Capacity = battery.Capacity,
+                CurrentCharge = battery.CurrentCharge,
             };
         }
     }

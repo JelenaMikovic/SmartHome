@@ -15,5 +15,8 @@ namespace nvt_back.Mqtt
         public Task PublishStatusUpdate(int deviceId, string status);
         public Task PublishRegimeUpdate(int deviceId, string value);
         public Task SubscribeToHeartbeatTopics();
+
+        public Task SubscribeToHomeBatteryTopics();
+        public string GetHomeBatteryConsumptionTopicForProperty(int propertyId);
     }
 }

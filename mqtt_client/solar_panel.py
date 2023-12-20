@@ -56,7 +56,6 @@ def on_publish(client: mqtt.Client, userdata: any, mid: any):
         published_message = userdata.get('published_message', 'No message stored')
         print(f"Sent message: {published_message}")
     except:
-        # kako da specifiramo topic
         print(f"Sent message")
 
 def on_disconnect(client: mqtt.Client, userdata: any, on_disconnect):
@@ -83,16 +82,27 @@ def generate_heartbeat_sleep_time():
 
 
 def publish_data():
-    global IS_ON, INITIALIZE_PARAMETERS
+    global IS_ON, INITIALIZE_PARAMETERS, solar_panel_initialization
     while True:
+        # client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did, solar_panel_initialization.propertyId))
+        # time.sleep(10)
         if IS_ON and not INITIALIZE_PARAMETERS:
-            print(simulate_solar_energy_production())
-            client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did))
-            time.sleep(60)
+            # print(simulate_solar_energy_production())
+            client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did, solar_panel_initialization.propertyId))
+            time.sleep(10)
+
+def generate_data(device_id, property_id):
+    measurement = "solar_energy"
+    tags = f"device_id={device_id},property_id={property_id}"
+    fields = "energy=" + str(round(simulate_solar_energy_production(), 0))
+    # fields = "energy=" + str(round(10, 0))
+    
+    influx_line_protocol = f"{measurement},{tags} {fields}"
+    return influx_line_protocol
 
 def get_irradiances():
     endpoint = f'https://api.open-meteo.com/v1/forecast?latitude={round(solar_panel_initialization.latitude,2)}&longitude={round(solar_panel_initialization.longitude,2)}&minutely_15=direct_normal_irradiance'
-    response= requests.get(endpoint)
+    response = requests.get(endpoint)
     irradiances = json.loads(response.content)['minutely_15']['direct_normal_irradiance']
     current_hours = int(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()).split(' ')[1].split(':')[0])
     current_minutes = int(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()).split(' ')[1].split(':')[1])
@@ -105,15 +115,7 @@ def get_irradiances():
     return irradiances[(current_hours+1)*4]
 
 def simulate_solar_energy_production():
-    return solar_panel_initialization.efficiency * solar_panel_initialization.size * solar_panel_initialization.size * get_irradiances()
-
-def generate_data(device_id):
-    measurement = "solar_energy"
-    tags = f"device_id={device_id}"
-    fields = "energy=" + str(round(simulate_solar_energy_production(), 0))
-
-    influx_line_protocol = f"{measurement},{tags} {fields}"
-    return influx_line_protocol
+    return solar_panel_initialization.efficiency * solar_panel_initialization.size * solar_panel_initialization.size * get_irradiances() / 15
 
 if __name__ == "__main__":
     publish_heartbeat_thread = threading.Thread(target=publish_heartbeat, daemon=True)

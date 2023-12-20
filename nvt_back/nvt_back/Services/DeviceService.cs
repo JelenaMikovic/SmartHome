@@ -74,5 +74,20 @@ namespace nvt_back.Services
                 throw;
             }
         }
+
+        public async Task<List<int>> GetPropertyIdsWithHomeBatteries()
+        {
+            return await _deviceRepository.GetPropertyIdsWithHomeBatteries();
+        }
+
+        public async Task<List<HomeBattery>> GetAllBatteriesForPropertyId(int propertyId)
+        {
+            return await _deviceRepository.GetAllBatteriesForPropertyId(propertyId);
+        }
+
+        public async Task<List<Device>> GetConsumingPowerDevicesForProperty(int propertyId)
+        {
+            return await _deviceRepository.GetConsumingPowerDevicesForProperty(propertyId);
+        }
     }
 }

@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import Highcharts from 'highcharts';
 import { DeviceService } from 'src/services/device.service';
+import { ConfirmValidParentMatcher, dateAheadOfTodayValidator, dateMatcher } from '../validators/date-validators';
 
 @Component({
   selector: 'app-device-card',
@@ -31,8 +32,15 @@ export class DeviceCardComponent implements OnInit {
     { action: 'Turned On', time: new Date(), byWho: 'Bob' },
     { action: 'Turned Off', time: new Date(), byWho: 'Bob' },
   ]);
-  startDateControl = new FormControl();
-  endDateControl = new FormControl();
+  // startDateControl = new FormControl();
+  // endDateControl = new FormControl();
+
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
+  
+  datesForm = new FormGroup({
+    startDate: new FormControl('', [Validators.required, dateAheadOfTodayValidator()]),
+    endDate: new FormControl('', [Validators.required, dateAheadOfTodayValidator()])
+  }, [dateMatcher("startDate", "endDate")])
 
   applyFilter(event: Event): void {
     const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
@@ -75,6 +83,14 @@ export class DeviceCardComponent implements OnInit {
           console.log(err);
         }
     })
+  }
+
+  generateByDate(){
+    if (this.datesForm.valid){
+      let date = new Date(this.datesForm.value.startDate!).toISOString().split('T')[0]
+      console.log(date);
+    } 
+    console.log("usao")
   }
 
   lastHour(){

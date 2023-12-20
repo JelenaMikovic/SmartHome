@@ -3,6 +3,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using nvt_back.DTOs.DeviceCommunication;
 using nvt_back.DTOs.Mqtt;
 using nvt_back.InfluxDB;
@@ -130,7 +131,42 @@ namespace nvt_back.Mqtt
                 case "command":
                     handleCommandReceived(arg, topic, payloadString);
                     break;
+                case "batteries_initialization":
+                    handleBatteryInitializationRecieved(arg, topic, payloadString);
+                    break;
             }
+        }
+
+        private async void handleBatteryInitializationRecieved(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
+        {
+            int propertyId = 0;
+            try
+            {
+                var payload = JsonConvert.DeserializeObject<PropertyIdPayload>(payloadString)!;
+                propertyId = payload.PropertyId;
+            } catch (Exception)
+            {
+                return;
+            }
+            var homeBatteries = await _deviceService.GetAllBatteriesForPropertyId(propertyId);
+            var batteriesInitialization = homeBatteries.Select(battery => new BatteryInitializationDTO
+            {
+                Id = battery.Id,
+                Capacity = battery.Capacity,
+                CurrentCharge = battery.CurrentCharge,
+            }).ToList();
+            Console.Write(batteriesInitialization);
+            var jsonString = JsonConvert.SerializeObject(batteriesInitialization);
+
+
+            var message = new MqttApplicationMessageBuilder()
+                .WithTopic("topic/property/" + propertyId + "/command")
+                .WithPayload(jsonString)
+                .Build();
+            if (_mqttClient == null)
+                await Connect();
+            await _mqttClient.PublishAsync(message);
+            Console.WriteLine($"\nPublished message to topic: {"topic/property/"+propertyId+"/command"}");
         }
 
         private async void handleCommandReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
@@ -161,6 +197,16 @@ namespace nvt_back.Mqtt
             await Task.WhenAll(subscriptionTasks);
         }
 
+        public async Task SubscribeToHomeBatteryTopics()
+        {
+            Console.WriteLine("Subscribing to home batteries...");
+            List<int> propertyIds = await _deviceService.GetPropertyIdsWithHomeBatteries();
+            var subscriptionTasks = propertyIds
+                .Select(id => this.Subscribe(this.GetHomeBatteryInitializationTopicForProperty(id)))
+                .ToList();
+            await Task.WhenAll(subscriptionTasks);
+        }
+
         public async Task Unsubscribe(string topic)
         {
             await _mqttClient.UnsubscribeAsync(topic);
@@ -183,6 +229,16 @@ namespace nvt_back.Mqtt
         public string GetHeartbeatTopicForDevice(int deviceId)
         {
             return "topic/device/" + deviceId + "/heartbeat";
+        }
+
+        public string GetHomeBatteryInitializationTopicForProperty(int propertyId)
+        {
+            return "topic/property/" + propertyId + "/batteries_initialization";
+        }
+
+        public string GetHomeBatteryConsumptionTopicForProperty(int propertyId)
+        {
+            return "topic/property/" + propertyId + "/command";
         }
 
         public string GetCommandTopicForDevice(int deviceId)
@@ -246,5 +302,10 @@ namespace nvt_back.Mqtt
             await this.Publish(topic, payloadJSON);
 
         }
+    }
+
+    class PropertyIdPayload
+    {
+        public int PropertyId { get; set; }
     }
 }

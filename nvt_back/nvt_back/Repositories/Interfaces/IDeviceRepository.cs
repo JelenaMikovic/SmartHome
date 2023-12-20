@@ -15,5 +15,8 @@ namespace nvt_back.Repositories.Interfaces
         Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size);
         public Task<int> GetDeviceCountForProperty(int propertyId);
         Task<object> GetDetailsById(int id);
+        Task<List<int>> GetPropertyIdsWithHomeBatteries();
+        Task<List<HomeBattery>> GetAllBatteriesForPropertyId(int propertyId);
+        Task<List<Device>> GetConsumingPowerDevicesForProperty(int propertyId);
     }
 }

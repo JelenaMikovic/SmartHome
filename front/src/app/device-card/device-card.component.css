@@ -68,3 +68,11 @@ mat-form-field {
     /* Change only the background opacity on hover */
     opacity: 0.9; /* Adjust the RGBA values as needed */
 }
+
+@media screen and (max-width: 1200px) { 
+    
+    .smaller-container{ 
+        width: 90%;
+        margin: auto;
+    }
+}

@@ -41,6 +41,14 @@
                 <i class="fa-solid fa-sun"></i>
                 <span class="black">{{device.brightnessLevel}} lux</span>
             </div>
+            <div *ngIf="device.deviceType === 'HOME_BATTERY'">
+                <i class="fa-solid fa-percent"></i>
+                <span class="black">{{device.currentCharge}} charged</span>
+            </div>
+            <div *ngIf="device.deviceType === 'HOME_BATTERY'">
+                <i class="fa-solid fa-battery-three-quarters"></i>
+                <span class="black">{{device.capacity}} kWh capacity</span>
+            </div>
         </div>
 
         <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
@@ -75,7 +83,7 @@
         </div>
     </div>
 
-    <div class="basic-container smaller-container" style="width: 30%;" id="card-container" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">
+    <div class="basic-container smaller-container" style="width: 30%;" id="card-container" *ngIf="device.deviceType != 'AMBIENT_SENSOR' && device.deviceType != 'HOME_BATTERY'">
         <div id="info-container">
             <div>
                 <h2 style="font-size: 1.2em" class="light-blue">Device actions</h2>
@@ -115,6 +123,31 @@
                   </mat-form-field>
             
             </div>
+
+            <form [formGroup]="datesForm" fxLayout="column" *ngIf="reportsBy !='interval'" (ngSubmit)="generateByDate()" style="display: flex;">
+                <mat-form-field style="margin-right: 50px;">
+                    <mat-label>Start date</mat-label>
+                    <input matInput [matDatepicker]="picker1" formControlName="startDate" >
+                    <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
+                    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                    <mat-datepicker #picker1></mat-datepicker>
+                    <mat-error *ngIf="datesForm.get('startDate')?.errors?.['required']">entering date is required</mat-error>
+                    <mat-error *ngIf="datesForm.get('startDate')?.errors?.['dateAheadOfToday']  && !datesForm.get('startDate')?.errors?.['required']">invalid date format</mat-error>
+                </mat-form-field>
+        
+                <mat-form-field style="margin-right: 50px;">
+                    <mat-label>End date</mat-label>
+                    <input matInput [matDatepicker]="picker2" formControlName="endDate" [errorStateMatcher]="confirmValidParentMatcher">
+                    <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
+                    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                    <mat-error *ngIf="datesForm.get('endDate')?.errors?.['required']">entering date is required</mat-error>
+                    <mat-error *ngIf="datesForm.get('endDate')?.errors?.['dateAheadOfToday']  && !datesForm.get('endDate')?.errors?.['required']">invalid date format</mat-error>
+                    <mat-error *ngIf="datesForm.errors?.['dateMismatchError']">dates don't match</mat-error>
+                </mat-form-field>
+
+                <button type="submit" class="conf-button add-prop-btn back-light-blue">generate</button>
+            </form>
             <div *ngIf="isSelected && device.deviceType === 'AMBIENT_SENSOR'" class="ambiental-sensor-container">
                 <div id="temperature-chart-container" style="height: 400px;"></div>
             </div>
@@ -126,6 +159,7 @@
             </div>
         </div>
     </div>
+    
     <div>      
         <mat-form-field  appearance="fill">
             <mat-label>Search</mat-label>

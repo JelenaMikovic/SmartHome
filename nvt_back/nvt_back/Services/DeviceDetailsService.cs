@@ -30,6 +30,7 @@ namespace nvt_back.Services
             PageResultDTO<DeviceDetailsDTO> result = new PageResultDTO<DeviceDetailsDTO>();
 
             int count = await _deviceRepository.GetDeviceCountForProperty(propertyId);
+            Console.WriteLine();
             if (count == 0)
                 return result;
 

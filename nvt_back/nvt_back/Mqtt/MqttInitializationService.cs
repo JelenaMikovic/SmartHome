@@ -20,6 +20,7 @@
                 {
                     await mqttClientService.Connect();
                     await mqttClientService.SubscribeToHeartbeatTopics();
+                    await mqttClientService.SubscribeToHomeBatteryTopics();
                 } catch (Exception ex)
                 {
                     Console.WriteLine("Unable to connect to MQTT");

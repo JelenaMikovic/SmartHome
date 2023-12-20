@@ -8,5 +8,6 @@
         public int NumberOfPanels { get; set; }
         public double Efficiency { get; set; }
         public double Size { get; set; }
+        public int PropertyId { get; set; }
     }
 }

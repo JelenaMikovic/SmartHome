@@ -125,7 +125,28 @@ namespace nvt_back.Repositories
             {
                 return await getLampDetailsById(device);
             }
+            else if (device.DeviceType == DeviceType.HOME_BATTERY)
+            {
+                return await getBatteryDetailsById(device);
+            }
             return null;
+        }
+
+        private async Task<object> getBatteryDetailsById(Device device)
+        {
+            HomeBattery battery = (HomeBattery)device;
+            return new BatteryDetailsDTO
+            {
+                Id = battery.Id,
+                IsOnline = battery.IsOnline,
+                Name = battery.Name,
+                PowerConsumption = battery.PowerConsumption,
+                PowerSource = battery.PowerSource,
+                Image = battery.Image,
+                CurrentCharge = battery.CurrentCharge,
+                Capacity = battery.Capacity,
+                DeviceType = battery.DeviceType.ToString(),
+            };
         }
 
         private async Task<object> getLampDetailsById(Device device)
@@ -181,6 +202,42 @@ namespace nvt_back.Repositories
                 CurrentHumidity = amb.CurrentHumidity,
                 CurrentTemperature = amb.CurrentTemperature
             };
+        }
+
+        public async Task<List<int>> GetPropertyIdsWithHomeBatteries()
+        {
+            return await _context.Devices
+                .Where(device => device.DeviceType == DeviceType.HOME_BATTERY)
+                .Select(device => device.PropertyId)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        public async Task<List<HomeBattery>> GetAllBatteriesForPropertyId(int propertyId)
+        {
+            return await _context.Devices
+                .Where(device => device.DeviceType == DeviceType.HOME_BATTERY && device.PropertyId == propertyId)
+                .Select(device => (HomeBattery)device)
+                .ToListAsync();
+        }
+
+        public async Task<List<Device>> GetConsumingPowerDevicesForProperty(int propertyId)
+        {
+            var devices = await _context.Devices
+            .Where(device => device.PowerSource != 0 && device.PropertyId == propertyId).ToListAsync();
+            List<Device> workingDevices = new List<Device>();
+            foreach (var device in devices)
+            {
+                if (device.DeviceType == DeviceType.SOLAR_PANEL)
+                {
+                    var sp = (SolarPanel)device;
+                    if (sp.IsOn)
+                        workingDevices.Add(sp);
+                }
+                else
+                    workingDevices.Add(device);
+            }
+            return workingDevices;
         }
     }
 }

@@ -82,6 +82,7 @@ builder.Services.AddTransient<IDeviceSimulatorInitializationService, DeviceSimul
 builder.Services.AddTransient<IDeviceDetailsService, DeviceDetailsService>();
 builder.Services.AddSingleton<InfluxDBService>();
 builder.Services.AddTransient<DeviceActivityCheckInvocable>();
+builder.Services.AddTransient<PowerConsumptionInvocable>();
 builder.Services.AddScheduler();
 
 builder.Services.AddCors(options =>
@@ -144,6 +145,7 @@ app.Services.UseScheduler(scheduler =>
     scheduler
         .Schedule<DeviceActivityCheckInvocable>()
         .EverySeconds(30);
+    scheduler.Schedule<PowerConsumptionInvocable>().EverySeconds(20);
 });
 
 
