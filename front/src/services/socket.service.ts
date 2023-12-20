@@ -10,7 +10,7 @@ export class SocketService {
 
   private hubConnection: HubConnection;
 
-  constructor(private deviceService: DeviceService) {
+  constructor() {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(environment.host + '/deviceHub')
       .build();
@@ -19,23 +19,27 @@ export class SocketService {
   startConnection(deviceId: number) {
     console.log("connecting....")
     this.hubConnection.start().then(() => {
-      this.deviceService.subscribeToDataTopic(deviceId).subscribe({
-        next(value) {
-          console.log(value)
-        },
-        error(err) {
-          console.log(err)
-        },
-      });
+      this.hubConnection.invoke("SubscribeToDataTopic", deviceId).then(() => console.log("subscribed to data topic")).catch(() => {console.log("Error connecting to socket...")});
       console.log("connected!")
     }).catch((err) => console.error(err));
   }
 
-  addIlluminanceUpdateListener(callback: (deviceId: string, illuminance: number) => void) {
-    this.hubConnection.on('illumUpdate', callback);
+  addDataUpdateListener(callback: (dto: DataDTO) => void) {
+    this.hubConnection.on('DataUpdate', (dataString: string) => {
+      // Parse the string into a DataDTO object
+      const dataObject: DataDTO = JSON.parse(dataString);
+      // Invoke the callback with the deserialized object
+      callback(dataObject);
+  });
   }
 
   stopConnection() {
     this.hubConnection.stop().catch((err) => console.error(err));
   }
+}
+
+export interface DataDTO {
+  deviceId: number,
+  deviceType: string,
+  value: number
 }

@@ -170,7 +170,7 @@ namespace nvt_back.Mqtt
             Console.WriteLine(data.DeviceId);
             Console.WriteLine("evo" + data.Value);
 
-            Device device = await _deviceRepository.GetById(data.DeviceId);
+            //Device device = await _deviceRepository.GetById(data.DeviceId);
 
             //if (device == null)
             //{
@@ -188,7 +188,7 @@ namespace nvt_back.Mqtt
 
             //}
 
-            //await sendLampUpdate(data);
+            await sendLampUpdate(data);
 
         }
 
@@ -200,7 +200,18 @@ namespace nvt_back.Mqtt
                 DeviceType = "LAMP",
                 Value = data.Value
             };
-            await _hubContext.Clients.All.SendAsync("illumUpdate", JsonConvert.SerializeObject(message));
+
+            try
+            {
+                Console.WriteLine($"data/{data.DeviceId}");
+                await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                // Log or print the exception details
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
+            }
+            //await _hubContext.Clients.All.SendAsync("illumUpdate", JsonConvert.SerializeObject(message));
         }
 
         //private async Task sendLampUpdate(MeasurementDTO data, Device device)

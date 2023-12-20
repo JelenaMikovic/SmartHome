@@ -1,4 +1,4 @@
-import { SocketService } from './../../services/socket.service';
+import { DataDTO, SocketService } from './../../services/socket.service';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -57,9 +57,11 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           console.log(this.device)
           this.lastHour()
           this.socketService.startConnection(this.device.id);
-          this.socketService.addIlluminanceUpdateListener((deviceId, illuminance) => {
-            // Handle illuminance update in the component
-            console.log(`Received update for ${deviceId}: ${illuminance}`);
+          this.socketService.addDataUpdateListener((dto: any) => {
+            console.log(dto)
+            if (this.device.deviceType == "LAMP") {
+              this.device.brightnessLevel = dto["Value"];
+            }
           });
         },
         error: (err) => {
