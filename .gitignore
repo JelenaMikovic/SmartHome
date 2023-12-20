@@ -1374,3 +1374,4 @@ appsettings*.json
 
 **Image/
 **Migrations/
+infrastructure/influxdb/data/engine/

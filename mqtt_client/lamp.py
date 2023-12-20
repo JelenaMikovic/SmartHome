@@ -34,6 +34,15 @@ INITIALIZE_PARAMETERS = True
 IS_AUTOMATIC = False
 lamp_initialization = None
 
+def save_to_influx(command_type:str, command_value:str, user:str, success=True):
+    measurement = "command"
+    tags = f"device_id={args.did},device_type=LAMP,user={user},type={command_type},success={success}"
+    fields = f"value=\"{command_value}\""
+
+    influx_line_protocol = f"{measurement},{tags} {fields}"
+    print(influx_line_protocol)
+    client.publish(PUBLISHER_DATA_TOPIC, influx_line_protocol)
+
 def on_connect(client: mqtt.Client, userdata: any, flags, result_code):
     print("Connected with result code "+str(result_code))
     client.subscribe(SUBSCRIBER_COMMAND_TOPIC)
@@ -52,15 +61,28 @@ def update_on_off_status(data):
         client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
         print("I'm back!")
 
+def generate_regime_update(value: bool):
+    message = {
+        "Sender": 1,
+        "DeviceId": args.did,
+        "Action": "Regime",
+        "Value": "AUTOMATIC" if value else "MANUAL",
+        "Result": "SUCCESS",
+        "Message": ""
+    }
+    return json.dumps(message)
+
 def change_regime(data):
     global IS_AUTOMATIC
     if IS_AUTOMATIC and data["Value"] == "MANUAL":
         IS_AUTOMATIC = False
         save_to_influx(data["Type"], data["Value"], data["Actor"])
+        client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_regime_update(IS_AUTOMATIC))
         print("Automatic OFF! ****************************")
     elif not IS_AUTOMATIC and data["Value"] == "AUTOMATIC":
         IS_AUTOMATIC = True
         save_to_influx(data["Type"], data["Value"], data["Actor"])
+        client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_regime_update(IS_AUTOMATIC))
         print("Automatic ON! ****************************")
 
 def update_online_offline_status(data):
@@ -71,11 +93,14 @@ def update_online_offline_status(data):
         print("Device is offline!")
 
 def handle_initialization(data):
-    global lamp_initialization, IS_AUTOMATIC, INITIALIZE_PARAMETERS
+    global lamp_initialization, IS_AUTOMATIC, INITIALIZE_PARAMETERS, IS_ON
 
     lamp_initialization = LampInitialization(data)
     IS_AUTOMATIC = data['Regime'] == "AUTOMATIC"
     INITIALIZE_PARAMETERS = False
+    IS_ON = data["IsOn"]
+
+    print(IS_AUTOMATIC, INITIALIZE_PARAMETERS, IS_ON)
 
 def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
     global IS_ONLINE
@@ -166,15 +191,6 @@ def generate_onoff_update(value: bool):
     }
     return json.dumps(message)
 
-def save_to_influx(command_type:str, command_value:str, user:str, success=True):
-    measurement = "command"
-    tags = f"device_id={args.did},device_type=LAMP,user={user},type={command_type},success={success}"
-    fields = f"value=\"{command_value}\""
-
-    influx_line_protocol = f"{measurement},{tags} {fields}"
-    print(influx_line_protocol)
-    client.publish(PUBLISHER_DATA_TOPIC, influx_line_protocol)
-
 def turn_on():
     global IS_ON
     print("turn_on *******************")
@@ -198,11 +214,10 @@ def generate_data(device_id):
 
     illuminance = round(calculate_illuminance(), 0)
 
-    print(IS_AUTOMATIC)
     print(str(illuminance) + "--------------------")
     if IS_AUTOMATIC:
         print(str(illuminance) + "*****************")
-        if IS_ON and illuminance > 40000:
+        if IS_ON and illuminance > 30000:
             turn_off()
         elif not IS_ON and illuminance < 20000:
             turn_on()
@@ -220,9 +235,7 @@ def generate_data(device_id):
 def publish_data():
     global IS_ONLINE, INITIALIZE_PARAMETERS
     while True:
-        print("evo " + str(IS_ONLINE))
         if IS_ONLINE and not INITIALIZE_PARAMETERS:
-            print(calculate_illuminance())
             client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did))
         time.sleep(10)
 

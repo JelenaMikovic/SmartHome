@@ -166,7 +166,7 @@ namespace nvt_back.Mqtt
                     Console.WriteLine("Evo porukice SVE OK *****************");
                     Console.WriteLine(payloadString);
 
-                    _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                    _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
                 }
             }
         }

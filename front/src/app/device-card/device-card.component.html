@@ -62,12 +62,12 @@
             </div>
             <div>
                 <span class="black">power: </span>
-                <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()">
+                <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()" [disabled]="!device.isOnline">
                 </mat-slide-toggle>
             </div>
             <div *ngIf="device.deviceType == 'LAMP'">
                 <span class="black">automatic regime: </span>
-                <mat-slide-toggle [(ngModel)]="checkedAutomatic" (change)="toggleAutomaticRegime()">
+                <mat-slide-toggle [(ngModel)]="checkedAutomatic" (change)="toggleAutomaticRegime()" [disabled]="!device.isOnline">
                 </mat-slide-toggle>
             </div>
         </div>

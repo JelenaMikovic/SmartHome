@@ -70,19 +70,26 @@ export class DeviceCardComponent implements OnInit {
   }
 
   toggleChangeOnOff(){
-    this.deviceService.toggleOnOff(this.deviceId, this.checkedOnOff).subscribe({
-      next: (res: any) => {
-        this.snackBar.open("You toggled device state!", "", {
-            duration: 2700, panelClass: ['snack-bar-success']
-        });
-        },
-        error: (err: any) => {
-          this.snackBar.open("Error occured on server!", "", {
-            duration: 2700, panelClass: ['snack-bar-server-error']
-         });
-          console.log(err);
-        }
-    })
+    if (this.device.isOnline) {
+      this.deviceService.toggleOnOff(this.deviceId, this.checkedOnOff).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You toggled device state!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+           });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
+    
   }
 
   lastHour(){
@@ -275,19 +282,25 @@ export class DeviceCardComponent implements OnInit {
   }
 
   toggleAutomaticRegime() {
-    this.deviceService.toggleAutomaticRegime(this.device, this.checkedAutomatic).subscribe({
-      next: (res: any) => {
-        this.snackBar.open("You toggled device regime!", "", {
-            duration: 2700, panelClass: ['snack-bar-success']
-        });
-        },
-        error: (err: any) => {
-          this.snackBar.open("Error occured on server!", "", {
-            duration: 2700, panelClass: ['snack-bar-server-error']
-         });
-          console.log(err);
-        }
-    })
+    if (this.device.isOnline) {
+      this.deviceService.toggleAutomaticRegime(this.device, this.checkedAutomatic).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You toggled device regime!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
   }
 }
 

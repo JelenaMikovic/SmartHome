@@ -173,5 +173,28 @@ namespace nvt_back.Repositories
                 CurrentTemperature = amb.CurrentTemperature
             };
         }
+
+        public async Task ToggleRegime(int deviceId, string value)
+        {
+            var device = await GetById(deviceId);
+
+            if (device.DeviceType == DeviceType.LAMP)
+            {
+                Lamp lamp = (Lamp)device;
+                if (lamp.Regime.ToString() != value.ToUpper())
+                {
+                    try
+                    {
+                        lamp.Regime = (LampRegime)Enum.Parse(typeof(LampRegime), value, true);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (ArgumentException)
+                    {
+                        Console.WriteLine("ERROR processing device command: The lamp doesnt support the given regime: " + value);
+                    }
+
+                }
+            }
+        }
     }
 }

@@ -15,5 +15,6 @@ namespace nvt_back.Repositories.Interfaces
         Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size);
         public Task<int> GetDeviceCountForProperty(int propertyId);
         Task<object> GetDetailsById(int id);
+        public Task ToggleRegime(int deviceId, string value);
     }
 }

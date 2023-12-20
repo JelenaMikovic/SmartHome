@@ -47,7 +47,7 @@ namespace nvt_back.Services
             }
             catch (ArgumentException)
             {
-                throw new Exception("The lamp doesnt support the given regime.");
+                throw new Exception("The lamp doesnt support the given regime: " + dto.Value);
             }
 
             Console.WriteLine(regime + " " + lamp.Regime);
