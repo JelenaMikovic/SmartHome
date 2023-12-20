@@ -226,8 +226,12 @@ label.star::before{
     color: #555555 !important;
  }
 
- .orange {
+.orange {
     color: #EC9A29 !important;
+}
+
+.yellow {
+    color: #ece929 !important;
 }
 
 .black {

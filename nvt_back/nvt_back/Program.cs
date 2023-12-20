@@ -12,6 +12,8 @@ using nvt_back.Services.Interfaces;
 using System.Configuration;
 using Coravel;
 using nvt_back.InfluxDB.Invocables;
+using nvt_back.WebSockets;
+using MQTTnet.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,7 +76,7 @@ builder.Services.AddTransient<IDeviceOnlineStatusService, DeviceOnlineStatusServ
 builder.Services.AddTransient<IDeviceService, DeviceService>();
 builder.Services.AddTransient<IDeviceRepository, DeviceRepository>();
 builder.Services.Configure<MqttConfiguration>(builder.Configuration.GetSection("MqttConfiguration"));
-builder.Services.AddTransient<IMqttClientService, MqttClientService>();
+builder.Services.AddScoped<IMqttClientService, MqttClientService>();
 builder.Services.AddHostedService<MqttInitializationService>();
 builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddTransient<IDeviceStateService, DeviceStateService>();
@@ -97,6 +99,7 @@ builder.Services.AddCors(options =>
            });
 });
 
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -123,6 +126,7 @@ app.UseMiddleware<ClaimsMiddleware>();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
+    endpoints.MapHub<DeviceHub>("/deviceHub");
 });
 
 app.UseEndpoints(endpoints =>

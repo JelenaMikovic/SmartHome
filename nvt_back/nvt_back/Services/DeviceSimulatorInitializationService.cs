@@ -18,6 +18,7 @@ namespace nvt_back.Services
         public async Task<object> Initialize(int deviceId)
         {
             Device device = await _deviceRepository.GetById(deviceId);
+            Console.WriteLine(device);
             if (device == null)
             {
                 throw new ArgumentException("err");
@@ -39,11 +40,14 @@ namespace nvt_back.Services
         {
             Lamp lamp = (Lamp)device;
 
+            Console.WriteLine("***************************" + lamp.Regime.ToString());
+
             return new LampInitializationDTO
             {
                 Type = "Initialization",
                 Lat = lamp.Property.Address.Lat,
                 Lng = lamp.Property.Address.Lng,
+                IsOn = lamp.IsOn,
                 Regime = lamp.Regime.ToString()
             };
 

@@ -24,7 +24,7 @@ namespace nvt_back.Model.Devices
         public LampRegime Regime { get; set; }
 
         public Lamp() { }
-        public Lamp(LampRegistrationDTO dto) : base(dto)
+        public Lamp(LampRegistrationDTO dto)
         {
             IsOn = dto.IsOn;
             BrightnessLevel = dto.BrightnessLevel;

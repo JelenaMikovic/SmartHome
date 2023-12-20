@@ -17,7 +17,15 @@ namespace nvt_back.Repositories
 
         public async Task<Device> GetById(int deviceId)
         {
-            return await _context.Devices.Include(device => device.Property).ThenInclude(property => property.Address).FirstOrDefaultAsync(device => device.Id == deviceId);
+            try
+            {
+                return await _context.Devices.Include(device => device.Property).ThenInclude(property => property.Address).FirstOrDefaultAsync(device => device.Id == deviceId);
+
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                return null;
+            }
         }
 
         public async Task<List<Device>> GetAll()
@@ -48,39 +56,30 @@ namespace nvt_back.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> ToggleState(int id, string status)
+        public async Task ToggleState(int id, string status)
         {
             var device = await GetById(id);
-            if (device == null)
-                throw new KeyNotFoundException("Device with id: " + id.ToString() + " doesn't exist!");
             bool isTurnedOn = (status == "ON");
 
 
             if (device.DeviceType == DeviceType.SOLAR_PANEL)
             {
                 SolarPanel solarPanel = (SolarPanel)device;
-                if (solarPanel.IsOn == isTurnedOn)
-                    return false;
-                else
+                if (solarPanel.IsOn != isTurnedOn)
                 {
                     solarPanel.IsOn = isTurnedOn;
                     await _context.SaveChangesAsync();
-                    return true;
                 }
             } 
             else
             {
                 Lamp lamp = (Lamp)device;
-                if (lamp.IsOn == isTurnedOn)
-                    return false;
-                else
-                {
+                if (lamp.IsOn != isTurnedOn)
+                { 
                     lamp.IsOn = isTurnedOn;
                     await _context.SaveChangesAsync();
-                    return true;
                 }
             }
-            return false;
         }
 
         public async Task<int> GetDeviceCountForProperty(int propertyId)
@@ -203,6 +202,36 @@ namespace nvt_back.Repositories
                 CurrentTemperature = amb.CurrentTemperature
             };
         }
+
+        public async Task ToggleRegime(int deviceId, string value)
+        {
+            var device = await GetById(deviceId);
+
+            if (device.DeviceType == DeviceType.LAMP)
+            {
+                Lamp lamp = (Lamp)device;
+                if (lamp.Regime.ToString() != value.ToUpper())
+                {
+                    try
+                    {
+                        lamp.Regime = (LampRegime)Enum.Parse(typeof(LampRegime), value, true);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (ArgumentException)
+                    {
+                        Console.WriteLine("ERROR processing device command: The lamp doesnt support the given regime: " + value);
+                    }
+
+                }
+            }
+        }
+
+        public async Task SaveChanges(Device device)
+        {
+            _context.Entry(device).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task<List<int>> GetPropertyIdsWithHomeBatteries()
         {

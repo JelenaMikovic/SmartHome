@@ -6,5 +6,6 @@
         public double Lat { get; set; }
         public double Lng { get; set; }
         public string Regime { get; set; }
+        public bool IsOn { get; internal set; }
     }
 }

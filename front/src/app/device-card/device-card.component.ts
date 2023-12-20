@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { DataDTO, SocketService } from './../../services/socket.service';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import Highcharts from 'highcharts';
@@ -11,7 +12,7 @@ import { ConfirmValidParentMatcher, dateAheadOfTodayValidator, dateMatcher } fro
   templateUrl: './device-card.component.html',
   styleUrls: ['./device-card.component.css', '../property-card/property-card.component.css'],
 })
-export class DeviceCardComponent implements OnInit {
+export class DeviceCardComponent implements OnInit, OnDestroy {
 
   @Input() deviceId: any = {};
   @Input() device: any = {};
@@ -48,7 +49,11 @@ export class DeviceCardComponent implements OnInit {
   } 
 
   constructor(private deviceService: DeviceService,
-    private snackBar: MatSnackBar) { }
+    private snackBar: MatSnackBar, private socketService: SocketService) { }
+  
+  ngOnDestroy(): void {
+    this.socketService.stopConnection();
+  }
 
   ngOnInit(): void {
     if (this.isDetails){
@@ -56,8 +61,16 @@ export class DeviceCardComponent implements OnInit {
       this.deviceService.getDeviceDetailsById(this.deviceId).subscribe({
         next: (value: any) => {
           this.device = value;
+          this.initDevice();
           console.log(this.device)
           this.lastHour()
+          this.socketService.startConnection(this.device.id);
+          this.socketService.addDataUpdateListener((dto: any) => {
+            console.log(dto)
+            if (this.device.deviceType == "LAMP") {
+              this.device.brightnessLevel = dto["Value"];
+            }
+          });
         },
         error: (err) => {
           console.log(err);
@@ -69,20 +82,34 @@ export class DeviceCardComponent implements OnInit {
     }
   }
 
+  initDevice() {
+    if (this.device.deviceType == "LAMP") {
+      this.checkedAutomatic = this.device.regime == "AUTOMATIC"? true: false;
+      this.checkedOnOff = this.device.isOn;
+    }
+  }
+
   toggleChangeOnOff(){
-    this.deviceService.toggleOnOff(this.deviceId, this.checkedOnOff).subscribe({
-      next: (res: any) => {
-        this.snackBar.open("You toggled device state!", "", {
-            duration: 2700, panelClass: ['snack-bar-success']
-        });
-        },
-        error: (err: any) => {
-          this.snackBar.open("Error occured on server!", "", {
-            duration: 2700, panelClass: ['snack-bar-server-error']
-         });
-          console.log(err);
-        }
-    })
+    if (this.device.isOnline) {
+      this.deviceService.toggleOnOff(this.deviceId, this.checkedOnOff).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You toggled device state!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+           });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
+    
   }
 
   generateByDate(){
@@ -117,17 +144,17 @@ export class DeviceCardComponent implements OnInit {
         }
       );
     }
-    if(this.device.deviceType == "LAMP"){
-      this.deviceService.getLampReport(dto).subscribe(
-        (response) => {
-          console.log('Response:', response);
-          this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
-        },
-        (error) => {
-          console.error('Error:', error);
-        }
-      );
-    }
+    // if(this.device.deviceType == "LAMP"){
+    //   this.deviceService.getLampReport(dto).subscribe(
+    //     (response) => {
+    //       console.log('Response:', response);
+    //       this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
+    //     },
+    //     (error) => {
+    //       console.error('Error:', error);
+    //     }
+    //   );
+    // }
   }
 
   onIntervalSelected(){
@@ -283,19 +310,25 @@ export class DeviceCardComponent implements OnInit {
   }
 
   toggleAutomaticRegime() {
-    this.deviceService.toggleAutomaticRegime(this.device, this.checkedAutomatic).subscribe({
-      next: (res: any) => {
-        this.snackBar.open("You toggled device regime!", "", {
-            duration: 2700, panelClass: ['snack-bar-success']
-        });
-        },
-        error: (err: any) => {
-          this.snackBar.open("Error occured on server!", "", {
-            duration: 2700, panelClass: ['snack-bar-server-error']
-         });
-          console.log(err);
-        }
-    })
+    if (this.device.isOnline) {
+      this.deviceService.toggleAutomaticRegime(this.device, this.checkedAutomatic).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You toggled device regime!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
   }
 }
 
