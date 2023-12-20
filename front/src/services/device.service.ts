@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class DeviceService {
+  
 
   constructor(private http: HttpClient) { }
 
@@ -51,6 +52,12 @@ export class DeviceService {
   getLampReport(ambientSensorReportDTO: any): Observable<any> {
     const url = `${environment.apiHost}/device/lamp-reports`;
     return this.http.post<any>(url, ambientSensorReportDTO, { withCredentials: true });
+  }
+
+  subscribeToDataTopic(deviceId: number): Observable<any> {
+    const url = `${environment.apiHost}/data/` + deviceId;
+    console.log(url);
+    return this.http.get<any>(url, { withCredentials: true });
   }
 }
 

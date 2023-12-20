@@ -11,9 +11,11 @@ namespace nvt_back.Repositories.Interfaces
         public Task<List<Device>> GetOnlineDevices();
         public Task<List<Device>> GetAll();
         public Task UpdateLatestHeartbeat(Heartbeat heartbeat, DateTime time);
-        public Task<bool> ToggleState(int id, string status);
+        public Task ToggleState(int id, string status);
         Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId, int page, int size);
         public Task<int> GetDeviceCountForProperty(int propertyId);
         Task<object> GetDetailsById(int id);
+        public Task ToggleRegime(int deviceId, string value);
+        public Task SaveChanges(Device device);
     }
 }

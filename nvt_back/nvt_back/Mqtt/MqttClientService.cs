@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
@@ -10,6 +11,7 @@ using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
 using nvt_back.Services.Interfaces;
+using nvt_back.WebSockets;
 using System.Text;
 
 namespace nvt_back.Mqtt
@@ -33,11 +35,15 @@ namespace nvt_back.Mqtt
         private readonly InfluxDBService _influxDBService;
         private readonly IDeviceOnlineStatusService _deviceOnlineStatusService;
         private readonly IDeviceService _deviceService;
+        private readonly IDeviceRepository _deviceRepository;
+        private readonly IHubContext<DeviceHub> _hubContext;
         private readonly IDeviceSimulatorInitializationService _deviceSimulatorInitializationService;
+        protected readonly IServiceScopeFactory _scopeFactory;
 
         public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService,
             IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService,
-            IDeviceSimulatorInitializationService deviceSimulatorInitializationService)
+            IDeviceSimulatorInitializationService deviceSimulatorInitializationService,
+            IDeviceRepository deviceRepository, IHubContext<DeviceHub> hubContext, IServiceScopeFactory serviceScopeFactory)
         {
             var config = mqttConfiguration.Value;
             _username = config.Username;
@@ -48,6 +54,9 @@ namespace nvt_back.Mqtt
             _deviceOnlineStatusService = deviceOnlineStatusService;
             _deviceService = deviceService;
             _deviceSimulatorInitializationService = deviceSimulatorInitializationService;
+            _deviceRepository = deviceRepository;
+            _hubContext = hubContext;
+            _scopeFactory = serviceScopeFactory;
         }
 
         public async Task Connect()
@@ -130,6 +139,96 @@ namespace nvt_back.Mqtt
                 case "command":
                     handleCommandReceived(arg, topic, payloadString);
                     break;
+                case "data":
+                    await handleDataReceived(arg, topic, payloadString);
+                    break;
+            }
+        }
+
+        private MeasurementDTO ParseInfluxDbLine(string line)
+        {
+            var parts = line.Split(' ');
+
+            if (parts.Length != 2)
+            {
+                throw new ArgumentException("Invalid input format");
+            }
+
+            var measurement = parts[0].Split(',')[0];
+            var deviceId = int.Parse(parts[0].Split('=')[1]);
+            var illuminance = int.Parse(parts[1].Split('=')[1]);
+
+            return new MeasurementDTO
+            {
+                Measurement = measurement,
+                DeviceId = deviceId,
+                Value = illuminance
+            };
+        }
+
+        private async Task handleDataReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
+        {
+            var data = ParseInfluxDbLine(payloadString);
+            Console.WriteLine(data.DeviceId);
+            Console.WriteLine("evo" + data.Value);
+
+            Device device = null;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                device = await repository.GetById(data.DeviceId);
+            }
+
+            if (device == null)
+            {
+                Console.WriteLine("Device with the given id doesn't exist.");
+            }
+
+
+            switch (device.DeviceType)
+            {
+                case DeviceType.LAMP:
+                    await sendLampUpdate(data, device);
+                    break;
+
+            }
+
+            
+
+        }
+
+        private async Task sendLampUpdate(MeasurementDTO data, Device device)
+        {
+            Lamp lamp = (Lamp)device;
+
+            if (lamp.BrightnessLevel == (int)data.Value)
+                return;
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                lamp.BrightnessLevel = (int)data.Value;
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                await repository.SaveChanges(lamp);
+
+            }
+
+            var message = new
+            {
+                DeviceId = data.DeviceId,
+                DeviceType = "LAMP",
+                Value = data.Value
+            };
+
+            try
+            {
+                Console.WriteLine($"data/{data.DeviceId}");
+                await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
             }
         }
 
@@ -137,28 +236,73 @@ namespace nvt_back.Mqtt
         {
             var command = JsonConvert.DeserializeObject<CommandResultDTO>(payloadString)!;
 
+            if (command.Sender == Sender.PLATFORM)
+                return;
+
+            if (command.Result == CommandResult.FAILIURE)
+            {
+                Console.WriteLine("Error");
+                Console.WriteLine(payloadString);
+
+                //TODO: posalji na front preko soketa
+            }
+
             if (command.Action == "OnOff")
             {
-                //handle device turn off / on
-                Console.WriteLine("Evo porukice *****************");
                 Console.WriteLine(payloadString);
+
+                await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+            } 
+            else
+            {
+                if (command.Action == "Regime")
+                {
+                    Console.WriteLine(payloadString);
+
+                    await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
+                }
             }
         }
 
         public async Task Subscribe(string topic)
         {
+            if (_mqttClient == null)
+                await Connect();
             await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).Build());
             Console.WriteLine($"Subscribed to topic: {topic}");
         }
 
         public async Task SubscribeToHeartbeatTopics()
         {
-            Console.WriteLine("Subscribing to online devices...");
+            Console.WriteLine("Subscribing to devices' heartbeat topic...");
             var devices = await _deviceService.GetAll();
             var subscriptionTasks = devices
                 .Select(device => this.Subscribe(this.GetHeartbeatTopicForDevice(device.Id)))
                 .ToList();
             await Task.WhenAll(subscriptionTasks);
+        }
+
+        public async Task SubscribeToCommandTopics()
+        {
+            Console.WriteLine("Subscribing to devices' command topic...");
+            var devices = await _deviceService.GetAll();
+            var subscriptionTasks = devices
+                .Select(device => this.Subscribe(this.GetCommandTopicForDevice(device.Id)))
+                .ToList();
+            await Task.WhenAll(subscriptionTasks);
+        }
+
+        public async Task SubscribeToDataTopic(int deviceId)
+        {
+            Console.WriteLine("Subscribing to device's data topic...");
+            await this.Subscribe(this.GetDataTopicForDevice(deviceId));
+        }
+
+        public async Task UnsubscribeFromDataTopic(int deviceId)
+        {
+            string topic = this.GetDataTopicForDevice(deviceId);
+            Console.WriteLine($"\nUnsubscribed from topic: {topic}");
+            await this.Unsubscribe(topic);
         }
 
         public async Task Unsubscribe(string topic)
@@ -190,6 +334,11 @@ namespace nvt_back.Mqtt
             return "topic/device/" + deviceId + "/command";
         }
 
+        public string GetDataTopicForDevice(int deviceId)
+        {
+            return "topic/device/" + deviceId + "/data";
+        }
+
         public async Task PublishActivatedStatus(int deviceId)
         {
             string topic = GetHeartbeatTopicForDevice(deviceId);
@@ -219,21 +368,22 @@ namespace nvt_back.Mqtt
             await this.Publish(topic, payloadJSON);
         }
 
-        public async Task PublishStatusUpdate(int deviceId, string status)
+        public async Task PublishStatusUpdate(int deviceId, string status, int userId)
         {
             string topic = GetCommandTopicForDevice(deviceId);
             var payload = new
             {
                 Type = "OnOff",
                 Sender = Sender.PLATFORM,
-                Action = status
+                Action = status,
+                Actor = userId
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
             await this.Publish(topic, payloadJSON);
 
         }
 
-        public async Task PublishRegimeUpdate(int deviceId, string value)
+        public async Task PublishRegimeUpdate(int deviceId, string value, int userId)
         {
             string topic = GetCommandTopicForDevice(deviceId);
             var payload = new
@@ -241,6 +391,7 @@ namespace nvt_back.Mqtt
                 Type = "Regime",
                 Sender = Sender.PLATFORM,
                 Value = value,
+                Actor = userId
             };
             var payloadJSON = JsonConvert.SerializeObject(payload);
             await this.Publish(topic, payloadJSON);

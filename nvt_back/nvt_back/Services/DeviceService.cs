@@ -27,7 +27,7 @@ namespace nvt_back.Services
             {
                 string query = $"from(bucket: \"measurements\")" +
                                $" |> range(start: -7d)" +
-                               $" |> filter(fn: (r) => r[\"_measurement\"] == \"lamp\" and r[\"_field\"] == \"illuminance\" and r[\"device_id\"] == \"{dto.DeviceId}\")";
+                               $" |> filter(fn: (r) => r[\"_measurement\"] == \"illuminance\" and r[\"_field\"] == \"illuminance\" and r[\"device_id\"] == \"{dto.DeviceId}\")";
 
                 Console.WriteLine(query);
                 var result = await _influxDBService.QueryAsync(query);

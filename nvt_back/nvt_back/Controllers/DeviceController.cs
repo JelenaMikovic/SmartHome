@@ -8,7 +8,7 @@ namespace nvt_back.Controllers
 {
     [ApiController]
     [Route("api/device")]
-    public class DeviceController : ControllerBase
+    public class DeviceController : Controller
     {
         private readonly IDeviceService _deviceService;
 
