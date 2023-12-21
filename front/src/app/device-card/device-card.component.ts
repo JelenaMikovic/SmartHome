@@ -146,9 +146,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
                 //this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.CurrentCharge });
                 this.device.currentCharge = dto.CurrentCharge + 1;
                 console.log(this.device.currentCharge);
-                // this.device.currentHumidity = dto.Humidity;
-                //this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-temperature-chart-container")
-                // this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
+                this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               }
             }
           });
@@ -156,7 +154,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
             console.log(dto)
             if(this.device.deviceType == "HOME_BATTERY"){
               this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.Consumed });
-              this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-temperature-chart-container")
+              this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               // this.device.currentHumidity = dto.Humidity;
               // this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
             }
@@ -269,7 +267,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     console.log(this.device)
     if (this.device.deviceType == "HOME_BATTERY"){
       const dtob = {
-        deviceId: 5,
+        deviceId: 2,
         startDate: startDate.toISOString(),
         endDate: currentDate.toISOString(),
       };
@@ -348,7 +346,12 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       );
     }
     if (this.device.deviceType == "HOME_BATTERY"){
-      this.deviceService.getBatteryReport(dto).subscribe(
+      const dto2= {
+        deviceId: 2,
+        startDate: startDate.toISOString(),
+        endDate: currentDate.toISOString(),
+      };
+      this.deviceService.getBatteryReport(dto2).subscribe(
         (response) => {
           console.log('Response:', response);
           this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')

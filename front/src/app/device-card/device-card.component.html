@@ -116,6 +116,14 @@
             </div>
         </div>
     </div>
+    <div *ngIf="device.deviceType === 'HOME_BATTERY'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
+        <div id="info-container">
+            <h2>Current Values</h2>
+            <div class="ambiental-sensor-container">
+                <div id="current-power-consumption-chart-container" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
     <!-- <div *ngIf="device.deviceType === 'LAMP'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
         <div id="info-container">
             <h2>Current Values</h2>

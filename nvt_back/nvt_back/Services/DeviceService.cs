@@ -89,7 +89,7 @@ namespace nvt_back.Services
             try
             {
                 Console.WriteLine(dto.DeviceId);
-                dto.DeviceId = 5;
+               
                 string query = $"from(bucket: \"measurements\")" +
                                $" |> range(start: {dto.StartDate}, stop: {dto.EndDate})" +
                                $" |> filter(fn: (r) => r[\"_measurement\"] == \"home_battery\" and r[\"_field\"] == \"consumed_power\" and r[\"property_id\"] == \"{dto.DeviceId}\")";
