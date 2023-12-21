@@ -67,6 +67,7 @@ namespace nvt_back.Controllers
         {
             try
             {
+                Console.WriteLine(id);
                 var table = this._deviceService.GetActionTableData(id);
                 var response = new
                 {

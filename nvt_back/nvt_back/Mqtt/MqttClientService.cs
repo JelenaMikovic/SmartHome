@@ -236,9 +236,6 @@ namespace nvt_back.Mqtt
 
             var data = ParseInfluxDbLine(payloadString);
 
-            if (data.Measurement.Contains("command"))
-                return;
-
             Device device = null;
             User user = null;
 
@@ -257,8 +254,9 @@ namespace nvt_back.Mqtt
                 Console.WriteLine("Device with the given id doesn't exist.");
             }
 
-            if(data.Measurement == "command")
+            if(data.Measurement.ToLower() == "command")
             {
+                Console.WriteLine("?????????????????????");
                 await sendActionUpdate(data, user);
                 return;
             }
