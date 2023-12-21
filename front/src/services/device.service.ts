@@ -43,6 +43,28 @@ export class DeviceService {
     
   }
 
+  toggleGateOptions(device: any, type: string, value: boolean) {
+    // let valueStr = ""
+    // if (type == "open") {
+    //   valueStr = value ? "OPEN": "CLOSED";
+    // } else {
+    //   if (type == "private") {
+    //     valueStr = value ? "PRIVATE": "PUBLIC";
+    //   }
+    // }
+
+    let dto: CommandDTO = {
+      deviceId: device.id,
+      deviceType: device.deviceType,
+      action: type,
+      value:  value.toString()
+    }
+
+    console.log(dto)
+    return this.http.put<any>(environment.apiHost + "/device-toggle/regime", dto, {withCredentials: true});
+    
+  }
+
 
   getAmbientSensorReport(ambientSensorReportDTO: any): Observable<any> {
     const url = `${environment.apiHost}/device/ambient-reports`;
@@ -69,6 +91,17 @@ export class DeviceService {
     const url = `${environment.apiHost}/data/` + deviceId;
     console.log(url);
     return this.http.get<any>(url, { withCredentials: true });
+  }
+
+  manageAllowedPlates(plate: string, device:any, type: string): Observable<any> {
+    let dto = {
+      deviceId: device.id,
+      deviceType: device.deviceType,
+      action: type,
+      value: plate
+    }
+
+    return this.http.put<any>(environment.apiHost + "/device-toggle/regime", dto, {withCredentials: true});
   }
 }
 

@@ -21,6 +21,8 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   @Input() isDetails: boolean = false;
   checkedOnOff: boolean = false;
   checkedAutomatic: boolean = false;
+  checkedPrivate: boolean = false;
+  checkedOpen: boolean = false;
   selectedTimeInterval: string = "";
   isSelected: boolean = false;
   timeIntervals: string[] = [
@@ -41,6 +43,12 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   temperatureChartData: { timestamp: string; value: string }[] = [];
   humidityChartData: { timestamp: string; value: string }[] = [];
   powerConsumptionChartData: {timestamp: string; value: string}[] = [];
+
+  addPlateForm = new FormGroup({
+    newPlate: new FormControl('', Validators.required)
+  });
+
+  currentPlate = ""
 
   applyNameFilter(event: Event): void {
     const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
@@ -133,6 +141,11 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
             } else {
               if (this.device.deviceType == "LAMP") {
                 this.device.brightnessLevel = dto["Value"];
+                return;
+              }
+              if (this.device.deviceType == "VEHICLE_GATE") {
+                this.currentPlate = dto["Value"] == "none"? "":  dto["Value"];
+                return;
               }
               if(this.device.deviceType == "AMBIENT_SENSOR"){
                 this.temperatureChartData.push({ timestamp: new Date().toISOString(), value: dto.Temperature });
@@ -190,6 +203,12 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     if (this.device.deviceType == "LAMP") {
       this.checkedAutomatic = this.device.regime == "AUTOMATIC"? true: false;
       this.checkedOnOff = this.device.isOn;
+      return;
+    }
+
+    if (this.device.deviceType == "VEHICLE_GATE") {
+      this.checkedOpen = this.device.isOpen;
+      this.checkedPrivate = this.device.isPrivate;
     }
     if (this.device.deviceType == "SOLAR_PANEL"){
       this.checkedOnOff = this.device.isOn;
@@ -219,6 +238,50 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     
   }
 
+  toggleGateOpen() {
+    if (this.device.isOnline) {
+      this.deviceService.toggleGateOptions(this.device, "open", this.checkedOpen).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You toggled gate open option!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+           });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
+  }
+  
+  togglePrivateRegime() {
+    if (this.device.isOnline) {
+      this.deviceService.toggleGateOptions(this.device, "private", this.checkedPrivate).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You toggled gate private option!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+           });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
+  }
+  
   generateByDate(){
     // if (this.datesForm.valid){
       let date = new Date(this.datesForm.value.startDate!).toISOString().split('T')[0]
@@ -513,6 +576,59 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.snackBar.open("Device is offline so you can't perform actions.", "", {
         duration: 2700, panelClass: ['snack-bar-server-error']
      });
+    }
+  }
+
+  removeAllowedPlate(plate: string) {
+    const index = this.device.allowedLicencePlates.indexOf(plate);
+    console.log(index)
+    if (index !== -1) {
+      this.deviceService.manageAllowedPlates(plate, this.device, "removeplate").subscribe({
+        next: (value) => {
+          this.snackBar.open("Remove plate request sent!", "", {
+            duration: 2700, panelClass: ['snack-bar-success']
+          });
+          this.device.allowedLicencePlates.splice(index, 1);
+        },
+        error: (err) => {
+          this.snackBar.open("Server side error!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+          console.log(err);
+        },
+      })
+
+    }
+  }
+
+  addAllowedPlate() {
+    if (this.addPlateForm.valid) {
+      let plate = this.addPlateForm.value.newPlate;
+
+      if (plate) {
+        const index = this.device.allowedLicencePlates.indexOf(plate);
+        if (index == -1) {
+          this.deviceService.manageAllowedPlates(plate, this.device, "addplate").subscribe({
+            next: (value) => {
+              this.snackBar.open("New plate request sent!", "", {
+                duration: 2700, panelClass: ['snack-bar-success']
+              });
+              this.device.allowedLicencePlates.push(plate);
+              console.log(this.device.allowedLicencePlates)
+              this.addPlateForm.get("newPlate")?.clearValidators();
+            },
+            error: (err) => {
+              this.snackBar.open("Server side error!", "", {
+                duration: 2700, panelClass: ['snack-bar-server-error']
+              });
+              console.log(err);
+            },
+          })
+
+          
+        }
+        
+      }
     }
   }
   

@@ -10,7 +10,7 @@ namespace nvt_back.Model.Devices
 
         public VehicleGate() { }
 
-        public VehicleGate(VehicleGateRegistrationDTO dto) : base(dto)
+        public VehicleGate(VehicleGateRegistrationDTO dto)
         {
             IsPrivateModeOn = false;
             AllowedLicencePlates = new List<string>();

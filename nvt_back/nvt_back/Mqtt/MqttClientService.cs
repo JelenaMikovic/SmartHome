@@ -177,13 +177,13 @@ namespace nvt_back.Mqtt
                         var type = measurementAndTags[4].Split('=')[1];
                         var success = Boolean.Parse(measurementAndTags[5].Split('=')[1]);
 
-                        if(success)
+                        if (success)
                             return new
                             {
                                 Measurement = measurement,
                                 DeviceId = deviceID,
                                 User = user,
-                                DeviceType =  deviceType,
+                                DeviceType = deviceType,
                                 Action = type,
                                 Value = parts[1].Split('=')[1]
                             };
@@ -243,17 +243,24 @@ namespace nvt_back.Mqtt
                 {
                     throw new ArgumentException("Invalid input format");
                 }
-                
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error parsing InfluxDB line: {ex.Message}");
-                throw; 
+                throw;
             }
+
         }
 
         private async Task handleDataReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
         {
+            if (payloadString.Contains("plate_update"))
+            {
+                await handlePlateArrivedUpdate(payloadString);
+                return;
+            }
+
             var data = ParseInfluxDbLine(payloadString);
 
             Device device = null;
@@ -280,8 +287,9 @@ namespace nvt_back.Mqtt
                 Console.WriteLine("Device with the given id doesn't exist.");
             }
 
-            if(data.Measurement == "command")
+            if(data.Measurement.ToLower() == "command")
             {
+                Console.WriteLine("?????????????????????");
                 await sendActionUpdate(data, user);
                 return;
             }
@@ -300,6 +308,37 @@ namespace nvt_back.Mqtt
                     break;
             }
 
+
+        }
+
+        private PlateUpdateDTO ParseInfluxDbLinePlate(string line)
+        {
+            var parts = line.Split(' ');
+
+            if (parts.Length != 2)
+            {
+                Console.WriteLine("PLATE error");
+                throw new ArgumentException("Invalid input format");
+            }
+
+            var measurement = parts[0].Split(',')[0];
+            var deviceId = int.Parse(parts[0].Split('=')[1]);
+            var plate = parts[1].Split('=')[1];
+
+
+            return new PlateUpdateDTO
+            {
+                Measurement = measurement,
+                DeviceId = deviceId,
+                Value = plate
+            };
+        }
+
+        private async Task handlePlateArrivedUpdate(string payloadString)
+        {
+            var message = ParseInfluxDbLinePlate(payloadString);
+            Console.Write("Received update for plate: " + message.Value);
+            await _hubContext.Clients.Group($"data/{message.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
         }
 
         private async Task sendActionUpdate(dynamic data, User user)
@@ -491,38 +530,63 @@ namespace nvt_back.Mqtt
                 var command = JsonConvert.DeserializeObject<CommandResultDTO>(payloadString);
                 // Rest of your code
 
-                if (command.Sender == Sender.PLATFORM)
+                if (command.Sender == null || command.Sender == Sender.PLATFORM)
                     return;
+
 
                 if (command.Result == CommandResult.FAILIURE)
                 {
                     Console.WriteLine("Error");
                     Console.WriteLine(payloadString);
+                    return;
                 }
 
-                if(command.Result == CommandResult.SUCCESS) 
+                if (command.Action.ToLower() == "onoff")
                 {
-                    //Console.WriteLine(command);
-                    //sendActionUpdate(comma)
+                    Console.WriteLine(payloadString);
 
-                    if (command.Action == "OnOff")
+                    await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                }
+                else
+                {
+                    if (command.Action.ToLower() == "regime")
                     {
                         Console.WriteLine(payloadString);
 
-                        await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                        await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
                     }
                     else
                     {
-                        if (command.Action == "Regime")
+                        if (command.Action.ToLower() == "open")
                         {
                             Console.WriteLine(payloadString);
+                            await _deviceRepository.ToggleCommand(command.DeviceId, command.Action, command.Value);
+                        }
+                        else
+                        {
+                            if (command.Action.ToLower() == "private")
+                            {
+                                Console.WriteLine(payloadString);
+                                await _deviceRepository.ToggleCommand(command.DeviceId, command.Action, command.Value);
+                                return;
+                            }
 
-                            await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
+                            if (command.Action.ToLower() == "addplate")
+                            {
+                                await _deviceRepository.UpdateGateAllowedPlates(command.DeviceId, command.Value, true);
+                                return;
+                            }
+
+                            if (command.Action.ToLower() == "removeplate")
+                            {
+                                await _deviceRepository.UpdateGateAllowedPlates(command.DeviceId, command.Value, false);
+                                return;
+                            }
                         }
                     }
+
                 }
 
-                
             }
             catch (JsonException ex)
             {
@@ -690,6 +754,21 @@ namespace nvt_back.Mqtt
             var payload = new
             {
                 Type = "Regime",
+                Sender = Sender.PLATFORM,
+                Value = value,
+                Actor = userId
+            };
+            var payloadJSON = JsonConvert.SerializeObject(payload);
+            await this.Publish(topic, payloadJSON);
+
+        }
+
+        public async Task PublishCommandUpdate(int deviceId, string type, string value, int userId)
+        {
+            string topic = GetCommandTopicForDevice(deviceId);
+            var payload = new
+            {
+                Type = type,
                 Sender = Sender.PLATFORM,
                 Value = value,
                 Actor = userId

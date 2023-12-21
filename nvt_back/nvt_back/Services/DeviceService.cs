@@ -33,49 +33,23 @@ namespace nvt_back.Services
         {
             try
             {
-                string query = $"from(bucket: \"measurements\")" +
-                               $" |> range(start: 0)" +
-                               $" |> filter(fn: (r) => r[\"_measurement\"] == \"command\")" +
-                               $" |> filter(fn: (r) => r[\"_field\"] == \"type\" or r[\"_field\"] == \"time\" or r[\"_field\"] == \"value\")" +
-                               $" |> filter(fn: (r) => r[\"device_id\"] == \"{id}\" and r[\"success\"] == \"True\")";
+                string query = $"from(bucket: \"commands\")" +
+               $" |> range(start: 0)" +
+               $" |> filter(fn: (r) => r[\"_measurement\"] == \"command\")" +
+               $" |> filter(fn: (r) => r[\"_field\"] == \"type\" or r[\"_field\"] == \"time\" or r[\"_field\"] == \"value\")" +
+               $" |> filter(fn: (r) => r[\"device_id\"] == \"{id}\" and r[\"success\"] == \"True\")";
 
                 var result = await _influxDBService.QueryAsync(query);
-                var tasks = result.Select(async record =>
-                {
-                    string userIdO = (string)record.GetValueByKey("user");
-                    int userId = Int32.Parse(userIdO);
-                    User user = null;
-                    using (var scope = _scopeFactory.CreateScope())
-                    {
-                        var serviceProvider = scope.ServiceProvider;
-                        var repository = serviceProvider.GetRequiredService<IUserRepository>();
-                        user = await repository.GetById(userId);
-                    }
-                    return new
+                var processedData = result
+                    .Select(record => new
                     {
                         Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(record.GetTime()?.ToUnixTimeMilliseconds() ?? 0)
                                 .UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
-                        User = user.Name + " " + user.Surname,
-                        Action = record.GetValueByKey("type"),
-                        State = record.GetValue()
-                    };
-                    /*if (userIdO is int userId)
-                    {
-                        User user = await _userRepository.GetById(userId);
+                        User = record.GetValueByIndex(14),
+                        Action = record.GetValueByIndex(13),
+                        State = record.GetValueByIndex(5)
+                    });
 
-                        return new
-                        {
-                            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(record.GetTime()?.ToUnixTimeMilliseconds() ?? 0)
-                                .UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
-                            User = user.Name + " " + user.Surname,
-                            Action = record.GetValueByKey("type"),
-                            State = record.GetValue()
-                        };
-                    }*/
-                    return null;
-                });
-
-                var processedData = await Task.WhenAll(tasks);
                 return processedData;
             }
             catch (Exception ex)
