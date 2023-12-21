@@ -1,4 +1,5 @@
 ﻿using InfluxDB.Client.Api.Domain;
+using Microsoft.Extensions.DependencyInjection;
 using nvt_back.DTOs.DeviceRegistration;
 using nvt_back.InfluxDB;
 using nvt_back.Model.Devices;
@@ -13,11 +14,14 @@ namespace nvt_back.Services
         private readonly IDeviceRepository _deviceRepository;
         private readonly InfluxDBService _influxDBService;
         private readonly IUserRepository _userRepository;
-        public DeviceService(IDeviceRepository deviceRepository, InfluxDBService influxDBService, IUserRepository userRepository)
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        public DeviceService(IDeviceRepository deviceRepository, InfluxDBService influxDBService, IUserRepository userRepository, IServiceScopeFactory scopeFactory)
         {
             _deviceRepository = deviceRepository;
             _influxDBService = influxDBService;
             _userRepository = userRepository;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task<List<Device>> GetAll()
@@ -40,7 +44,13 @@ namespace nvt_back.Services
                 {
                     string userIdO = (string)record.GetValueByKey("user");
                     int userId = Int32.Parse(userIdO);
-                    User user = await _userRepository.GetById(userId);
+                    User user = null;
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var serviceProvider = scope.ServiceProvider;
+                        var repository = serviceProvider.GetRequiredService<IUserRepository>();
+                        user = await repository.GetById(userId);
+                    }
                     return new
                     {
                         Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(record.GetTime()?.ToUnixTimeMilliseconds() ?? 0)
@@ -66,6 +76,34 @@ namespace nvt_back.Services
                 });
 
                 var processedData = await Task.WhenAll(tasks);
+                return processedData;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+        public async Task<IEnumerable<dynamic>> GetPowerConsumption(ReportDTO dto)
+        {
+            try
+            {
+                Console.WriteLine(dto.DeviceId);
+                dto.DeviceId = 5;
+                string query = $"from(bucket: \"measurements\")" +
+                               $" |> range(start: {dto.StartDate}, stop: {dto.EndDate})" +
+                               $" |> filter(fn: (r) => r[\"_measurement\"] == \"home_battery\" and r[\"_field\"] == \"consumed_power\" and r[\"property_id\"] == \"{dto.DeviceId}\")";
+
+                var result = await _influxDBService.QueryAsync(query);
+                Console.WriteLine(result.Count());
+                var processedData = result
+                    .Select(record => new
+                    {
+                        Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(record.GetTime()?.ToUnixTimeMilliseconds() ?? 0)
+                          .UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                        Value = record.GetValueByIndex(5)
+                    });
+
                 return processedData;
             }
             catch (Exception ex)
@@ -144,5 +182,6 @@ namespace nvt_back.Services
             return await _deviceRepository.GetConsumingPowerDevicesForProperty(propertyId);
         }
 
+        
     }
 }

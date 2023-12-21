@@ -9,5 +9,6 @@
         public double Efficiency { get; set; }
         public double Size { get; set; }
         public int PropertyId { get; set; }
+        public bool IsOn { get; set; }
     }
 }

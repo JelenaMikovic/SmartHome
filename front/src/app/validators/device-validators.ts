@@ -14,7 +14,7 @@ import { ErrorStateMatcher } from '@angular/material/core'
   export function powerConsumptionValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const value = control.value;
   
-    if (isNaN(value) || value <= 0 || value > 1000) {
+    if (isNaN(value) || value <= 0 || value > 18) {
       return { invalidConsumption: true };
     }
   
@@ -24,7 +24,7 @@ import { ErrorStateMatcher } from '@angular/material/core'
   export function percentageValidation(control: AbstractControl): { [key: string]: boolean } | null {
     const value = control.value;
   
-    if (isNaN(value) || value < 0 || value > 100) {
+    if (isNaN(value) || value < 0 || value > 1) {
       return { invalidPercentage: true };
     }
   

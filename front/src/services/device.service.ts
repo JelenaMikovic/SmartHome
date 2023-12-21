@@ -54,6 +54,12 @@ export class DeviceService {
     return this.http.post<any>(url, ambientSensorReportDTO, { withCredentials: true });
   }
 
+  getBatteryReport(ambientSensorReportDTO: any): Observable<any> {
+    console.log(ambientSensorReportDTO);
+    const url = `${environment.apiHost}/device/power-consumption`;
+    return this.http.post<any>(url, ambientSensorReportDTO, { withCredentials: true });
+  }
+
   getActionTable(id: any): Observable<any> {
     const url = `${environment.apiHost}/device/action-table/${id}`;
     return this.http.get<any>(url, { withCredentials: true });

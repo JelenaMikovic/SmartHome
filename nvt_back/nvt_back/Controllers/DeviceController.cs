@@ -61,6 +61,26 @@ namespace nvt_back.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("power-consumption")]
+        public async Task<ActionResult<MessageDTO>> GetPowerConsumptionReport(ReportDTO batteryReportDTO)
+        {
+            try
+            {
+                var powerConsumption = this._deviceService.GetPowerConsumption(batteryReportDTO);
+                var response = new
+                {
+                    ConsumptionData = powerConsumption.Result.ToList(),
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
         [HttpGet]
         [Route("action-table/{id}")]
         public async Task<ActionResult<MessageDTO>> GetActionTableData(int id)

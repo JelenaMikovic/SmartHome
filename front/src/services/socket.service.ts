@@ -14,20 +14,34 @@ export class SocketService {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(environment.host + '/deviceHub')
       .build();
-  }
+  } 
 
-  startConnection(deviceId: number) {
+  startConnection(deviceId: number, isBattery: boolean, propertyId: number) {
     console.log("connecting....")
+    console.log(propertyId)
     this.hubConnection.start().then(() => {
       this.hubConnection.invoke("SubscribeToDataTopic", deviceId).then(() => console.log("subscribed to data topic")).catch(() => {console.log("Error connecting to socket...")});
-      console.log("connected!")
+      console.log("connected!");
+      if (isBattery)
+        this.hubConnection.invoke("SubscribeToPropertyDataTopic", propertyId).then(() => console.log("subscribed to data topic")).catch(() => {console.log("Error connecting to socket...")});
+      
     }).catch((err: any) => console.error(err));
+    
   }
 
   addDataUpdateListener(callback: (dto: DataDTO) => void) {
     this.hubConnection.on('DataUpdate', (dataString: string) => {
       // Parse the string into a DataDTO object
       const dataObject: DataDTO = JSON.parse(dataString);
+      // Invoke the callback with the deserialized object
+      callback(dataObject);
+  });
+  }
+
+  addConsumptionUpdateListener(callback: (dto: ConsumptionDTO) => void) {
+    this.hubConnection.on('ConsumptionUpdate', (dataString: string) => {
+      // Parse the string into a DataDTO object
+      const dataObject: ConsumptionDTO = JSON.parse(dataString);
       // Invoke the callback with the deserialized object
       callback(dataObject);
   });
@@ -45,6 +59,12 @@ export class SocketService {
 
 export interface DataDTO {
   deviceId: number,
+  deviceType: string,
+  value: number
+}
+
+export interface ConsumptionDTO {
+  propertyId: number,
   deviceType: string,
   value: number
 }

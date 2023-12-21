@@ -45,11 +45,11 @@ namespace nvt_back.InfluxDB
 
         public Task WriteHeartbeatToInfluxDBForDevice(int deviceId, int status)
         {
-            var client = InfluxDBClientFactory.Create("http://localhost:8086", _token.ToCharArray());
+            var client = InfluxDBClientFactory.Create("http://localhost:8086", _adminToken.ToCharArray());
 
             string statusToString = status.ToString();
 
-            string data = "online,device_id=id" + deviceId.ToString() + " status=" + statusToString;
+            string data = "online,device_id=" + deviceId.ToString() + " status=" + statusToString;
 
             using (var writeApi = client.GetWriteApi())
             {
@@ -64,7 +64,7 @@ namespace nvt_back.InfluxDB
         {
             var client = InfluxDBClientFactory.Create("http://localhost:8086", _token.ToCharArray());
 
-            string data = "state,device_id=id" + deviceId.ToString() + " status=" + state + ",userId=" + userId.ToString();
+            string data = "state,device_id=" + deviceId.ToString() + " status=" + state + ",userId=" + userId.ToString();
 
             using (var writeApi = client.GetWriteApi())
             {

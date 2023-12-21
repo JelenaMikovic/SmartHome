@@ -13,5 +13,6 @@ namespace nvt_back.Services.Interfaces
 
         public Task<List<Device>> GetConsumingPowerDevicesForProperty(int propertyId);
         public Task<IEnumerable<dynamic>> GetActionTableData(int id);
+        public Task<IEnumerable<dynamic>> GetPowerConsumption(ReportDTO batteryReportDTO);
     }
 }

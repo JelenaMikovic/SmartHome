@@ -80,10 +80,16 @@
                     <mat-error *ngIf="addDeviceForm.get('panelSize')?.errors?.['invalidArea']">size should be between 0 and 1000</mat-error>
                 </mat-form-field>  
                 <mat-form-field >
-                    <mat-label>Efficiency (%)</mat-label>
+                    <mat-label>Efficiency</mat-label>
                     <input matInput type="number" name="panelEfficiency" formControlName="panelEfficiency"/>
                     <mat-error *ngIf="addDeviceForm.get('panelEfficiency')?.errors?.['invalidPercentage']">panel efficiency should be between 0 and 100</mat-error>
                 </mat-form-field>  
+                <mat-form-field >
+                    <mat-label>Number of panels</mat-label>
+                    <input matInput type="number" name="numberOfPanels" formControlName="numberOfPanels"/>
+                    <mat-error *ngIf="addDeviceForm.get('numberOfPanels')?.errors?.['required']">entering numberOfPanels is required</mat-error>
+                        
+                </mat-form-field>
             </div>
             <div class="form-section" *ngIf="this.deviceType == 'Lamp'">
                 <mat-form-field  id="color-dd">
@@ -100,11 +106,6 @@
                     <mat-label>Capacity (kWh)</mat-label>
                     <input matInput type="number" name="batteryCapacity" formControlName="batteryCapacity"/>
                     <mat-error *ngIf="addDeviceForm.get('batteryCapacity')?.errors?.['invalidBatteryCapacity']">capacity should be between 0 and 18</mat-error>
-                </mat-form-field>
-                <mat-form-field >
-                    <mat-label>Battery health (%)</mat-label>
-                    <input matInput type="number" name="batteryHealth" formControlName="batteryHealth"/>
-                    <mat-error *ngIf="addDeviceForm.get('batteryHealth')?.errors?.['invalidPercentage']">battery health should be between 0 and 100</mat-error>
                 </mat-form-field>
             </div>
 

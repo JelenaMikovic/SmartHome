@@ -44,6 +44,14 @@
                     <i class="fa-solid fa-sun yellow"></i>
                     <span class="black">{{device.brightnessLevel}} lux</span>
                 </div>
+                <div *ngIf="device.deviceType === 'HOME_BATTERY'">
+                    <i class="fa-solid fa-percent"></i>
+                    <span class="black">{{device.currentCharge}} charged</span>
+                </div>
+                <div *ngIf="device.deviceType === 'HOME_BATTERY'">
+                    <i class="fa-solid fa-battery-three-quarters"></i>
+                    <span class="black">{{device.capacity}} kWh capacity</span>
+                </div>
             </div>
 
             <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
@@ -83,14 +91,6 @@
             <div *ngIf="device.deviceType === 'LAMP'">
                 <i class="fa-solid fa-sun"></i>
                 <span class="black">{{device.brightnessLevel}} lux</span>
-            </div>
-            <div *ngIf="device.deviceType === 'HOME_BATTERY'">
-                <i class="fa-solid fa-percent"></i>
-                <span class="black">{{device.currentCharge}} charged</span>
-            </div>
-            <div *ngIf="device.deviceType === 'HOME_BATTERY'">
-                <i class="fa-solid fa-battery-three-quarters"></i>
-                <span class="black">{{device.capacity}} kWh capacity</span>
             </div>
         </div>
 
@@ -144,7 +144,7 @@
     </div> -->
     
 
-    <div class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '55%' : '100%'}" id="card-container">        
+    <div class="basic-container smaller-container" *ngIf="device.deviceType !='SOLAR_PANEL'" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '55%' : '100%'}" id="card-container">        
         <div id="info-container">
             <div class="hover-opacity" style="display: flex; flex-direction: row; justify-content: space-around;">
                 <div>
@@ -200,10 +200,13 @@
             <div *ngIf="isSelected && device.deviceType === 'LAMP' " class="lamp-sensor-container">
                 <div id="brightness-chart-container" style="height: 400px;"></div>
             </div>
+            <div *ngIf="isSelected && device.deviceType === 'HOME_BATTERY' " class="battery-sensor-container">
+                <div id="power-consumption-chart-container" style="height: 400px;"></div>
+            </div>
         </div>
     </div>
 
-    <div class="title-container" style="margin-top: 20px;">
+    <div class="title-container" style="margin-top: 20px;" [hidden]="device.deviceType=='HOME_BATTERY'">
         <div class="subtitle-topper">
             <p class="subtitle">Action table</p>
             <form [formGroup]="datesTableForm" fxLayout="column" (ngSubmit)="applyDateFilter()" #f="ngForm" style="display: flex;">
@@ -237,7 +240,7 @@
     </div>
     
     <div style="margin-top: 20px;">      
-        <table [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
+        <table [hidden]="device.deviceType=='HOME_BATTERY'" [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
 
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>

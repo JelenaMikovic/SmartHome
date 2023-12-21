@@ -102,7 +102,7 @@ export class PropertyDetailsComponent implements OnInit {
 
   openAddDeviceDialog(){
     const dialogRef = this.dialog.open(ChooseDeviceTypeDialogComponent, {
-      data: {
+      data: { propertyId: this.propertyId
       }
     });
   }

@@ -23,5 +23,6 @@ namespace nvt_back.Mqtt
 
         public Task SubscribeToHomeBatteryTopics();
         public string GetHomeBatteryConsumptionTopicForProperty(int propertyId);
+        Task SubscribeToPropertyDataTopic(int propertyId);
     }
 }

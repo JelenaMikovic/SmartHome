@@ -39,7 +39,8 @@ export interface DeviceRegistrationDTO {
 
   export interface SolarPanelRegistrationDTO extends DeviceRegistrationDTO {
     Size: number,
-    Efficiency: number
+    Efficiency: number,
+    NumberOfPanels: number
   }
 
   export interface WashingMachineRegistrationDTO extends DeviceRegistrationDTO {

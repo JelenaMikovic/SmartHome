@@ -14,15 +14,19 @@ import { AddDeviceDialogComponent } from '../add-device-dialog/add-device-dialog
 })
 export class ChooseDeviceTypeDialogComponent implements OnInit {
 
+  propertyId: any;
   constructor(
     public dialogRef: MatDialogRef<ChooseDeviceTypeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private snackBar: MatSnackBar,
     private propertyService: PropertyService,
     private dialog: MatDialog
-  ) { }
+  ) { 
+    this.propertyId = data.propertyId;
+  }
 
   ngOnInit(): void {
+    // console.log(data.propertyId)
   }
 
   close() {
@@ -77,6 +81,7 @@ export class ChooseDeviceTypeDialogComponent implements OnInit {
     this.close();
     const dialogRef = this.dialog.open(AddDeviceDialogComponent, {
       data: {
+        propertyId : this.propertyId,
         deviceType : this.getClickedItem()
       }
     });

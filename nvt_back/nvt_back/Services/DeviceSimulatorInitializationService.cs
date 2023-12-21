@@ -66,6 +66,7 @@ namespace nvt_back.Services
                 Lat = panel.Property.Address.Lat,
                 Lng = panel.Property.Address.Lng,
                 PropertyId = panel.PropertyId,
+                IsOn = panel.IsOn
                 //TODO: da li treba dodati on
             };
         }

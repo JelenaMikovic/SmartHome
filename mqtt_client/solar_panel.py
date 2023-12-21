@@ -26,7 +26,7 @@ PUBLISHER_DATA_TOPIC = "topic/device/" + str(args.did) + "/data"
 SUBSCRIBER_COMMAND_TOPIC = "topic/device/" + str(args.did) + "/command"
 
 IS_ONLINE = True
-IS_ON = True
+IS_ON = False
 INITIALIZE_PARAMETERS = True
 solar_panel_initialization = None
 
@@ -54,15 +54,16 @@ def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
         if data['Type'] == "Initialization":
             solar_panel_initialization = SolarPanelInitialization(data)
             INITIALIZE_PARAMETERS = False
-        elif data['Sender'] != 0 or not IS_ONLINE:
+            IS_ON = data["IsOn"]
+        elif data['Sender'] != 0:
             return
     except Exception:
         print("Unexpected command or not my message", end=" ")
         print(data)
         return
 
-    if INITIALIZE_PARAMETERS:
-        return
+    # if INITIALIZE_PARAMETERS:
+    #     return
     
     if data['Type'] == 'OnOff':
         # previous_status = IS_ON
@@ -71,6 +72,7 @@ def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
         #     print("Going to sleep...")
         # elif IS_ON and not previous_status:
         #     print("I'm back!")
+        print("ovde")
         update_on_off_status(data)
 
 def update_on_off_status(data):
@@ -79,10 +81,12 @@ def update_on_off_status(data):
     previous_status = IS_ON
     IS_ON = False if data['Action'] == 'OFF' else True
     if not IS_ON and previous_status:
+        print("usao1")
         save_to_influx(data["Type"], data["Action"], data["Actor"])
         client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
         print("Going to sleep...")
     elif IS_ON and not previous_status:
+        print("usao2")
         save_to_influx(data["Type"], data["Action"], data["Actor"])
         client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
         print("I'm back!")
@@ -119,9 +123,8 @@ client.connect(mqtt_host, mqtt_port)
 def publish_heartbeat():
     global IS_ON, INITIALIZE_PARAMETERS
     while True:
-        if IS_ON:
-            client.publish(PUBLISHER_HEARTBEAT_TOPIC, status_on_heartbeat_to_json(args.did, INITIALIZE_PARAMETERS))
-            time.sleep(generate_heartbeat_sleep_time())
+        client.publish(PUBLISHER_HEARTBEAT_TOPIC, status_on_heartbeat_to_json(args.did, INITIALIZE_PARAMETERS))
+        time.sleep(generate_heartbeat_sleep_time())
 
 def generate_heartbeat_sleep_time():
     import random
@@ -135,15 +138,15 @@ def publish_data():
         # time.sleep(10)
         if IS_ON and not INITIALIZE_PARAMETERS:
             # print(simulate_solar_energy_production())
-            #client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did, solar_panel_initialization.propertyId))
-            time.sleep(10)
+            client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did, solar_panel_initialization.propertyId))
+            time.sleep(20)
 
 def generate_data(device_id, property_id):
     measurement = "solar_energy"
     tags = f"device_id={device_id},property_id={property_id}"
     fields = "energy=" + str(round(simulate_solar_energy_production(), 0))
     # fields = "energy=" + str(round(10, 0))
-    
+    print(simulate_solar_energy_production())
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol
 
@@ -162,7 +165,8 @@ def get_irradiances():
     return irradiances[(current_hours+1)*4]
 
 def simulate_solar_energy_production():
-    return solar_panel_initialization.efficiency * solar_panel_initialization.size * solar_panel_initialization.size * get_irradiances() / 15
+    print(solar_panel_initialization.efficiency * solar_panel_initialization.size * solar_panel_initialization.number_of_panels * get_irradiances())
+    return solar_panel_initialization.efficiency * solar_panel_initialization.size * solar_panel_initialization.number_of_panels * get_irradiances() / (15*60)
 
 if __name__ == "__main__":
     publish_heartbeat_thread = threading.Thread(target=publish_heartbeat, daemon=True)

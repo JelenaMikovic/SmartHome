@@ -42,7 +42,7 @@ namespace nvt_back.Mqtt
         private readonly IDeviceRepository _deviceRepository;
         private readonly IHubContext<DeviceHub> _hubContext;
         private readonly IDeviceSimulatorInitializationService _deviceSimulatorInitializationService;
-        protected readonly IServiceScopeFactory _scopeFactory;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public MqttClientService(IOptions<MqttConfiguration> mqttConfiguration, InfluxDBService influxDBService,
             IDeviceOnlineStatusService deviceOnlineStatusService, IDeviceService deviceService,
@@ -115,7 +115,12 @@ namespace nvt_back.Mqtt
 
                 if (hasStatusChanged)
                 {
-                    await _deviceOnlineStatusService.UpdateOnlineStatus(heartbeat.DeviceId, true);
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var serviceProvider = scope.ServiceProvider;
+                        var service = serviceProvider.GetRequiredService<IDeviceOnlineStatusService>();
+                        await service.UpdateOnlineStatus(heartbeat.DeviceId, true);
+                    }
                     await _influxDBService.WriteHeartbeatToInfluxDBForDevice(heartbeat.DeviceId, (int)heartbeat.Status);
                 }
             }
@@ -199,6 +204,28 @@ namespace nvt_back.Mqtt
                             Temperature = temperature
                         };
                     }
+                    if (measurement == "battery_level")
+                    {
+                        var battery_level = double.Parse(parts[1].Split('=')[1]);
+                        return new
+                        {
+                            Measurement = measurement,
+                            DeviceId = deviceId,
+                            Value = battery_level
+                        };
+                    }
+                    if (measurement == "home_battery")
+                    {
+                    Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                        var consumed_power = double.Parse(parts[1].Split('=')[1]);
+                        Console.WriteLine(consumed_power);
+                        return new
+                        {
+                            Measurement = measurement,
+                            PropertyId = deviceId,
+                            Value = consumed_power
+                        };
+                    }
                     else
                     {
 
@@ -232,6 +259,12 @@ namespace nvt_back.Mqtt
             Device device = null;
             User user = null;
 
+            if (topic.Split("/")[1] == "property")
+            {
+                Console.WriteLine(data);
+                await sendPowerConsumptionUpdate(data);
+            }
+
             using (var scope = _scopeFactory.CreateScope())
             {
                 var serviceProvider = scope.ServiceProvider;
@@ -262,6 +295,9 @@ namespace nvt_back.Mqtt
                 case DeviceType.AMBIENT_SENSOR:
                     await sendAmbientUpdate(data, device);
                     break;
+                case DeviceType.HOME_BATTERY:
+                    await sendBatteryUpdate(data, device);
+                    break;
             }
 
         }
@@ -288,6 +324,28 @@ namespace nvt_back.Mqtt
             }
         }
 
+        private async Task sendPowerConsumptionUpdate(dynamic data)
+        {
+
+            var message = new
+            {
+                PropertyId = data.PropertyId,
+                DeviceType = "HOME_BATTERY",
+                Consumed = data.Value
+            };
+
+            Console.WriteLine(message);
+
+            try
+            {
+                Console.WriteLine($"consumption_data/{data.PropertyId}");
+                await _hubContext.Clients.Group($"consumption_data/{data.PropertyId}").SendAsync("ConsumptionUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
 
         private async Task sendLampUpdate(MeasurementDTO data, Device device)
         {
@@ -347,6 +405,40 @@ namespace nvt_back.Mqtt
                 DeviceType = "AMBIENT_SENSOR",
                 Temperature = data.Temperature,
                 Humidity = data.Humidity
+            };
+
+            try
+            {
+                Console.WriteLine($"data/{data.DeviceId}");
+                await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
+
+        private async Task sendBatteryUpdate(dynamic data, Device device)
+        {
+            HomeBattery battery = (HomeBattery)device;
+
+            if (battery.CurrentCharge == data.Value)
+                return;
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                battery.CurrentCharge = data.Value;
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                await repository.SaveChanges(battery);
+            }
+
+            var message = new
+            {
+                DeviceId = data.DeviceId,
+                DeviceType = "HOME_BATTERY",
+                CurrentCharge = data.Value,
+                
             };
 
             try
@@ -482,6 +574,13 @@ namespace nvt_back.Mqtt
             Console.WriteLine("Subscribing to device's data topic...");
             await this.Subscribe(this.GetDataTopicForDevice(deviceId));
         }
+
+        public async Task SubscribeToPropertyDataTopic(int deviceId)
+        {
+            Console.WriteLine("Subscribing to property's data topic...");
+            await this.Subscribe("topic/property/" + deviceId + "/data");
+        }
+
 
         public async Task UnsubscribeFromDataTopic(int deviceId)
         {

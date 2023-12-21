@@ -89,8 +89,8 @@ def publish_heartbeat():
     global INITIALIZE_PARAMETERS
     initialize_batteries()
     while True:
-        #for battery in batteries:
-        #    client.publish("topic/device/" + str(battery.id) + "/heartbeat", status_on_heartbeat_to_json(battery.id))
+        for battery in batteries:
+            client.publish("topic/device/" + str(battery.id) + "/heartbeat", status_on_heartbeat_to_json(battery.id))
         time.sleep(generate_heartbeat_sleep_time())
 
 def generate_heartbeat_sleep_time():
@@ -103,6 +103,8 @@ def publish_data():
         if not INITIALIZE_PARAMETERS:
             # client.publish("topic/device/" + str(42) + "/data", generate_data_for_battery_level())
             global battery_lock
+            gained = None
+            consumed_mqtt = 0
             with battery_lock:
                 total_power_from_batteries = sum(battery.capacity * battery.currentCharge for battery in batteries)
                 if consumed_power >= total_power_from_batteries + generated_power:
@@ -121,13 +123,16 @@ def publish_data():
                         consumption_per_battery = consumed_power * capacity_per_battery
                         battery.currentCharge = battery.currentCharge - consumption_per_battery / (battery.capacity)
                         print(capacity_per_battery, consumption_per_battery, battery.currentCharge)
-                consumed_power = 0
-                generated_power = 0
+                
             for battery in batteries:
                 client.publish("topic/device/" + str(battery.id) + "/data", generate_data_for_battery_level(battery))
             
-            #client.publish(PUBLISHER_DATA_TOPIC, generate_data_for_consumed_power(consumed_power))
-            #client.publish(PUBLISHER_DATA_TOPIC, generate_data_for_power_distribution(consumed_mqtt, gained))
+            client.publish(PUBLISHER_DATA_TOPIC, generate_data_for_consumed_power(consumed_power))
+            client.publish(PUBLISHER_DATA_TOPIC, generate_data_for_power_distribution(consumed_mqtt, gained))
+
+            with battery_lock:
+                consumed_power = 0
+                generated_power = 0
 
             time.sleep(20)
 
@@ -151,10 +156,12 @@ def generate_data_for_consumed_power(consumed_power):
 
 def generate_data_for_power_distribution(consumed_mqtt, gained):
     measurement = "home_battery"
-    if gained:
+    if gained == True:
         tags = f"property_id={args.pid},gained=True"
-    else: 
+    elif gained == False: 
         tags = f"property_id={args.pid},gained=False"
+    else:
+        tags = f"property_id={args.pid},gained=None"
         
     fields = "distribution=" + str(round(consumed_mqtt, 2))
 

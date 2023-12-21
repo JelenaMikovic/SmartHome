@@ -10,7 +10,7 @@ namespace nvt_back.Model.Devices
         public double Size { get; set; }
 
         [Required(ErrorMessage = "Efficiency field is required")]
-        [Range(0, 100, ErrorMessage = "Efficiency should be between 0 and 100")]
+        [Range(0, 1, ErrorMessage = "Efficiency should be between 0 and 1")]
         public double Efficiency { get; set; }
 
         [Required(ErrorMessage = "Is on field is required")]

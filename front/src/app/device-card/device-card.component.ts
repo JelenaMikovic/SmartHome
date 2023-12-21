@@ -40,6 +40,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   endDateControl = new FormControl();
   temperatureChartData: { timestamp: string; value: string }[] = [];
   humidityChartData: { timestamp: string; value: string }[] = [];
+  powerConsumptionChartData: {timestamp: string; value: string}[] = [];
 
   applyNameFilter(event: Event): void {
     const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
@@ -107,7 +108,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           this.initDevice();
           console.log(this.device)
           this.lastHour()
-          this.socketService.startConnection(this.device.id);
+          this.socketService.startConnection(this.device.id, this.device.deviceType == "HOME_BATTERY", this.device.propertyId);
           this.socketService.addDataUpdateListener((dto: any) => {
             console.log(dto)
             if(dto.measurement == "command"){
@@ -124,6 +125,23 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
                 this.createTemperatureChart(this.temperatureChartData, "current-temperature-chart-container")
                 this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
               }
+              if(this.device.deviceType == "HOME_BATTERY"){
+                //this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.CurrentCharge });
+                this.device.currentCharge = dto.CurrentCharge + 1;
+                console.log(this.device.currentCharge);
+                // this.device.currentHumidity = dto.Humidity;
+                //this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-temperature-chart-container")
+                // this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
+              }
+            }
+          });
+          this.socketService.addConsumptionUpdateListener((dto: any) => {
+            console.log(dto)
+            if(this.device.deviceType == "HOME_BATTERY"){
+              this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.Consumed });
+              this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-temperature-chart-container")
+              // this.device.currentHumidity = dto.Humidity;
+              // this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
             }
           });
         },
@@ -143,7 +161,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         error: (err) => {
           console.log(err);
         },});
-    
+        console.log(this.device.isOn);
     } else{
       console.log(this.device);
     }
@@ -156,6 +174,9 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   initDevice() {
     if (this.device.deviceType == "LAMP") {
       this.checkedAutomatic = this.device.regime == "AUTOMATIC"? true: false;
+      this.checkedOnOff = this.device.isOn;
+    }
+    if (this.device.deviceType == "SOLAR_PANEL"){
       this.checkedOnOff = this.device.isOn;
     }
   }
@@ -228,6 +249,24 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
       );
     }
+    console.log(this.device)
+    if (this.device.deviceType == "HOME_BATTERY"){
+      const dtob = {
+        deviceId: 5,
+        startDate: startDate.toISOString(),
+        endDate: currentDate.toISOString(),
+      };
+      this.deviceService.getBatteryReport(dtob).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.powerConsumptionChartData = response.consumptionData;
+          this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
   }
 
   onIntervalSelected(){
@@ -274,6 +313,17 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         (response) => {
           console.log('Response:', response);
           this.createBrightnessChart(response.brightnessData, 'brightness-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
+    if (this.device.deviceType == "HOME_BATTERY"){
+      this.deviceService.getBatteryReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
         },
         (error) => {
           console.error('Error:', error);
@@ -375,6 +425,37 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           type: 'spline',
           name: 'Brightness level',
           data: brightnesses,
+        },
+      ],
+    };
+
+    Highcharts.chart(name, options);
+  }
+
+  createPowerConsumptionChart(data: { timestamp: string; value: string }[], name: string): void {
+    const timestamps = data.map((entry) => entry.timestamp);
+    const consumptions = data.map((entry) => parseFloat(entry.value));
+
+    const options: Highcharts.Options = {
+      chart: {
+        type: 'spline',
+      },
+      title: {
+        text: 'Power consumption Chart',
+      },
+      xAxis: {
+        categories: timestamps,
+      },
+      yAxis: {
+        title: {
+          text: 'kWh',
+        },
+      },
+      series: [
+        {
+          type: 'spline',
+          name: 'Power consumption',
+          data: consumptions,
         },
       ],
     };

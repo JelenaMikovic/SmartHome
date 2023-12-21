@@ -44,6 +44,8 @@ namespace nvt_back.Repositories
             if (device == null)
                 throw new KeyNotFoundException("Device with id: " + deviceId.ToString() + " doesn't exist!");
             device.IsOnline = activate;
+            Console.WriteLine("EKEKEKKEKEKEKEKEKEKE");
+            Console.WriteLine(device.IsOnline);
             await _context.SaveChangesAsync();
         }
 
@@ -145,6 +147,7 @@ namespace nvt_back.Repositories
                 CurrentCharge = battery.CurrentCharge,
                 Capacity = battery.Capacity,
                 DeviceType = battery.DeviceType.ToString(),
+                PropertyId = battery.PropertyId,
             };
         }
 
@@ -174,7 +177,7 @@ namespace nvt_back.Repositories
                 Id = sp.Id,
                 Efficiency = sp.Efficiency,
                 IsOn = sp.IsOn,
-                IsOnline = sp.IsOn,
+                IsOnline = sp.IsOnline,
                 Name = sp.Name,
                 NumberOfPanels = sp.NumberOfPanels,
                 PowerConsumption = sp.PowerConsumption,

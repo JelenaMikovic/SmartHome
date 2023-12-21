@@ -14,7 +14,7 @@ namespace nvt_back.Model.Devices
         public double Health { get; set; }
 
         [Required(ErrorMessage = "Current charge field is required")]
-        [Range(0, 100, ErrorMessage = "Current charge should be between 0 and 100")]
+        [Range(0, 1, ErrorMessage = "Current charge should be between 0 and 1")]
         public double CurrentCharge { get; set; }
         /*public double PowerConsumption { get; set; }
         public double PowerProduction { get; set; }*/
