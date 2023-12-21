@@ -52,6 +52,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
     MatAutocompleteModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatSortModule
   ],
   exports: [
     MatButtonModule,

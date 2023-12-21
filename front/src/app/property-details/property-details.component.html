@@ -27,7 +27,7 @@
     <!-- <div id="no-type-chosen-container" *ngIf="this.selectedDeviceType == ''">
         <span style="font-weight: 600; color: #A9A9A9; font-size: 1.2em;">Please, select device type for show</span>
     </div> -->
-    <div class="card-holder">
+    <div class="card-holder" style="display: flex;">
       <div *ngFor="let device of devices; let i = index">
           <app-device-card [device]="device" (click)="openDeviceDetails(i)"></app-device-card>
           <!-- <p>{{ property.name }}</p> -->

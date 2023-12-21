@@ -54,6 +54,11 @@ export class DeviceService {
     return this.http.post<any>(url, ambientSensorReportDTO, { withCredentials: true });
   }
 
+  getActionTable(id: any): Observable<any> {
+    const url = `${environment.apiHost}/device/action-table/${id}`;
+    return this.http.get<any>(url, { withCredentials: true });
+  }
+
   subscribeToDataTopic(deviceId: number): Observable<any> {
     const url = `${environment.apiHost}/data/` + deviceId;
     console.log(url);

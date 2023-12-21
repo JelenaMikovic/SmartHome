@@ -53,5 +53,10 @@ namespace nvt_back.Repositories
             _context.SaveChanges();
         }
 
+        public async Task<User> GetById(int id)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        }
+
     }
 }

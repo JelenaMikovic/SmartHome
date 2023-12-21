@@ -11,5 +11,6 @@ namespace nvt_back.Repositories.Interfaces
         Task<User> GetByEmailAndPassword(string email, string password);
         void ActivateUser(int userId);
         void ChangePassword(string newPassword, User user);
+        public Task<User> GetById(int id);
     }
 }

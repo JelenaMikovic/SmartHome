@@ -1,16 +1,17 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { DataDTO, SocketService } from './../../services/socket.service';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import Highcharts from 'highcharts';
 import { DeviceService } from 'src/services/device.service';
 import { ConfirmValidParentMatcher, dateAheadOfTodayValidator, dateMatcher } from '../validators/date-validators';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-device-card',
   templateUrl: './device-card.component.html',
-  styleUrls: ['./device-card.component.css', '../property-card/property-card.component.css'],
+  styleUrls: ['./device-card.component.css', '../property-card/property-card.component.css', '../property-details/property-details.component.css'],
 })
 export class DeviceCardComponent implements OnInit, OnDestroy {
 
@@ -28,25 +29,55 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     'Last 7d',
     'Last month'
   ]
-  displayedColumns: string[] = ['action', 'time', 'byWho'];
-  dataSource = new MatTableDataSource([
-    { action: 'Turned On', time: new Date(), byWho: 'Bob' },
-    { action: 'Turned Off', time: new Date(), byWho: 'Bob' },
-  ]);
-  // startDateControl = new FormControl();
-  // endDateControl = new FormControl();
+  displayedColumns: string[] = ['action', 'timestamp', 'user', 'state'];
+  
+  @ViewChild(MatSort) sort: any;
+  dataSource = new MatTableDataSource<any>;
+  dataSourceWithoutFilters = new MatTableDataSource<any>;
+
+  applyNameFilter(event: Event): void {
+    const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
+    this.dataSource.filter = filter;
+  } 
+
+  applyDateFilter(){
+    if (this.datesTableForm.valid)
+      this.dataSource.data = this.dataSource.data.filter(e=> {
+        const dateFromData = new Date(e.timestamp);
+        console.log(dateFromData);
+        return dateFromData >= new Date(this.datesTableForm.value.startDateTable!) && dateFromData <= new Date(this.datesTableForm.value.endDateTable!)
+      });
+    else {
+      console.log("wrr");
+    }
+  }
+
+  resetTableDates(myForm: FormGroupDirective){
+      this.datesTableForm.get('startDateTable')?.setValue(null);
+      this.datesTableForm.get('endDateTable')?.setValue(null);
+      myForm.resetForm();
+      myForm.form.markAsPristine();
+      myForm.form.markAsUntouched();
+      myForm.form.updateValueAndValidity();
+      
+
+      this.dataSource = this.dataSourceWithoutFilters
+  }
+
+  startDateControl = new FormControl();
+  endDateControl = new FormControl();
 
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
   
   datesForm = new FormGroup({
     startDate: new FormControl('', [Validators.required, dateAheadOfTodayValidator()]),
-    endDate: new FormControl('', [Validators.required, dateAheadOfTodayValidator()])
+    endDate: new FormControl('', [Validators.required])
   }, [dateMatcher("startDate", "endDate")])
 
-  applyFilter(event: Event): void {
-    const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
-    this.dataSource.filter = filter;
-  } 
+  datesTableForm = new FormGroup({
+    startDateTable: new FormControl('', [Validators.required, dateAheadOfTodayValidator()]),
+    endDateTable: new FormControl('', [Validators.required])
+  }, [dateMatcher("startDateTable", "endDateTable")])
 
   constructor(private deviceService: DeviceService,
     private snackBar: MatSnackBar, private socketService: SocketService) { }
@@ -57,7 +88,10 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.isDetails){
-      console.log("AAAAAAAAAAAAAAAAAAA")
+      this.dataSource.filterPredicate = (data: TableData, filter: string) => {
+        return data.user == filter;
+       };
+      this.dataSource.sort = this.sort;
       this.deviceService.getDeviceDetailsById(this.deviceId).subscribe({
         next: (value: any) => {
           this.device = value;
@@ -76,10 +110,26 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           console.log(err);
         },
       })
+
+      this.deviceService.getActionTable(this.deviceId).subscribe({
+        next: (value: any) => {
+          console.log(value);
+          this.dataSource  = new MatTableDataSource(value.tableData);
+          this.dataSourceWithoutFilters = new MatTableDataSource(value.tableData);
+          //this.dataSource = newData;
+          //this.dataSource.filterPredicate = (data: Element, filter: string) => data.user.indexOf(filter) != -1;
+        },
+        error: (err) => {
+          console.log(err);
+        },});
     
     } else{
       console.log(this.device);
     }
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
   }
 
   initDevice() {
@@ -113,10 +163,10 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   }
 
   generateByDate(){
-    if (this.datesForm.valid){
+    // if (this.datesForm.valid){
       let date = new Date(this.datesForm.value.startDate!).toISOString().split('T')[0]
       console.log(date);
-    } 
+    // } 
     console.log("usao")
   }
 
@@ -144,17 +194,17 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
       );
     }
-    // if(this.device.deviceType == "LAMP"){
-    //   this.deviceService.getLampReport(dto).subscribe(
-    //     (response) => {
-    //       console.log('Response:', response);
-    //       this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
-    //     },
-    //     (error) => {
-    //       console.error('Error:', error);
-    //     }
-    //   );
-    // }
+    if(this.device.deviceType == "LAMP"){
+      this.deviceService.getLampReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
   }
 
   onIntervalSelected(){
@@ -332,4 +382,9 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   }
 }
 
-
+export interface TableData{
+  action: string,
+  time: Date,
+  user: string,
+  state: string
+}

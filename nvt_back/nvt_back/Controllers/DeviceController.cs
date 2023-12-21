@@ -60,5 +60,25 @@ namespace nvt_back.Controllers
                 return StatusCode(500, "Internal Server Error: " + ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("action-table/{id}")]
+        public async Task<ActionResult<MessageDTO>> GetActionTableData(int id)
+        {
+            try
+            {
+                var table = this._deviceService.GetActionTableData(id);
+                var response = new
+                {
+                    TableData = table.Result.ToList(),
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
     }
 }
