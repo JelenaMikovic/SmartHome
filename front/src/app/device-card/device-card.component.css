@@ -75,3 +75,119 @@ mat-form-field {
     /* Change only the background opacity on hover */
     opacity: 0.9; /* Adjust the RGBA values as needed */
 }
+
+/* INCLUDED INGR */
+#included-container {
+    margin-top: 50px;
+}
+
+#included-container {
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+#included-container::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
+
+
+.included-item {
+    font-family: 'Poppins', sans-serif;
+    padding: 0.2em 0.6em;
+    align-self: center;
+    align-items: center;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    margin-right: 5px;
+}
+
+.included-item div {
+    color: white;
+}
+
+#img {
+    height: 100%;
+    display: flex;
+}
+
+.included-item  img {
+    margin-right: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 0.5rem;
+    padding-top: 0.3rem;
+}
+
+.plates-container {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+h2 {
+    margin: 0;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.remove-plate {
+    transform:rotate(45deg);
+    margin-left: 8px;
+    margin-top: 1px;
+    cursor: pointer;
+}
+
+.field-title {
+    width: 90%;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    font-weight: 400;
+}
+
+.field-title > p {
+    align-self: left;
+    margin-right: auto;
+    width: fit-content;
+    color: #8c8e90;
+}
+
+.line {
+    height: 1px;
+    width: min-content;
+    flex-grow: 1;
+    background-color: #a5a7a9;
+    border: none;
+    outline: none;
+    align-items: baseline;
+    margin-left: 0.5rem;
+    margin-top: auto;
+    margin-bottom: auto;
+    font-weight: normal !important;
+}
+
+.plates-container {
+    display: grid !important;
+    height: 100%;
+    grid-template-rows: 50px auto;
+    width: 100%;
+}
+
+.gate-details {
+    display: grid;
+    grid-template-columns: auto 250px;
+    gap: 70px;
+}
+
+.current-container {
+    padding-left: 20px;
+}
+
+.current-plates {
+    font-size: 1.5em;
+}
+

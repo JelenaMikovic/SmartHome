@@ -55,12 +55,12 @@
         <!-- && device.deviceType == 'SOLAR_PANEL' -->
     </div>
 
-    <div class="basic-container smaller-container" id="card-container" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">
+    <div class="basic-container smaller-container" id="card-container" *ngIf="isDetails && device.deviceType != 'AMBIENT_SENSOR'">
         <div id="info-container">
             <div>
                 <h2 style="font-size: 1.2em" class="light-blue">Device actions</h2>
             </div>
-            <div>
+            <div *ngIf="device.deviceType != 'VEHICLE_GATE'">
                 <span class="black">power: </span>
                 <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()" [disabled]="!device.isOnline">
                 </mat-slide-toggle>
@@ -70,6 +70,20 @@
                 <mat-slide-toggle [(ngModel)]="checkedAutomatic" (change)="toggleAutomaticRegime()" [disabled]="!device.isOnline">
                 </mat-slide-toggle>
             </div>
+
+            <div *ngIf="device.deviceType == 'VEHICLE_GATE'">
+                <span class="black">private regime: </span>
+                <mat-slide-toggle [(ngModel)]="checkedPrivate" (change)="togglePrivateRegime()" [disabled]="!device.isOnline">
+                </mat-slide-toggle>
+
+                
+            </div>
+            <div *ngIf="device.deviceType == 'VEHICLE_GATE'">
+                <span class="black">open gate: </span>
+                <mat-slide-toggle [(ngModel)]="checkedOpen" (change)="toggleGateOpen()" [disabled]="!device.isOnline">
+                </mat-slide-toggle>
+            </div>
+            
         </div>
     </div>
 </div>
@@ -95,9 +109,32 @@
         </div>
     </div> -->
 
+    <div *ngIf="device.deviceType == 'VEHICLE_GATE'"  class="gate-details">
+        <div class="plates-container basic-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}" id="card-container">        
+            <div class="plates-top">
+                <h2 class="light-blue" style="font-size: 1.2em;">Manage allowed plates</h2>
+                <form [formGroup]="addPlateForm" (ngSubmit)="addAllowedPlate()" class="plates-form">
+                    <mat-form-field>
+                        <mat-label>New Plate</mat-label>
+                        <input matInput type="text" name="newPlate" formControlName="newPlate"/>
+                        <mat-error *ngIf="addPlateForm.get('newPlate')?.errors?.['lettersRegexError']">please input plate number</mat-error>
+                    </mat-form-field>
+                </form>
+    
+            </div>
+            <div id="included-container" *ngIf="device.allowedLicencePlates.length != 0" class="row">
+                <div class="included-item row back-orange" *ngFor="let item of device.allowedLicencePlates"><div>{{item}}</div><div id="img" (click)="removeAllowedPlate(item)"><i class="fa-solid fa-plus remove-plate"></i></div></div>
+            </div>
+            
+        </div>
+        <div class="basic-container current-container">
+            <h2 class="light-blue" style="font-size: 1.2em;">Currently at gate:</h2>
+            <p class="current-plates green">{{currentPlate}}</p>
+        </div>
+    </div>
     
 
-    <div class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '55%'}" id="card-container">        
+    <div *ngIf="device.deviceType != 'VEHICLE_GATE'" class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}" id="card-container">        
         <div id="info-container">
             <div class="hover-opacity" style="display: flex; flex-direction: row; justify-content: space-around;">
                 <div>
@@ -130,7 +167,7 @@
             </div>
         </div>
     </div>
-    <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AMBIENT-SENSOR'">      
+    <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AMBIENT-SENSOR' || device.deviceType == 'VEHICLE_GATE'">      
         <mat-form-field>
             <mat-label>Search</mat-label>
             <input matInput placeholder="please enter a value" (input)="applyFilter($event)">

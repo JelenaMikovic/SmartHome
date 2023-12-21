@@ -30,6 +30,8 @@ namespace nvt_back.Services
                 return initializeLamp(device);
             if (device.DeviceType == DeviceType.AMBIENT_SENSOR)
                 return initializeAmbientalSensor(device);
+            if (device.DeviceType == DeviceType.VEHICLE_GATE)
+                return initializeVehicleGate(device);
 
             return null;
         }
@@ -38,15 +40,13 @@ namespace nvt_back.Services
         {
             Lamp lamp = (Lamp)device;
 
-            Console.WriteLine("***************************" + lamp.Regime.ToString());
-
             return new LampInitializationDTO
             {
                 Type = "Initialization",
                 Lat = lamp.Property.Address.Lat,
                 Lng = lamp.Property.Address.Lng,
                 IsOn = lamp.IsOn,
-                Regime = lamp.Regime.ToString()
+                Regime = lamp.Regime.ToString(),
             };
 
         }
@@ -78,5 +78,20 @@ namespace nvt_back.Services
                 Lng = ambientSensor.Property.Address.Lng,
             };
         }
+        private VehicleGateInitializationDTO initializeVehicleGate(Device device)
+        {
+            VehicleGate gate = (VehicleGate)device;
+
+            return new VehicleGateInitializationDTO
+            {
+                Type = "Initialization",
+                Lat = gate.Property.Address.Lat,
+                Lng = gate.Property.Address.Lng,
+                IsOpen = gate.IsOpened,
+                IsPrivate = gate.IsPrivateModeOn,
+                AllowedLicencePlates = gate.AllowedLicencePlates
+            };
+        }
+
     }
 }

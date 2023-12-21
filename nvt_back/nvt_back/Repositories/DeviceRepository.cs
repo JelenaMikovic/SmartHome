@@ -124,7 +124,30 @@ namespace nvt_back.Repositories
             {
                 return await getLampDetailsById(device);
             }
+            else if (device.DeviceType == DeviceType.VEHICLE_GATE)
+            {
+                return await getVehicleGateDetailsById(device);
+            }
+
             return null;
+        }
+
+        private async Task<object> getVehicleGateDetailsById(Device device)
+        {
+            VehicleGate gate = (VehicleGate)device;
+            return new VehicleGateDetailsDTO
+            {
+                Id = gate.Id,
+                IsOnline = gate.IsOnline,
+                Name = gate.Name,
+                PowerConsumption = gate.PowerConsumption,
+                PowerSource = gate.PowerSource,
+                Image = gate.Image,
+                DeviceType = gate.DeviceType.ToString(),
+                IsOpen = gate.IsOpened,
+                IsPrivate = gate.IsPrivateModeOn,
+                AllowedLicencePlates = gate.AllowedLicencePlates
+            };
         }
 
         private async Task<object> getLampDetailsById(Device device)
@@ -205,11 +228,59 @@ namespace nvt_back.Repositories
             }
         }
 
+        public async Task ToggleCommand(int deviceId, string type, string value)
+        {
+            var device = await GetById(deviceId);
+
+            if (device.DeviceType == DeviceType.VEHICLE_GATE)
+            {
+                VehicleGate gate = (VehicleGate)device;
+
+                switch (type.ToLower())
+                {
+                    case "open":
+                        gate.IsOpened = value.ToLower() == "true" ? true : false;
+                        await _context.SaveChangesAsync();
+                        break;
+                    case "private":
+                        gate.IsPrivateModeOn = value.ToLower() == "true" ? true : false;
+                        await _context.SaveChangesAsync();
+                        break;
+                }
+            }
+        }
+
         public async Task SaveChanges(Device device)
         {
             _context.Entry(device).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateGateAllowedPlates(int deviceId, string value, bool isAdd)
+        {
+            var device = await GetById(deviceId);
+
+            if (device.DeviceType == DeviceType.VEHICLE_GATE)
+            {
+                VehicleGate gate = (VehicleGate)device;
+
+                try
+                {
+                    if (isAdd)
+                    {
+                        gate.AllowedLicencePlates.Add(value);
+                    }
+                    else
+                    {
+                        gate.AllowedLicencePlates.Remove(value);
+                    }
+                    await _context.SaveChangesAsync();
+                } catch (Exception ex)
+                {
+                    Console.WriteLine("Error trying to update licence plates for gate" + ex.StackTrace);
+                }
+                
+            }
+        }
     }
 }

@@ -28,6 +28,69 @@ namespace nvt_back.Services
                     if (type == DeviceType.LAMP)
                         return await changeLampRegime(dto, userId);
                     break;
+                case "open":
+                    return await handleGateOpen(dto, userId);
+                case "private":
+                    return await handleGatePrivate(dto, userId);
+                case "addplate":
+                    await handleAddGateAllowedPlate(dto, userId, true);
+                    return true;
+                case "removeplate":
+                    await handleAddGateAllowedPlate(dto, userId, false);
+                    return true;
+            }
+
+            return false;
+        }
+
+        private async Task handleAddGateAllowedPlate(CommandDTO dto, int userId, bool isAdd)
+        {
+            VehicleGate gate = await validateGateCommand(dto);
+
+            if (isAdd)
+            {
+                await _mqttClientService.PublishCommandUpdate(dto.DeviceId, dto.Action, dto.Value, userId);
+            } else
+            {
+                await _mqttClientService.PublishCommandUpdate(dto.DeviceId, dto.Action, dto.Value, userId);
+            }
+        }
+
+        private async Task<VehicleGate> validateGateCommand(CommandDTO dto)
+        {
+            var device = await _deviceRepository.GetById(dto.DeviceId);
+
+            if (device.DeviceType != DeviceType.VEHICLE_GATE)
+                throw new Exception("The device doesn't have this command option.");
+
+
+            VehicleGate gate = (VehicleGate)device;
+            Console.WriteLine(gate.IsOpened.ToString().ToLower() + " " + dto.Value.ToLower());
+
+            return gate;
+        }
+
+        private async Task<bool> handleGatePrivate(CommandDTO dto, int userId)
+        {
+            VehicleGate gate = await validateGateCommand(dto);
+            
+            if (gate.IsPrivateModeOn.ToString().ToLower() != dto.Value.ToLower())
+            {
+                await _mqttClientService.PublishCommandUpdate(dto.DeviceId, dto.Action, dto.Value, userId);
+                return true;
+            }
+
+            return false;
+        }
+
+        private async Task<bool> handleGateOpen(CommandDTO dto, int userId)
+        {
+            VehicleGate gate = await validateGateCommand(dto);
+
+            if (gate.IsOpened.ToString().ToLower() != dto.Value.ToLower())
+            {
+                await _mqttClientService.PublishCommandUpdate(dto.DeviceId, dto.Action, dto.Value, userId);
+                return true;
             }
 
             return false;
