@@ -71,6 +71,16 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.dataSource = this.dataSourceWithoutFilters
   }
 
+  addToTable(newData: any): void {
+    const dataFiltered = this.dataSource.data;
+    dataFiltered.push(newData);
+    this.dataSource.data = dataFiltered;
+
+    const data = this.dataSourceWithoutFilters.data;
+    data.push(newData);
+    this.dataSourceWithoutFilters.data = data;
+  }
+
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
   
   datesForm = new FormGroup({
@@ -111,8 +121,15 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           this.socketService.startConnection(this.device.id, this.device.deviceType == "HOME_BATTERY", this.device.propertyId);
           this.socketService.addDataUpdateListener((dto: any) => {
             console.log(dto)
-            if(dto.measurement == "command"){
-                // dodati datasourcu za komande
+            if(dto.Measurement == "command"){
+              const newData = {
+                action: dto.Action, 
+                timestamp: new Date().toISOString(),
+                user: dto.User, 
+                state: dto.Value 
+              };
+        
+              this.addToTable(newData);
             } else {
               if (this.device.deviceType == "LAMP") {
                 this.device.brightnessLevel = dto["Value"];
@@ -267,6 +284,17 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
       );
     }
+    // if(this.device.deviceType == "LAMP"){
+    //   this.deviceService.getLampReport(dto).subscribe(
+    //     (response) => {
+    //       console.log('Response:', response);
+    //       this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
+    //     },
+    //     (error) => {
+    //       console.error('Error:', error);
+    //     }
+    //   );
+    // }
   }
 
   onIntervalSelected(){
