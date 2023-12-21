@@ -19,6 +19,7 @@ namespace nvt_back.Mqtt
         public Task SubscribeToCommandTopics();
         public Task SubscribeToDataTopic(int deviceId);
         public Task UnsubscribeFromDataTopic(int deviceId);
+        public Task UnsubscribeFromCommandTopic(int deviceId);
 
         public Task SubscribeToHomeBatteryTopics();
         public string GetHomeBatteryConsumptionTopicForProperty(int propertyId);

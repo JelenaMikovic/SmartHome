@@ -3,6 +3,7 @@ import { DataDTO, SocketService } from './../../services/socket.service';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
+import { NavigationStart, Router } from '@angular/router';
 import Highcharts from 'highcharts';
 import { DeviceService } from 'src/services/device.service';
 import { ConfirmValidParentMatcher, dateAheadOfTodayValidator, dateMatcher } from '../validators/date-validators';
@@ -35,6 +36,11 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<any>;
   dataSourceWithoutFilters = new MatTableDataSource<any>;
 
+  startDateControl = new FormControl();
+  endDateControl = new FormControl();
+  temperatureChartData: { timestamp: string; value: string }[] = [];
+  humidityChartData: { timestamp: string; value: string }[] = [];
+
   applyNameFilter(event: Event): void {
     const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
     this.dataSource.filter = filter;
@@ -64,9 +70,6 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.dataSource = this.dataSourceWithoutFilters
   }
 
-  startDateControl = new FormControl();
-  endDateControl = new FormControl();
-
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
   
   datesForm = new FormGroup({
@@ -80,7 +83,13 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   }, [dateMatcher("startDateTable", "endDateTable")])
 
   constructor(private deviceService: DeviceService,
-    private snackBar: MatSnackBar, private socketService: SocketService) { }
+    private snackBar: MatSnackBar, private socketService: SocketService, private router: Router ) {
+      this.router.events.subscribe((event) => {
+        if (event instanceof NavigationStart) {
+          this.socketService.stopConnection(); 
+        }
+      });
+     }
   
   ngOnDestroy(): void {
     this.socketService.stopConnection();
@@ -101,8 +110,20 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           this.socketService.startConnection(this.device.id);
           this.socketService.addDataUpdateListener((dto: any) => {
             console.log(dto)
-            if (this.device.deviceType == "LAMP") {
-              this.device.brightnessLevel = dto["Value"];
+            if(dto.measurement == "command"){
+                // dodati datasourcu za komande
+            } else {
+              if (this.device.deviceType == "LAMP") {
+                this.device.brightnessLevel = dto["Value"];
+              }
+              if(this.device.deviceType == "AMBIENT_SENSOR"){
+                this.temperatureChartData.push({ timestamp: new Date().toISOString(), value: dto.Temperature });
+                this.humidityChartData.push({ timestamp: new Date().toISOString(), value: dto.Humidity });
+                this.device.currentTemperature = dto.Temperature;
+                this.device.currentHumidity = dto.Humidity;
+                this.createTemperatureChart(this.temperatureChartData, "current-temperature-chart-container")
+                this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
+              }
             }
           });
         },
@@ -186,6 +207,8 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.deviceService.getAmbientSensorReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
+          this.temperatureChartData = response.temperatureData;
+          this.humidityChartData = response.humidityData;
           this.createTemperatureChart(response.temperatureData, "current-temperature-chart-container")
           this.createHumidityChart(response.humidityData, 'current-humidity-chart-container')
         },
@@ -380,6 +403,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
      });
     }
   }
+  
 }
 
 export interface TableData{

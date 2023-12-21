@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using InfluxDB.Client.Api.Domain;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -13,6 +15,7 @@ using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
 using nvt_back.Services.Interfaces;
 using nvt_back.WebSockets;
+using System.Globalization;
 using System.Text;
 
 namespace nvt_back.Mqtt
@@ -141,6 +144,7 @@ namespace nvt_back.Mqtt
                     handleCommandReceived(arg, topic, payloadString);
                     break;
                 case "data":
+                    Console.WriteLine($"{payloadString} data");
                     await handleDataReceived(arg, topic, payloadString);
                     break;
                 case "batteries_initialization":
@@ -149,44 +153,104 @@ namespace nvt_back.Mqtt
             }
         }
 
-        private MeasurementDTO ParseInfluxDbLine(string line)
+        private dynamic ParseInfluxDbLine(string line)
         {
-            var parts = line.Split(' ');
-
-            if (parts.Length != 2)
+            try
             {
-                throw new ArgumentException("Invalid input format");
+                var parts = line.Split(' ');
+                Console.WriteLine(parts.Length);
+                if (parts.Length == 2)
+                {
+                    var measurementAndTags = parts[0].Split(',');
+                    var measurement = measurementAndTags[0];
+
+                    if (measurement == "command")
+                    {
+                        var deviceID = int.Parse(measurementAndTags[1].Split('=')[1]);
+                        var deviceType = measurementAndTags[2].Split('=')[1];
+                        var user = int.Parse(measurementAndTags[3].Split('=')[1]);
+                        var type = measurementAndTags[4].Split('=')[1];
+                        var success = Boolean.Parse(measurementAndTags[5].Split('=')[1]);
+
+                        if(success)
+                            return new
+                            {
+                                Measurement = measurement,
+                                DeviceId = deviceID,
+                                User = user,
+                                DeviceType =  deviceType,
+                                Action = type,
+                                Value = parts[1].Split('=')[1]
+                            };
+                    }
+
+                    var deviceId = int.Parse(measurementAndTags[1].Split('=')[1]);
+
+                    if (measurement == "ambiental_sensor")
+                    {
+                        var values = parts[1].Split(",");
+                        var humidity = float.Parse(values[0].Split('=')[1], CultureInfo.InvariantCulture);
+                        var temperature = float.Parse(values[1].Split('=')[1], CultureInfo.InvariantCulture);
+                        return new
+                        {
+                            Measurement = measurement,
+                            DeviceId = deviceId,
+                            Humidity = humidity,
+                            Temperature = temperature
+                        };
+                    }
+                    else
+                    {
+
+                        var illuminance = int.Parse(parts[1].Split('=')[1]);
+
+                        return new MeasurementDTO
+                        {
+                            Measurement = measurement,
+                            DeviceId = deviceId,
+                            Value = illuminance
+                        };
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid input format");
+                }
+                
             }
-
-            var measurement = parts[0].Split(',')[0];
-            var deviceId = int.Parse(parts[0].Split('=')[1]);
-            var illuminance = int.Parse(parts[1].Split('=')[1]);
-
-            return new MeasurementDTO
+            catch (Exception ex)
             {
-                Measurement = measurement,
-                DeviceId = deviceId,
-                Value = illuminance
-            };
+                Console.WriteLine($"Error parsing InfluxDB line: {ex.Message}");
+                throw; 
+            }
         }
 
         private async Task handleDataReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
         {
             var data = ParseInfluxDbLine(payloadString);
-            Console.WriteLine(data.DeviceId);
-            Console.WriteLine("evo" + data.Value);
 
             Device device = null;
+            User user = null;
+
             using (var scope = _scopeFactory.CreateScope())
             {
                 var serviceProvider = scope.ServiceProvider;
                 var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
                 device = await repository.GetById(data.DeviceId);
+                //var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
+                //user = await userRepository.GetById(data.UserId);
+                //Console.WriteLine(user);
             }
 
             if (device == null)
             {
                 Console.WriteLine("Device with the given id doesn't exist.");
+            }
+
+            if(data.Measurement == "command")
+            {
+                await sendActionUpdate(data, user);
+                return;
             }
 
 
@@ -195,12 +259,35 @@ namespace nvt_back.Mqtt
                 case DeviceType.LAMP:
                     await sendLampUpdate(data, device);
                     break;
-
+                case DeviceType.AMBIENT_SENSOR:
+                    await sendAmbientUpdate(data, device);
+                    break;
             }
 
-            
-
         }
+
+        private async Task sendActionUpdate(dynamic data, User user)
+        {
+            var message = new
+            {
+                Measurement = data.Measurement,
+                DeviceId = data.DeviceId,
+                User = data.User,
+                DeviceType = data.DeviceType,
+                Action = data.Action,
+                Value = data.Value
+            };
+            try
+            {
+                Console.WriteLine($"data/{data.DeviceId}");
+                await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
+
 
         private async Task sendLampUpdate(MeasurementDTO data, Device device)
         {
@@ -223,6 +310,43 @@ namespace nvt_back.Mqtt
                 DeviceId = data.DeviceId,
                 DeviceType = "LAMP",
                 Value = data.Value
+            };
+
+            try
+            {
+                Console.WriteLine($"data/{data.DeviceId}");
+                await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
+
+        private async Task sendAmbientUpdate(dynamic data, Device device)
+        {
+            Console.WriteLine("uso");
+            Console.WriteLine(data.Temperature);
+            AmbientSensor sensor = (AmbientSensor)device;
+
+            if (sensor.CurrentTemperature == data.Temperature && sensor.CurrentHumidity == data.Humidity)
+                return;
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                sensor.CurrentTemperature = data.Temperature;
+                sensor.CurrentHumidity = data.Humidity;
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                await repository.SaveChanges(sensor);
+            }
+
+            var message = new
+            {
+                DeviceId = data.DeviceId,
+                DeviceType = "AMBIENT_SENSOR",
+                Temperature = data.Temperature,
+                Humidity = data.Humidity
             };
 
             try
@@ -270,33 +394,48 @@ namespace nvt_back.Mqtt
 
         private async void handleCommandReceived(MqttApplicationMessageReceivedEventArgs arg, string topic, string payloadString)
         {
-            var command = JsonConvert.DeserializeObject<CommandResultDTO>(payloadString)!;
-
-            if (command.Sender == Sender.PLATFORM)
-                return;
-
-            if (command.Result == CommandResult.FAILIURE)
+            try
             {
-                Console.WriteLine("Error");
-                Console.WriteLine(payloadString);
+                var command = JsonConvert.DeserializeObject<CommandResultDTO>(payloadString);
+                // Rest of your code
 
-                //TODO: posalji na front preko soketa
-            }
+                if (command.Sender == Sender.PLATFORM)
+                    return;
 
-            if (command.Action == "OnOff")
-            {
-                Console.WriteLine(payloadString);
-
-                await _deviceRepository.ToggleState(command.DeviceId, command.Value);
-            } 
-            else
-            {
-                if (command.Action == "Regime")
+                if (command.Result == CommandResult.FAILIURE)
                 {
+                    Console.WriteLine("Error");
                     Console.WriteLine(payloadString);
-
-                    await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
                 }
+
+                if(command.Result == CommandResult.SUCCESS) 
+                {
+                    //Console.WriteLine(command);
+                    //sendActionUpdate(comma)
+
+                    if (command.Action == "OnOff")
+                    {
+                        Console.WriteLine(payloadString);
+
+                        await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                    }
+                    else
+                    {
+                        if (command.Action == "Regime")
+                        {
+                            Console.WriteLine(payloadString);
+
+                            await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
+                        }
+                    }
+                }
+
+                
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"Error deserializing JSON: {ex.Message}");
+                Console.WriteLine(payloadString);
             }
         }
 
@@ -347,6 +486,13 @@ namespace nvt_back.Mqtt
         public async Task UnsubscribeFromDataTopic(int deviceId)
         {
             string topic = this.GetDataTopicForDevice(deviceId);
+            Console.WriteLine($"\nUnsubscribed from topic: {topic}");
+            await this.Unsubscribe(topic);
+        }
+
+        public async Task UnsubscribeFromCommandTopic(int deviceId)
+        {
+            string topic = this.GetCommandTopicForDevice(deviceId);
             Console.WriteLine($"\nUnsubscribed from topic: {topic}");
             await this.Unsubscribe(topic);
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using InfluxDB.Client.Api.Domain;
+using Microsoft.EntityFrameworkCore;
 using nvt_back.Model;
 using nvt_back.Repositories.Interfaces;
 
