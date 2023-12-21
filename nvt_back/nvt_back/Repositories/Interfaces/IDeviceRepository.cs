@@ -20,5 +20,8 @@ namespace nvt_back.Repositories.Interfaces
 
         public Task ToggleCommand(int deviceId, string type, string value);
         public Task UpdateGateAllowedPlates(int deviceId, string value, bool isAdd);
+        Task<List<int>> GetPropertyIdsWithHomeBatteries();
+        Task<List<HomeBattery>> GetAllBatteriesForPropertyId(int propertyId);
+        Task<List<Device>> GetConsumingPowerDevicesForProperty(int propertyId);
     }
 }

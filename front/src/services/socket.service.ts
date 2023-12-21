@@ -1,5 +1,5 @@
 import { DeviceService } from 'src/services/device.service';
-import { Injectable } from '@angular/core';
+import { HostListener, Injectable } from '@angular/core';
 import {HubConnectionBuilder, HubConnection} from '@microsoft/signalr';
 import { environment } from 'src/environments/environment';
 
@@ -21,7 +21,7 @@ export class SocketService {
     this.hubConnection.start().then(() => {
       this.hubConnection.invoke("SubscribeToDataTopic", deviceId).then(() => console.log("subscribed to data topic")).catch(() => {console.log("Error connecting to socket...")});
       console.log("connected!")
-    }).catch((err) => console.error(err));
+    }).catch((err: any) => console.error(err));
   }
 
   addDataUpdateListener(callback: (dto: DataDTO) => void) {
@@ -34,7 +34,12 @@ export class SocketService {
   }
 
   stopConnection() {
-    this.hubConnection.stop().catch((err) => console.error(err));
+    this.hubConnection.stop().catch((err: any) => console.error(err));
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadHandler(event: any): void {
+    this.stopConnection();
   }
 }
 

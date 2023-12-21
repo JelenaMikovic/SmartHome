@@ -27,6 +27,25 @@ namespace nvt_back.WebSockets
             await Groups.AddToGroupAsync(Context.ConnectionId, $"data/{deviceId}");
         }
 
+        public async Task SubscribeToCommandTopic(int deviceId)
+        {
+            Console.WriteLine($"command/{deviceId}");
+            await _mqttClientService.SubscribeToDataTopic(deviceId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"command/{deviceId}");
+        }
+        public async Task UnsubscribeFromDataTopic(int deviceId)
+        {
+            Console.WriteLine($"Unsubscribe from data/{deviceId}");
+            await _mqttClientService.UnsubscribeFromDataTopic(deviceId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"data/{deviceId}");
+        }
+
+        public async Task UnsubscribeFromCommandTopic(int deviceId)
+        {
+            Console.WriteLine($"Unsubscribe from command/{deviceId}");
+            await _mqttClientService.UnsubscribeFromCommandTopic(deviceId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"command/{deviceId}");
+        }
 
     }
 }

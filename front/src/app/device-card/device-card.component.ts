@@ -1,15 +1,18 @@
+import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { DataDTO, SocketService } from './../../services/socket.service';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
+import { NavigationStart, Router } from '@angular/router';
 import Highcharts from 'highcharts';
 import { DeviceService } from 'src/services/device.service';
+import { ConfirmValidParentMatcher, dateAheadOfTodayValidator, dateMatcher } from '../validators/date-validators';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-device-card',
   templateUrl: './device-card.component.html',
-  styleUrls: ['./device-card.component.css', '../property-card/property-card.component.css'],
+  styleUrls: ['./device-card.component.css', '../property-card/property-card.component.css', '../property-details/property-details.component.css'],
 })
 export class DeviceCardComponent implements OnInit, OnDestroy {
 
@@ -29,13 +32,16 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     'Last 7d',
     'Last month'
   ]
-  displayedColumns: string[] = ['action', 'time', 'byWho'];
-  dataSource = new MatTableDataSource([
-    { action: 'Turned On', time: new Date(), byWho: 'Bob' },
-    { action: 'Turned Off', time: new Date(), byWho: 'Bob' },
-  ]);
+  displayedColumns: string[] = ['action', 'timestamp', 'user', 'state'];
+  
+  @ViewChild(MatSort) sort: any;
+  dataSource = new MatTableDataSource<any>;
+  dataSourceWithoutFilters = new MatTableDataSource<any>;
+
   startDateControl = new FormControl();
   endDateControl = new FormControl();
+  temperatureChartData: { timestamp: string; value: string }[] = [];
+  humidityChartData: { timestamp: string; value: string }[] = [];
 
   addPlateForm = new FormGroup({
     newPlate: new FormControl('', Validators.required)
@@ -43,13 +49,65 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
 
   currentPlate = ""
 
-  applyFilter(event: Event): void {
+  applyNameFilter(event: Event): void {
     const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
     this.dataSource.filter = filter;
   } 
 
+  applyDateFilter(){
+    if (this.datesTableForm.valid)
+      this.dataSource.data = this.dataSource.data.filter(e=> {
+        const dateFromData = new Date(e.timestamp);
+        console.log(dateFromData);
+        return dateFromData >= new Date(this.datesTableForm.value.startDateTable!) && dateFromData <= new Date(this.datesTableForm.value.endDateTable!)
+      });
+    else {
+      console.log("wrr");
+    }
+  }
+
+  resetTableDates(myForm: FormGroupDirective){
+      this.datesTableForm.get('startDateTable')?.setValue(null);
+      this.datesTableForm.get('endDateTable')?.setValue(null);
+      myForm.resetForm();
+      myForm.form.markAsPristine();
+      myForm.form.markAsUntouched();
+      myForm.form.updateValueAndValidity();
+      
+
+      this.dataSource = this.dataSourceWithoutFilters
+  }
+
+  addToTable(newData: any): void {
+    const dataFiltered = this.dataSource.data;
+    dataFiltered.push(newData);
+    this.dataSource.data = dataFiltered;
+
+    const data = this.dataSourceWithoutFilters.data;
+    data.push(newData);
+    this.dataSourceWithoutFilters.data = data;
+  }
+
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
+  
+  datesForm = new FormGroup({
+    startDate: new FormControl('', [Validators.required, dateAheadOfTodayValidator()]),
+    endDate: new FormControl('', [Validators.required])
+  }, [dateMatcher("startDate", "endDate")])
+
+  datesTableForm = new FormGroup({
+    startDateTable: new FormControl('', [Validators.required, dateAheadOfTodayValidator()]),
+    endDateTable: new FormControl('', [Validators.required])
+  }, [dateMatcher("startDateTable", "endDateTable")])
+
   constructor(private deviceService: DeviceService,
-    private snackBar: MatSnackBar, private socketService: SocketService) { }
+    private snackBar: MatSnackBar, private socketService: SocketService, private router: Router ) {
+      this.router.events.subscribe((event) => {
+        if (event instanceof NavigationStart) {
+          this.socketService.stopConnection(); 
+        }
+      });
+     }
   
   ngOnDestroy(): void {
     this.socketService.stopConnection();
@@ -57,7 +115,10 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.isDetails){
-      console.log("AAAAAAAAAAAAAAAAAAA")
+      this.dataSource.filterPredicate = (data: TableData, filter: string) => {
+        return data.user == filter;
+       };
+      this.dataSource.sort = this.sort;
       this.deviceService.getDeviceDetailsById(this.deviceId).subscribe({
         next: (value: any) => {
           this.device = value;
@@ -67,13 +128,32 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           this.socketService.startConnection(this.device.id);
           this.socketService.addDataUpdateListener((dto: any) => {
             console.log(dto)
-            if (this.device.deviceType == "LAMP") {
-              this.device.brightnessLevel = dto["Value"];
-              return;
-            }
-
-            if (this.device.deviceType == "VEHICLE_GATE") {
-              this.currentPlate = dto["Value"] == "none"? "":  dto["Value"];
+            if(dto.Measurement == "command"){
+              const newData = {
+                action: dto.Action, 
+                timestamp: new Date().toISOString(),
+                user: dto.User, 
+                state: dto.Value 
+              };
+        
+              this.addToTable(newData);
+            } else {
+              if (this.device.deviceType == "LAMP") {
+                this.device.brightnessLevel = dto["Value"];
+                return;
+              }
+              if (this.device.deviceType == "VEHICLE_GATE") {
+                this.currentPlate = dto["Value"] == "none"? "":  dto["Value"];
+                return;
+              }
+              if(this.device.deviceType == "AMBIENT_SENSOR"){
+                this.temperatureChartData.push({ timestamp: new Date().toISOString(), value: dto.Temperature });
+                this.humidityChartData.push({ timestamp: new Date().toISOString(), value: dto.Humidity });
+                this.device.currentTemperature = dto.Temperature;
+                this.device.currentHumidity = dto.Humidity;
+                this.createTemperatureChart(this.temperatureChartData, "current-temperature-chart-container")
+                this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
+              }
             }
           });
         },
@@ -81,10 +161,26 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           console.log(err);
         },
       })
+
+      this.deviceService.getActionTable(this.deviceId).subscribe({
+        next: (value: any) => {
+          console.log(value);
+          this.dataSource  = new MatTableDataSource(value.tableData);
+          this.dataSourceWithoutFilters = new MatTableDataSource(value.tableData);
+          //this.dataSource = newData;
+          //this.dataSource.filterPredicate = (data: Element, filter: string) => data.user.indexOf(filter) != -1;
+        },
+        error: (err) => {
+          console.log(err);
+        },});
     
     } else{
       console.log(this.device);
     }
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
   }
 
   initDevice() {
@@ -166,6 +262,14 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
      });
     }
   }
+  
+  generateByDate(){
+    // if (this.datesForm.valid){
+      let date = new Date(this.datesForm.value.startDate!).toISOString().split('T')[0]
+      console.log(date);
+    // } 
+    console.log("usao")
+  }
 
   lastHour(){
     const currentDate = new Date();
@@ -183,6 +287,8 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.deviceService.getAmbientSensorReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
+          this.temperatureChartData = response.temperatureData;
+          this.humidityChartData = response.humidityData;
           this.createTemperatureChart(response.temperatureData, "current-temperature-chart-container")
           this.createHumidityChart(response.humidityData, 'current-humidity-chart-container')
         },
@@ -430,6 +536,12 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       }
     }
   }
+  
 }
 
-
+export interface TableData{
+  action: string,
+  time: Date,
+  user: string,
+  state: string
+}

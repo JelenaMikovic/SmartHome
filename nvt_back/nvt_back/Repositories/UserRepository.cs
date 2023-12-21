@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using InfluxDB.Client.Api.Domain;
+using Microsoft.EntityFrameworkCore;
 using nvt_back.Model;
 using nvt_back.Repositories.Interfaces;
 
@@ -51,6 +52,11 @@ namespace nvt_back.Repositories
             user.Password = newPassword;
             user.IsActivated = true;
             _context.SaveChanges();
+        }
+
+        public async Task<User> GetById(int id)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
     }

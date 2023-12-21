@@ -24,7 +24,6 @@ import {MatStepperModule} from '@angular/material/stepper';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatDatepickerModule} from '@angular/material/datepicker';
-
 @NgModule({
   imports: [
     MatButtonModule,
@@ -53,6 +52,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
     MatAutocompleteModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatSortModule
   ],
   exports: [
     MatButtonModule,
@@ -79,7 +79,9 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
     MatRippleModule,
     MatStepperModule,
     MatProgressSpinnerModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
 })
 export class MaterialModule {}

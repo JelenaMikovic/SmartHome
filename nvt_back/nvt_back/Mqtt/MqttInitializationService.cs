@@ -20,6 +20,7 @@
                 {
                     await mqttClientService.Connect();
                     await mqttClientService.SubscribeToHeartbeatTopics();
+                    await mqttClientService.SubscribeToHomeBatteryTopics();
                     await mqttClientService.SubscribeToCommandTopics();
                 } catch (Exception ex)
                 {

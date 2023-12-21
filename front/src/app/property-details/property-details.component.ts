@@ -79,6 +79,7 @@ export class PropertyDetailsComponent implements OnInit {
         this.currentPage = value.pageIndex;
         this.count = value.count;
         this.devices = value.items;
+        console.log(value)
       }, 
       error: (err) => {
         console.log(err);

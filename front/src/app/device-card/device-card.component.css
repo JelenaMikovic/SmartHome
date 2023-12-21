@@ -191,3 +191,10 @@ h2 {
     font-size: 1.5em;
 }
 
+@media screen and (max-width: 1200px) { 
+    
+    .smaller-container{ 
+        width: 90%;
+        margin: auto;
+    }
+}
