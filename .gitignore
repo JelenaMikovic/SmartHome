@@ -1375,3 +1375,5 @@ appsettings*.json
 **Image/
 **Migrations/
 infrastructure/influxdb/data/engine/
+/infrastructure/influxdb/data/engine/data/d679a1ce6581fe5d/autogen/1/index/3/L0-00000002.tsl
+/infrastructure/influxdb/data/engine/data/d679a1ce6581fe5d/autogen/1/index/3/L1-00000001.tsi
