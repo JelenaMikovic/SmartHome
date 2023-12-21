@@ -236,7 +236,7 @@
         <hr>
     </div>
     
-    <div style="margin-top: 20px;">      
+    <div style="margin-top: 20px;" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">      
         <table [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
 
             <ng-container matColumnDef="action">
