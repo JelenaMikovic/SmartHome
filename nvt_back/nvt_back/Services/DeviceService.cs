@@ -26,7 +26,7 @@ namespace nvt_back.Services
             try
             {
                 string query = $"from(bucket: \"measurements\")" +
-                               $" |> range(start: -7d)" +
+                               $" |> range(start: {dto.StartDate}, stop: {dto.EndDate})" +
                                $" |> filter(fn: (r) => r[\"_measurement\"] == \"illuminance\" and r[\"_field\"] == \"illuminance\" and r[\"device_id\"] == \"{dto.DeviceId}\")";
 
                 Console.WriteLine(query);
@@ -53,7 +53,7 @@ namespace nvt_back.Services
             try
             {
                 string query = $"from(bucket: \"measurements\")" +
-                               $" |> range(start: -7d)" +
+                               $" |> range(start: {dto.StartDate}, stop: {dto.EndDate})" +
                                $" |> filter(fn: (r) => r[\"_measurement\"] == \"ambiental_sensor\" and r[\"_field\"] == \"{field}\" and r[\"device_id\"] == \"{dto.DeviceId}\")";
 
                 Console.WriteLine(query);
