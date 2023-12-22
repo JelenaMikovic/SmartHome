@@ -48,6 +48,9 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   } 
 
   applyDateFilter(){
+    console.log(this.dataSourceWithoutFilters.data);
+    this.dataSource.data = this.dataSourceWithoutFilters.data;
+    console.log(this.dataSource.data);
     if (this.datesTableForm.valid)
       this.dataSource.data = this.dataSource.data.filter(e=> {
         const dateFromData = new Date(e.timestamp);
@@ -119,17 +122,32 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           console.log(this.device)
           this.lastHour()
           this.socketService.startConnection(this.device.id, this.device.deviceType == "HOME_BATTERY", this.device.propertyId);
+          let lastCommandDTO: any | null = null;
+          let lastAmbientSensorDTO: any | null = null;
+          let lastBatteryDTO: any | null = null;
           this.socketService.addDataUpdateListener((dto: any) => {
             console.log(dto)
             if(dto.Measurement == "command"){
               const newData = {
                 action: dto.Action, 
-                timestamp: new Date().toISOString(),
+                timestamp: dto.Timestamp,
                 user: dto.User, 
-                state: dto.Value 
+                state: dto.Value,
+                guid: dto.Guid
               };
-        
-              this.addToTable(newData);
+
+              // if (this.device.deviceType != "SOLAR_PANEL") {
+              //   if (lastActionUpdateGuid != newData.guid){
+              //     this.addToTable(newData);
+              //     lastActionUpdateGuid = newData.guid;
+              //   }
+              // }
+              // if (lastCommandDTO != null){
+                if (lastCommandDTO == null || (lastCommandDTO.action != newData.action && lastCommandDTO.timestamp != newData.timestamp)){
+                this.addToTable(newData);
+                lastCommandDTO = newData;
+              // }
+              }
             } else {
               if (this.device.deviceType == "LAMP") {
                 this.device.brightnessLevel = dto["Value"];
@@ -144,20 +162,25 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
               }
               if(this.device.deviceType == "HOME_BATTERY"){
                 //this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.CurrentCharge });
-                this.device.currentCharge = dto.CurrentCharge + 1;
-                console.log(this.device.currentCharge);
+                // this.device.currentCharge = dto.CurrentCharge + 1;
+                // console.log(this.device.currentCharge);
                 this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               }
             }
           });
           this.socketService.addConsumptionUpdateListener((dto: any) => {
             console.log(dto)
+            
             if(this.device.deviceType == "HOME_BATTERY"){
-              this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.Consumed });
-              this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
+              if (lastBatteryDTO == null || (lastBatteryDTO.action != dto.value && lastBatteryDTO.timestamp != dto.timestamp)){
+                // this.addToTable(newData);
+                lastBatteryDTO = dto;
+                this.powerConsumptionChartData.push({ timestamp: dto.timestamp, value: dto.Consumed });
+                this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               // this.device.currentHumidity = dto.Humidity;
               // this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
             }
+          }
           });
         },
         error: (err) => {
@@ -267,7 +290,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     console.log(this.device)
     if (this.device.deviceType == "HOME_BATTERY"){
       const dtob = {
-        deviceId: 2,
+        deviceId: this.device.propertyId,
         startDate: startDate.toISOString(),
         endDate: currentDate.toISOString(),
       };
@@ -347,19 +370,20 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     }
     if (this.device.deviceType == "HOME_BATTERY"){
       const dto2= {
-        deviceId: 2,
+        deviceId: this.device.propertyId,
         startDate: startDate.toISOString(),
         endDate: currentDate.toISOString(),
       };
-      this.deviceService.getBatteryReport(dto2).subscribe(
-        (response) => {
-          console.log('Response:', response);
-          this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
-        },
-        (error) => {
-          console.error('Error:', error);
-        }
-      );
+      console.log(this.device.propertyId);
+      // this.deviceService.getBatteryReport(dto2).subscribe(
+      //   (response) => {
+      //     console.log('Response:', response);
+      //     this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
+      //   },
+      //   (error) => {
+      //     console.error('Error:', error);
+      //   }
+      // );
     }
   }
 

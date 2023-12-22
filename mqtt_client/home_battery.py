@@ -43,7 +43,7 @@ def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
     global INITIALIZE_PARAMETERS, batteries, total_capacity
     global consumed_power, generated_power
     data = json.loads(msg.payload)
-    print(data, INITIALIZE_PARAMETERS)
+    # print(data, INITIALIZE_PARAMETERS)
     if type(data) == list:
         for item in data:
             battery = BatteryInitialization(item)
@@ -52,7 +52,7 @@ def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
         #postavi ukupne parametre baterije
         INITIALIZE_PARAMETERS = False
     elif data["Type"] == "Consumption" and not INITIALIZE_PARAMETERS:
-        print("hi")
+        # print("hi")
         global battery_lock
         with battery_lock:
             consumed_power += data["Consumed"]
@@ -141,7 +141,7 @@ def publish_data():
 def generate_data_for_battery_level(battery):
     measurement = "battery_level"
     tags = f"device_id={battery.id},property_id={args.pid}"
-    fields = "level=" + str(round(10, 2))
+    fields = "level=" + str(round(battery.currentCharge, 2))
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol

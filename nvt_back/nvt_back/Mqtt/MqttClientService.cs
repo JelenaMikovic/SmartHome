@@ -1,6 +1,7 @@
 ﻿using InfluxDB.Client.Api.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -171,12 +172,13 @@ namespace nvt_back.Mqtt
 
                     if (measurement == "command")
                     {
+                        Console.WriteLine("usaoUKOMANDWEEEEEEEEEEE");
                         var deviceID = int.Parse(measurementAndTags[1].Split('=')[1]);
                         var deviceType = measurementAndTags[2].Split('=')[1];
                         var user = int.Parse(measurementAndTags[3].Split('=')[1]);
                         var type = measurementAndTags[4].Split('=')[1];
                         var success = Boolean.Parse(measurementAndTags[5].Split('=')[1]);
-
+                        Console.WriteLine("IZASOAIZKOMANDIII");
                         if(success)
                             return new
                             {
@@ -226,7 +228,7 @@ namespace nvt_back.Mqtt
                             Value = consumed_power
                         };
                     }
-                    else
+                    if (measurement == "illuminance")
                     {
 
                         var illuminance = int.Parse(parts[1].Split('=')[1]);
@@ -238,6 +240,7 @@ namespace nvt_back.Mqtt
                             Value = illuminance
                         };
                     }
+                    return null;
                 }
                 else
                 {
@@ -270,9 +273,15 @@ namespace nvt_back.Mqtt
                 var serviceProvider = scope.ServiceProvider;
                 var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
                 device = await repository.GetById(data.DeviceId);
-                //var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
-                //user = await userRepository.GetById(data.UserId);
-                //Console.WriteLine(user);
+                
+            }
+
+            using (var scope = _scopeFactory.CreateScope())
+            { 
+                var serviceProvider = scope.ServiceProvider;
+                var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
+                user = await userRepository.GetById(data.User);
+                Console.WriteLine(user);
             }
 
             if (device == null)
@@ -308,13 +317,16 @@ namespace nvt_back.Mqtt
             {
                 Measurement = data.Measurement,
                 DeviceId = data.DeviceId,
-                User = data.User,
+                User = user.Name + " " + user.Surname,
                 DeviceType = data.DeviceType,
                 Action = data.Action,
-                Value = data.Value
-            };
+                Value = data.Value,
+                Guid = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.Now
+        };
             try
             {
+                Console.WriteLine("NEMANJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                 Console.WriteLine($"data/{data.DeviceId}");
                 await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
             }
@@ -404,7 +416,8 @@ namespace nvt_back.Mqtt
                 DeviceId = data.DeviceId,
                 DeviceType = "AMBIENT_SENSOR",
                 Temperature = data.Temperature,
-                Humidity = data.Humidity
+                Humidity = data.Humidity,
+                Timestamp = DateTime.Now
             };
 
             try
@@ -438,7 +451,7 @@ namespace nvt_back.Mqtt
                 DeviceId = data.DeviceId,
                 DeviceType = "HOME_BATTERY",
                 CurrentCharge = data.Value,
-                
+                Timestamp = DateTime.Now
             };
 
             try
@@ -509,7 +522,15 @@ namespace nvt_back.Mqtt
                     {
                         Console.WriteLine(payloadString);
 
-                        await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                        using (var scope = _scopeFactory.CreateScope())
+                        {
+                            var serviceProvider = scope.ServiceProvider;
+                            var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                            await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+
+                        }
+
+                        //await _deviceRepository.ToggleState(command.DeviceId, command.Value);
                     }
                     else
                     {

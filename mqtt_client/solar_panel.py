@@ -59,7 +59,6 @@ def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
             return
     except Exception:
         print("Unexpected command or not my message", end=" ")
-        print(data)
         return
 
     # if INITIALIZE_PARAMETERS:
@@ -81,12 +80,10 @@ def update_on_off_status(data):
     previous_status = IS_ON
     IS_ON = False if data['Action'] == 'OFF' else True
     if not IS_ON and previous_status:
-        print("usao1")
         save_to_influx(data["Type"], data["Action"], data["Actor"])
         client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
         print("Going to sleep...")
     elif IS_ON and not previous_status:
-        print("usao2")
         save_to_influx(data["Type"], data["Action"], data["Actor"])
         client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_onoff_update(IS_ON))
         print("I'm back!")
@@ -146,7 +143,6 @@ def generate_data(device_id, property_id):
     tags = f"device_id={device_id},property_id={property_id}"
     fields = "energy=" + str(round(simulate_solar_energy_production(), 0))
     # fields = "energy=" + str(round(10, 0))
-    print(simulate_solar_energy_production())
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol
 
@@ -165,7 +161,6 @@ def get_irradiances():
     return irradiances[(current_hours+1)*4]
 
 def simulate_solar_energy_production():
-    print(solar_panel_initialization.efficiency * solar_panel_initialization.size * solar_panel_initialization.number_of_panels * get_irradiances())
     return solar_panel_initialization.efficiency * solar_panel_initialization.size * solar_panel_initialization.number_of_panels * get_irradiances() / (15*60)
 
 if __name__ == "__main__":
