@@ -770,13 +770,20 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       startTime: this.addScheduleForm.value.startTime + ":00:00",
       endTime: this.addScheduleForm.value.endTime + ":00:00",
       mode: this.scheduleMode,
-      temerature: this.addScheduleForm.value.temperature
+      temperature: this.addScheduleForm.value.temperature
     } 
 
     this.deviceService.addSchedule(dto).subscribe({
       next: (res: any) => {
         this.snackBar.open("You added device schedule!", "", {
         });
+        this.dataSchedule.data.push({
+          from: dto.startTime,
+          to: dto.endTime,
+          temperature: dto.temperature,
+          mode: dto.mode
+        });
+        this.dataSchedule._updateChangeSubscription();
         },
         error: (err: any) => {
           this.snackBar.open("Error occured on server!", "", {
