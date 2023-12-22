@@ -31,11 +31,15 @@ SUBSCRIBER_COMMAND_TOPIC = "topic/device/" + str(args.did) + "/command"
 
 INITIALIZE_PARAMETERS = True
 gate_initialization = None
+current_plate = "manual"
 
 def save_to_influx(command_type:str, command_value:str, user:str, success=True):
     measurement = "command"
     tags = f"device_id={args.did},device_type=GATE,user={user},type={command_type},success={success}"
-    fields = f"value=\"{command_value}\""
+    fields = f"value={command_value}"
+
+    if "-" in command_value:
+        fields = f'value="{command_value}"'
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     print(influx_line_protocol)
@@ -67,10 +71,11 @@ def update_gate_open_status(data):
     global gate_initialization
 
     open_update = True if data["Value"] == "true" else False
+    open_close = "open" if open_update else "close"
 
     if (open_update != gate_initialization.isOpen):
         gate_initialization.isOpen = open_update
-        save_to_influx(data["Type"], data["Value"], data["Actor"])
+        save_to_influx(open_close, current_plate, data["Actor"])
         client.publish(SUBSCRIBER_COMMAND_TOPIC, generate_gate_command_update(data["Type"], open_update))
         print("Gate open: " + str(open_update) + "******************")
         if open_update:
@@ -204,13 +209,14 @@ def generate_plate_update(plate):
     return influx_line_protocol
 
 def publish_data():
-    global gate_initialization, INITIALIZE_PARAMETERS
+    global gate_initialization, INITIALIZE_PARAMETERS, current_plate
     while True:
         if not INITIALIZE_PARAMETERS:
             vehicle_arrived_event.wait()
             if vehicles_waiting:
                 with vehicle_lock:
                     plate_number, direction = vehicles_waiting.pop(0)
+                    current_plate = plate_number
                     client.publish(PUBLISHER_DATA_TOPIC, generate_plate_update(plate_number))
 
                     if direction == "in":
@@ -227,14 +233,19 @@ def publish_data():
                     else:
                         vehicles_inside.remove(plate_number)
                 print(f"Gate opens for vehicle with plate number: {plate_number}, going {direction}")
-                save_to_influx("open", "true", "self")
+                save_to_influx("open", plate_number, "self")
+                # client.publish(PUBLISHER_DATA_TOPIC, generate_gate_command_update("open", "true", plate_number)) 
                 time.sleep(3)
                 print("Gate closes")
-                save_to_influx("open", "false", "self")
+                save_to_influx("close", plate_number, "self")
+                # client.publish(PUBLISHER_DATA_TOPIC, generate_gate_command_update("close", "true", plate_number)) 
                 client.publish(PUBLISHER_DATA_TOPIC, generate_plate_update("none"))
+                with vehicle_lock:
+                    current_plate = "manual"
 
             vehicle_arrived_event.clear()
         time.sleep(1)
+
 
 def vehicle_simulation():
     while True:

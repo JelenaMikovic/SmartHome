@@ -173,7 +173,14 @@ namespace nvt_back.Mqtt
                     {
                         var deviceID = int.Parse(measurementAndTags[1].Split('=')[1]);
                         var deviceType = measurementAndTags[2].Split('=')[1];
-                        var user = int.Parse(measurementAndTags[3].Split('=')[1]);
+                        var user = -1;
+                        try
+                        {
+                            user = int.Parse(measurementAndTags[3].Split('=')[1]);
+
+                        } catch (Exception ex)
+                        {
+                        }
                         var type = measurementAndTags[4].Split('=')[1];
                         var success = Boolean.Parse(measurementAndTags[5].Split('=')[1]);
 
@@ -610,8 +617,13 @@ namespace nvt_back.Mqtt
                         if (command.Action.ToLower() == "open")
                         {
                             Console.WriteLine(payloadString);
-                            await _deviceRepository.ToggleCommand(command.DeviceId, command.Action, command.Value);
-                        }
+                            await _deviceRepository.ToggleCommand(command.DeviceId, command.Action, "true");
+                        } else
+                        if (command.Action.ToLower() == "close")
+                            {
+                                Console.WriteLine(payloadString);
+                                await _deviceRepository.ToggleCommand(command.DeviceId, "open", "false");
+                            }
                         else
                         {
                             if (command.Action.ToLower() == "private")
