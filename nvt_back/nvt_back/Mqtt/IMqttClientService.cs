@@ -15,6 +15,8 @@ namespace nvt_back.Mqtt
         public Task PublishDeactivatedStatus(int deviceId);
         public Task PublishStatusUpdate(int deviceId, string status, int userId);
         public Task PublishRegimeUpdate(int deviceId, string value, int userId);
+        public Task PublishModeUpdate(int deviceId, string value, int userId);
+        public Task PublishTemperatureUpdate(int deviceId, string value, int userId);
         public Task PublishCommandUpdate(int deviceId, string type, string value, int userId);
         public Task SubscribeToHeartbeatTopics();
         public Task SubscribeToCommandTopics();

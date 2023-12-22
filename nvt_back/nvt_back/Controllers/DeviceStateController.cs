@@ -88,5 +88,49 @@ namespace nvt_back.Controllers
                 return StatusCode(500, "Internal Server Error: " + ex.Message);
             }
         }
+
+        [HttpPut]
+        [Route("mode")]
+        public async Task<ActionResult<MessageDTO>> ChangeMode(CommandDTO dto)
+        {
+            try
+            {
+                bool hasStatusChanged = await this._deviceStateService.ChangeMode(dto, _user.Id);
+                if (hasStatusChanged)
+                {
+                    return Ok(new MessageDTO("You changed device option '" + dto.Action + "' to: " + dto.Value));
+                }
+                else
+                {
+                    return BadRequest(new MessageDTO("Status hasn't changed"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("temperature")]
+        public async Task<ActionResult<MessageDTO>> ChangeTemperature(CommandDTO dto)
+        {
+            try
+            {
+                bool hasStatusChanged = await this._deviceStateService.ChangeTemperature(dto, _user.Id);
+                if (hasStatusChanged)
+                {
+                    return Ok(new MessageDTO("You changed device temperature to: " + dto.Value));
+                }
+                else
+                {
+                    return BadRequest(new MessageDTO("Status hasn't changed"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
     }
 }

@@ -73,6 +73,15 @@ namespace nvt_back.Repositories
                     await _context.SaveChangesAsync();
                 }
             } 
+            else if (device.DeviceType == DeviceType.AC)
+            {
+                AirConditioner ac = (AirConditioner)device;
+                if (ac.IsOn != isTurnedOn)
+                {
+                    ac.IsOn = isTurnedOn;
+                    await _context.SaveChangesAsync();
+                }
+            }
             else
             {
                 Lamp lamp = (Lamp)device;
@@ -133,6 +142,10 @@ namespace nvt_back.Repositories
             else if (device.DeviceType == DeviceType.HOME_BATTERY)
             {
                 return await getBatteryDetailsById(device);
+            }
+            else if (device.DeviceType == DeviceType.AC)
+            {
+                return await getACDetailsById(device);
             }
 
             return null;
@@ -226,6 +239,32 @@ namespace nvt_back.Repositories
                 UpdateIntervalSeconds = amb.UpdateIntervalSeconds,
                 CurrentHumidity = amb.CurrentHumidity,
                 CurrentTemperature = amb.CurrentTemperature
+            };
+        }
+
+        private async Task<object> getACDetailsById(Device device)
+        {
+            AirConditioner ac = (AirConditioner)device;
+            List<string> supportedModes = new List<string>();
+            foreach (AirConditionerMode supportedMode in ac.SupportedModes)
+            {
+                supportedModes.Add(supportedMode.ToString());
+            }
+            return new ACDetailsDTO
+            {
+                Id = ac.Id,
+                IsOn = ac.IsOn,
+                IsOnline = ac.IsOnline,
+                Name = ac.Name,
+                PowerConsumption = ac.PowerConsumption,
+                PowerSource = ac.PowerSource,
+                Image = ac.Image,
+                DeviceType = ac.DeviceType.ToString(),
+                CurrentMode = ac.CurrentMode.ToString(),
+                CurrentTemperature = ac.CurrentTemperature,
+                SupportedModes = supportedModes,
+                MaxTemperature = ac.MaxTemperature, 
+                MinTemperature = ac.MinTemperature,
             };
         }
 

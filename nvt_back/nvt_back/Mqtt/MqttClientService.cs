@@ -226,6 +226,19 @@ namespace nvt_back.Mqtt
                             Value = consumed_power
                         };
                     }
+                    if (measurement == "ac")
+                    {
+                        var values = parts[1].Split(",");
+                        var mode = values[0].Split('=')[1];
+                        var temperature = float.Parse(values[1].Split('=')[1], CultureInfo.InvariantCulture);
+                        return new
+                        {
+                            Measurement = measurement,
+                            DeviceId = deviceId,
+                            CurrentMode = mode,
+                            CurrentTemperature = temperature
+                        };
+                    }
                     else
                     {
 
@@ -266,12 +279,6 @@ namespace nvt_back.Mqtt
             Device device = null;
             User user = null;
 
-            if (topic.Split("/")[1] == "property")
-            {
-                Console.WriteLine(data);
-                await sendPowerConsumptionUpdate(data);
-            }
-
             using (var scope = _scopeFactory.CreateScope())
             {
                 var serviceProvider = scope.ServiceProvider;
@@ -294,6 +301,11 @@ namespace nvt_back.Mqtt
                 return;
             }
 
+            if (topic.Split("/")[1] == "property")
+            {
+                Console.WriteLine(data);
+                await sendPowerConsumptionUpdate(data);
+            }
 
             switch (device.DeviceType)
             {
@@ -305,6 +317,9 @@ namespace nvt_back.Mqtt
                     break;
                 case DeviceType.HOME_BATTERY:
                     await sendBatteryUpdate(data, device);
+                    break;
+                case DeviceType.AC:
+                    await sendAcUpdate(data, device);
                     break;
             }
 
@@ -456,6 +471,41 @@ namespace nvt_back.Mqtt
                 Console.Error.WriteLine($"Error sending message: {ex.Message}");
             }
         }
+
+        private async Task sendAcUpdate(dynamic data, Device device)
+        {
+            AirConditioner sensor = (AirConditioner)device;
+
+            if (sensor.CurrentTemperature == data.CurrentTemperature && sensor.CurrentMode == data.CurrentMode)
+                return;
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                sensor.CurrentTemperature = data.CurrentTemperature;
+                sensor.CurrentMode = Enum.Parse<AirConditionerMode>(data.CurrentMode.Replace("\"", ""));
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                await repository.SaveChanges(sensor);
+            }
+
+            var message = new
+            {
+                DeviceId = data.DeviceId,
+                DeviceType = "AC",
+                CurrentTemperature = data.CurrentTemperature,
+                CurrentMode = data.CurrentMode.Replace("\"", ""),
+            };
+            try
+            {
+                Console.WriteLine($"data/{data.DeviceId}");
+                await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
+
 
         private async Task sendBatteryUpdate(dynamic data, Device device)
         {
@@ -761,6 +811,34 @@ namespace nvt_back.Mqtt
             var payloadJSON = JsonConvert.SerializeObject(payload);
             await this.Publish(topic, payloadJSON);
 
+        }
+
+        public async Task PublishModeUpdate(int deviceId, string value, int userId)
+        {
+            string topic = GetCommandTopicForDevice(deviceId);
+            var payload = new
+            {
+                Type = "ChangeMode",
+                Sender = Sender.PLATFORM,
+                Value = value,
+                Actor = userId
+            };
+            var payloadJSON = JsonConvert.SerializeObject(payload);
+            await this.Publish(topic, payloadJSON);
+        }
+
+        public async Task PublishTemperatureUpdate(int deviceId, string value, int userId)
+        {
+            string topic = GetCommandTopicForDevice(deviceId);
+            var payload = new
+            {
+                Type = "ChangeTemperature",
+                Sender = Sender.PLATFORM,
+                Value = value,
+                Actor = userId
+            };
+            var payloadJSON = JsonConvert.SerializeObject(payload);
+            await this.Publish(topic, payloadJSON);
         }
 
         public async Task PublishCommandUpdate(int deviceId, string type, string value, int userId)

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { numbers } from '@material/snackbar';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -7,8 +8,6 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class DeviceService {
-  
-
   constructor(private http: HttpClient) { }
 
   getPropertyDeviceDetails(propertyId: string, page: any, size: any) {
@@ -41,6 +40,30 @@ export class DeviceService {
     console.log(dto)
     return this.http.put<any>(environment.apiHost + "/device-toggle/regime", dto, {withCredentials: true});
     
+  }
+
+  changeTemperature(device: any, temperature: string) {
+    let dto: CommandDTO = {
+      deviceId: device.id,
+      deviceType: device.deviceType,
+      action: "ChangeTemperature",
+      value: temperature
+    }
+
+    console.log(dto)
+    return this.http.put<any>(environment.apiHost + "/device-toggle/temperature", dto, {withCredentials: true});
+  }
+
+  changeMode(device: any, mode: string) {
+    let dto: CommandDTO = {
+      deviceId: device.id,
+      deviceType: device.deviceType,
+      action: "ChangeMode",
+      value: mode
+    }
+
+    console.log(dto)
+    return this.http.put<any>(environment.apiHost + "/device-toggle/mode", dto, {withCredentials: true});
   }
 
   toggleGateOptions(device: any, type: string, value: boolean) {

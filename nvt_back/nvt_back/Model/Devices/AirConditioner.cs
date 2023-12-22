@@ -18,6 +18,9 @@ namespace nvt_back.Model.Devices
         [Required(ErrorMessage = "Max temperature field is required")]
         [Range(-5, 40, ErrorMessage = "Max temperature should be between -5 and 40")]
         public double MaxTemperature { get; set; }
+        public double CurrentTemperature { get; set; }
+        public AirConditionerMode CurrentMode {  get; set; }
+        public bool IsOn { get; set; }
         /*public Dictionary<string, TemperatureSchedule> CustomSchedules { get; set; }*/
 
         public AirConditioner() { }
@@ -28,6 +31,7 @@ namespace nvt_back.Model.Devices
             MinTemperature = dto.MinTemperature;
             MaxTemperature = dto.MaxTemperature;
             DeviceType = DeviceType.AC;
+            IsOn = false;
         }
     }
 }

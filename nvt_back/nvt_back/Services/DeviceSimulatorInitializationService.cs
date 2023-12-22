@@ -34,7 +34,8 @@ namespace nvt_back.Services
                 return initializeVehicleGate(device);
             if (device.DeviceType == DeviceType.HOME_BATTERY) 
                 return initializeBattery(device);
-
+            if (device.DeviceType == DeviceType.AC)
+                return initializeAC(device);
             return null;
         }
 
@@ -107,6 +108,29 @@ namespace nvt_back.Services
                 Capacity = battery.Capacity,
                 CurrentCharge = battery.CurrentCharge,
             };
+        }
+
+        private AcInitializationDTO initializeAC(Device device)
+        {
+            AirConditioner ac = (AirConditioner)device;
+
+            List<string> supportedModes = new List<string>();
+            foreach (AirConditionerMode supportedMode in ac.SupportedModes)
+            {
+                supportedModes.Add(supportedMode.ToString());
+            }
+
+            return new AcInitializationDTO
+            {
+                Type = "Initialization",
+                MaxTemperature = ac.MaxTemperature,
+                MinTemperature = ac.MinTemperature,
+                SupportedModes = supportedModes,
+                CurrentTemperature = ac.CurrentTemperature,
+                CurrentMode = ac.CurrentMode.ToString(),
+                IsOn = ac.IsOn
+            };
+
         }
     }
 }

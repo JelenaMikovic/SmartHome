@@ -52,6 +52,22 @@
                     <i class="fa-solid fa-battery-three-quarters"></i>
                     <span class="black">{{device.capacity}} kWh capacity</span>
                 </div>
+                <div *ngIf="device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'AC'">
+                    <i class="fa-solid fa-sun"></i>
+                    <span class="black">{{device.currentTemperature}} C</span>
+                </div>
+                <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
+                    <i class="fa-solid fa-percent"></i>
+                    <span class="black">{{device.currentHumidity}} %</span>
+                </div>
+                <div *ngIf="device.deviceType === 'AC'">
+                    <i class="fa-solid fa-square"></i>
+                    <span class="black">{{device.currentMode}}</span>
+                </div>
+                <div *ngIf="device.deviceType === 'LAMP'">
+                    <i class="fa-solid fa-sun"></i>
+                    <span class="black">{{device.brightnessLevel}} lux</span>
+                </div>
             </div>
 
             <div style="float: right; margin-right: 15px; margin-bottom: -20px;">
@@ -75,22 +91,37 @@
                 <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()" [disabled]="!device.isOnline">
                 </mat-slide-toggle>
             </div>
+            <div *ngIf="device.deviceType == 'AC'">
+                <mat-form-field  id="type-dd">
+                    <mat-label>Mode</mat-label>
+                    <mat-select [(value)]="this.mode" (selectionChange)="onModeSelected()">
+                      <mat-option *ngFor="let item of device.supportedModes" [value]="item" >
+                        {{item}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+            </div>
+            <div *ngIf="device.deviceType == 'AC'">
+                <form id="add-device-form" [formGroup]="changeTemperatureForm" (ngSubmit)="changeTemperature()">
+                    <div class="form-field-container">
+                        <mat-form-field>
+                        <mat-label>Temperature:</mat-label>
+                        <input matInput type="number" name="temperature" formControlName="temperature" />
+                        <mat-error *ngIf="changeTemperatureForm.get('temperature')?.errors?.['required']">entering temperature is required</mat-error>
+                        <mat-error *ngIf="changeTemperatureForm.get('temperature')?.errors?.['invalidTemperature'] && !changeTemperatureForm.get('temperature')?.errors?.['required']">temperature should be between {{device.minTemperature}}-{{device.maxTemperature}}</mat-error>
+                        </mat-form-field>
+                    
+                        <button type="submit" mat-raised-button class="change-button">Change</button>
+                    </div>
+                </form>
+            </div>
+            <div *ngIf="device.deviceType == 'AC'">
+                <button mat-raised-button class="change-button">Add schedule</button>
+            </div>
             <div *ngIf="device.deviceType == 'LAMP'">
                 <span class="black">automatic regime: </span>
                 <mat-slide-toggle [(ngModel)]="checkedAutomatic" (change)="toggleAutomaticRegime()" [disabled]="!device.isOnline">
                 </mat-slide-toggle>
-            </div>
-            <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
-                <i class="fa-solid fa-sun"></i>
-                <span class="black">{{device.currentTemperature}} C</span>
-            </div>
-            <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
-                <i class="fa-solid fa-percent"></i>
-                <span class="black">{{device.currentHumidity}} %</span>
-            </div>
-            <div *ngIf="device.deviceType === 'LAMP'">
-                <i class="fa-solid fa-sun"></i>
-                <span class="black">{{device.brightnessLevel}} lux</span>
             </div>
         </div>
 
@@ -98,8 +129,6 @@
                 <span class="black">private regime: </span>
                 <mat-slide-toggle [(ngModel)]="checkedPrivate" (change)="togglePrivateRegime()" [disabled]="!device.isOnline">
                 </mat-slide-toggle>
-
-                
             </div>
             <div *ngIf="device.deviceType == 'VEHICLE_GATE'">
                 <span class="black">open gate: </span>
@@ -164,7 +193,7 @@
     </div>
     
 
-    <div *ngIf="device.deviceType != 'VEHICLE_GATE'" class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}" id="card-container">        
+    <div *ngIf="device.deviceType != 'VEHICLE_GATE' && device.deviceType != 'AC'" class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}" id="card-container">        
         <div id="info-container">
             <div class="hover-opacity" style="display: flex; flex-direction: row; justify-content: space-around;">
                 <div>
@@ -259,7 +288,7 @@
     </div>
     
     <div style="margin-top: 20px;">      
-        <table [hidden]="device.deviceType=='HOME_BATTERY' || device.deviceType != 'AMBIENT_SENSOR'" [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
+        <table [hidden]="device.deviceType=='HOME_BATTERY' || device.deviceType == 'AMBIENT_SENSOR'" [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
     <!-- <div style="margin-top: 20px;" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">       -->
         <!-- <table [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;"> -->
 

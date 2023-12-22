@@ -1,4 +1,5 @@
-﻿using nvt_back.DTOs;
+﻿using Microsoft.AspNet.SignalR.Messaging;
+using nvt_back.DTOs;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
@@ -141,6 +142,16 @@ namespace nvt_back.Services
                     return true;
                 }
             }
+            else if (device.DeviceType == DeviceType.AC)
+            {
+                AirConditioner ac = (AirConditioner)device;
+                if (ac.IsOn == isTurnedOn)
+                    return false;
+                else
+                {
+                    return true;
+                }
+            }
             else
             {
                 Lamp lamp = (Lamp)device;
@@ -168,5 +179,93 @@ namespace nvt_back.Services
         {
             await this._deviceRepository.ToggleState(id, status);
         }
+
+        public async Task<bool> ChangeMode(CommandDTO dto, int id)
+        {
+            DeviceType type = (DeviceType)Enum.Parse(typeof(DeviceType), dto.DeviceType, true);
+            if (type == DeviceType.AC)
+            {
+                return await ChangeAcMode(dto, id);
+            } else
+            {
+                throw new Exception("The device type doesnt support the given regime");
+            }
+        }
+
+        private async Task<bool> ChangeAcMode(CommandDTO dto, int userId)
+        {
+            var ac = (AirConditioner)(await _deviceRepository.GetById(dto.DeviceId));
+
+            if (ac == null)
+                throw new Exception("The ac with given id doesn't exist.");
+
+            AirConditionerMode mode;
+            try
+            {
+                mode = (AirConditionerMode)Enum.Parse(typeof(AirConditionerMode), dto.Value, true);
+            }
+            catch (ArgumentException)
+            {
+                throw new Exception("The ac doesnt support the given regime: " + dto.Value);
+            }
+
+            if (!ac.SupportedModes.Contains(mode))
+            {
+                throw new Exception("The air conditioner doesn't support the given mode: " + dto.Value);
+            }
+
+            if (mode != ac.CurrentMode)
+            {
+                await _mqttClientService.PublishModeUpdate(dto.DeviceId, mode.ToString(), userId);
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> ChangeTemperature(CommandDTO dto, int id)
+        {
+            DeviceType type = (DeviceType)Enum.Parse(typeof(DeviceType), dto.DeviceType, true);
+            if (type == DeviceType.AC)
+            {
+                return await ChangeAcTemperature(dto, id);
+            }
+            else
+            {
+                throw new Exception("The device type doesnt support the given control");
+            }
+        }
+
+        private async Task<bool> ChangeAcTemperature(CommandDTO dto, int userId)
+        {
+            var ac = (AirConditioner)(await _deviceRepository.GetById(dto.DeviceId));
+
+            if (ac == null)
+                throw new Exception("The ac with given id doesn't exist.");
+
+            double temperature;
+            try
+            {
+                temperature = double.Parse(dto.Value);
+            }
+            catch (ArgumentException)
+            {
+                throw new Exception("The ac doesnt support the given value: " + dto.Value);
+            }
+
+            if (ac.MinTemperature > temperature || ac.MaxTemperature < temperature )
+            {
+                throw new Exception("The air conditioner doesn't support the given value: " + dto.Value);
+            }
+
+            if (temperature != ac.CurrentTemperature)
+            {
+                await _mqttClientService.PublishTemperatureUpdate(dto.DeviceId, temperature.ToString(), userId);
+                return true;
+            }
+
+            return false;
+        }
+
     }
 }

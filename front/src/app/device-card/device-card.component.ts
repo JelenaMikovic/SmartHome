@@ -1,4 +1,4 @@
-import { FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { DataDTO, SocketService } from './../../services/socket.service';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -25,6 +25,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   checkedOpen: boolean = false;
   selectedTimeInterval: string = "";
   isSelected: boolean = false;
+  mode: string = "";
   timeIntervals: string[] = [
     'Last 6h',
     'Last 12h',
@@ -33,7 +34,12 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     'Last month'
   ]
   displayedColumns: string[] = ['action', 'timestamp', 'user', 'state'];
-  
+  changeTemperatureForm = new FormGroup({
+    temperature: new FormControl('', [Validators.required, this.temperatureValidator])
+  })
+  minTemperature: number = 0;
+  maxTemperature: number = 0;
+
   @ViewChild(MatSort) sort: any;
   dataSource = new MatTableDataSource<any>;
   dataSourceWithoutFilters = new MatTableDataSource<any>;
@@ -49,6 +55,16 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   });
 
   currentPlate = ""
+
+  temperatureValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    const value = control.value;
+  
+    if (isNaN(value) || value < 15 || value > 30) {
+      return { invalidTemperature: true };
+    }
+  
+    return null;
+  }
 
   applyNameFilter(event: Event): void {
     const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
@@ -161,6 +177,10 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
                 console.log(this.device.currentCharge);
                 this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               }
+              if(this.device.deviceType == "AC"){
+                this.device.currentTemperature = dto.CurrentTemperature;
+                this.device.currentMode = dto.CurrentMode;
+              }
             }
           });
           this.socketService.addConsumptionUpdateListener((dto: any) => {
@@ -211,6 +231,12 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.checkedPrivate = this.device.isPrivate;
     }
     if (this.device.deviceType == "SOLAR_PANEL"){
+      this.checkedOnOff = this.device.isOn;
+    }
+    if (this.device.deviceType == "AC") {
+      this.minTemperature = this.device.minTemperature;
+      this.maxTemperature = this.device.maxTemperature;
+      this.mode = this.device.currentMode;
       this.checkedOnOff = this.device.isOn;
     }
   }
@@ -283,11 +309,62 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   }
   
   generateByDate(){
-    // if (this.datesForm.valid){
-      let date = new Date(this.datesForm.value.startDate!).toISOString().split('T')[0]
-      console.log(date);
-    // } 
-    console.log("usao")
+    let startDate = new Date(this.datesForm.value.startDate!).toISOString()
+    let endDate = new Date(this.datesForm.value.endDate!).toISOString()
+    console.log(startDate);
+    console.log(endDate);
+
+    this.isSelected = true
+
+    const dto = {
+      deviceId: this.deviceId,
+      startDate: startDate,
+      endDate: endDate,
+    };
+
+    if(this.device.deviceType == "AMBIENT_SENSOR"){
+      this.deviceService.getAmbientSensorReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.temperatureChartData = response.temperatureData;
+          this.humidityChartData = response.humidityData;
+          this.createTemperatureChart(response.temperatureData, "temperature-chart-container")
+          this.createHumidityChart(response.humidityData, 'humidity-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
+    if(this.device.deviceType == "LAMP"){
+      this.deviceService.getLampReport(dto).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createBrightnessChart(response.temperatureData, "brightness-chart-container")
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
+    console.log(this.device)
+    if (this.device.deviceType == "HOME_BATTERY"){
+      const dtob = {
+        deviceId: 2,
+        startDate: startDate,
+        endDate: endDate,
+      };
+      this.deviceService.getBatteryReport(dtob).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.powerConsumptionChartData = response.consumptionData;
+          this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+    }
   }
 
   lastHour(){
@@ -338,24 +415,13 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         (response) => {
           console.log('Response:', response);
           this.powerConsumptionChartData = response.consumptionData;
-          this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
+          this.createPowerConsumptionChart(response.consumptionData, 'currnet-power-consumption-chart-container')
         },
         (error) => {
           console.error('Error:', error);
         }
       );
     }
-    // if(this.device.deviceType == "LAMP"){
-    //   this.deviceService.getLampReport(dto).subscribe(
-    //     (response) => {
-    //       console.log('Response:', response);
-    //       this.createBrightnessChart(response.temperatureData, "current-brightness-chart-container")
-    //     },
-    //     (error) => {
-    //       console.error('Error:', error);
-    //     }
-    //   );
-    // }
   }
 
   onIntervalSelected(){
@@ -417,7 +483,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.deviceService.getBatteryReport(dto2).subscribe(
         (response) => {
           console.log('Response:', response);
-          this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
+          this.createPowerConsumptionChart(response.consumptionData, 'current-power-consumption-chart-container')
         },
         (error) => {
           console.error('Error:', error);
@@ -631,7 +697,56 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       }
     }
   }
-  
+
+  changeTemperature(){
+    console.log(this.changeTemperatureForm.value.temperature)
+    if (this.device.isOnline) {
+      const temperatureValue = this.changeTemperatureForm.value.temperature;
+      let temperatureString = "";
+      if(temperatureValue != null){
+        temperatureString = temperatureValue.toString();
+      }
+      this.deviceService.changeTemperature(this.device, temperatureString).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You changed device temperature!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+           });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
+  }
+
+  onModeSelected(){
+    if (this.device.isOnline) {
+      this.deviceService.changeMode(this.device, this.mode).subscribe({
+        next: (res: any) => {
+          this.snackBar.open("You changed device mode!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+          });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+           });
+            console.log(err);
+          }
+      })
+    } else {
+      this.snackBar.open("Device is offline so you can't perform actions.", "", {
+        duration: 2700, panelClass: ['snack-bar-server-error']
+     });
+    }
+  }
 }
 
 export interface TableData{
