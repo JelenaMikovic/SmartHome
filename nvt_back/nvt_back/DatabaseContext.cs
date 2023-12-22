@@ -14,6 +14,7 @@ namespace nvt_back
         public DbSet<Device> Devices { get; set; }
         public DbSet<AmbientSensor> AmbientSensors { get; set; }
         public DbSet<AirConditioner> AirConditioners { get; set; }
+        public DbSet<AirConditionerSchedule> AirConditionerSchedules { get; set; }
         public DbSet<EVCharger> EVChargers { get; set; }
         public DbSet<HomeBattery> HomeBatteries { get; set; }
         public DbSet<IrrigationSystem> IrrigationSystems { get; set; }
@@ -42,6 +43,7 @@ namespace nvt_back
             modelBuilder.Entity<VehicleGate>().ToTable("VehicleGates");
             modelBuilder.Entity<WashingMachine>().ToTable("WashingMachines");
             modelBuilder.Entity<Lamp>().ToTable("Lamps");
+            modelBuilder.Entity<AirConditionerSchedule>().ToTable("AirConditionerSchedules");
 
             /*modelBuilder.Entity<Device>()
               .HasKey(x => new { x.Id, x.PropertyId });*/

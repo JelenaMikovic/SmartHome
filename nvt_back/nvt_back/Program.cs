@@ -14,6 +14,8 @@ using Coravel;
 using nvt_back.InfluxDB.Invocables;
 using nvt_back.WebSockets;
 using MQTTnet.Client;
+using Quartz.Impl;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -151,7 +153,6 @@ app.Services.UseScheduler(scheduler =>
         .EverySeconds(30);
     scheduler.Schedule<PowerConsumptionInvocable>().EverySeconds(20);
 });
-
 
 app.Run();
 

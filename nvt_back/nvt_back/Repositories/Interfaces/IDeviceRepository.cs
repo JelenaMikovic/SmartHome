@@ -23,5 +23,8 @@ namespace nvt_back.Repositories.Interfaces
         Task<List<int>> GetPropertyIdsWithHomeBatteries();
         Task<List<HomeBattery>> GetAllBatteriesForPropertyId(int propertyId);
         Task<List<Device>> GetConsumingPowerDevicesForProperty(int propertyId);
+        void AddSchedule(AirConditionerSchedule schedule);
+        public void RemoveSchedule(int scheduleId);
+        Task<List<AirConditionerSchedule>> GetDeviceSchedules(int deviceId);
     }
 }

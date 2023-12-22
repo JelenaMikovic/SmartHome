@@ -381,5 +381,23 @@ namespace nvt_back.Repositories
             }
             return workingDevices;
         }
+
+        public async void AddSchedule(AirConditionerSchedule schedule)
+        {
+           await _context.AirConditionerSchedules.AddAsync(schedule);
+            _context.SaveChangesAsync();
+        }
+
+        public async void RemoveSchedule(int scheduleId)
+        {
+            var schedule = await _context.AirConditionerSchedules.FirstOrDefaultAsync(schedule => schedule.Id ==  scheduleId);
+            _context.AirConditionerSchedules.Remove(schedule);
+            _context.SaveChangesAsync();
+        }
+
+        public async Task<List<AirConditionerSchedule>> GetDeviceSchedules(int deviceId)
+        {
+            return await _context.AirConditionerSchedules.Where(s => s.DeviceId == deviceId).ToListAsync();
+        }
     }
 }

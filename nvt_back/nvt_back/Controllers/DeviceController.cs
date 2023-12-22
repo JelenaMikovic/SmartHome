@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using nvt_back.DTOs.DeviceRegistration;
 using nvt_back.DTOs;
-using nvt_back.Services;
 using nvt_back.Services.Interfaces;
+using System;
+using System.Threading.Tasks;
+using Quartz;
+using static Quartz.Logging.OperationName;
+using nvt_back.Model.Devices;
 
 namespace nvt_back.Controllers
 {
@@ -11,9 +15,11 @@ namespace nvt_back.Controllers
     public class DeviceController : Controller
     {
         private readonly IDeviceService _deviceService;
+        //private readonly IScheduler _scheduler;
 
-        public DeviceController(IDeviceService deviceService)
+        public DeviceController(IDeviceService deviceService) //IScheduler scheduler)
         {
+           // _scheduler = scheduler;
             _deviceService = deviceService;
         }
 
@@ -101,5 +107,89 @@ namespace nvt_back.Controllers
                 return StatusCode(500, "Internal Server Error: " + ex.Message);
             }
         }
+
+        [HttpPost("add")]
+        public async Task<IActionResult> AddSchedule([FromBody] ScheduleItemDTO scheduleItem)
+        {
+            _deviceService.AddSchedule(scheduleItem);
+            try
+            {
+                //var jobStart = JobBuilder.Create<Job>()
+                //    .UsingJobData("ScheduleId", schedule.Id)
+                //    .UsingJobData("Action", "On")
+                //    .UsingJobData("Mode", scheduleItem.Mode)
+                //    .UsingJobData("Temperature", scheduleItem.Temperature)
+                //    .Build();
+
+                //System.TimeOnly systemStartTime = System.TimeOnly.Parse(scheduleItem.StartTime);
+                //Quartz.TimeOfDay quartzStartTime = new Quartz.TimeOfDay(systemStartTime.Hour, systemStartTime.Minute, systemStartTime.Second);
+
+                //var trigger = TriggerBuilder.Create()
+                //    .WithDailyTimeIntervalSchedule(x => x.OnEveryDay().StartingDailyAt(quartzStartTime))
+                //    .Build();
+
+                //await _scheduler.ScheduleJob(jobStart, trigger);
+
+                //var jobEnd = JobBuilder.Create<Job>()
+                //    .UsingJobData("ScheduleId", scheduleItem.ScheduleId)
+                //    .UsingJobData("Action", "Off")
+                //    .Build();
+                //
+                //System.TimeOnly systemEndTime = System.TimeOnly.Parse(scheduleItem.EndTime);
+                //Quartz.TimeOfDay quartzEndTime = new Quartz.TimeOfDay(systemEndTime.Hour, systemEndTime.Minute, systemEndTime.Second);
+
+                //var triggerEnd = TriggerBuilder.Create()
+                //    .WithDailyTimeIntervalSchedule(x => x.OnEveryDay().StartingDailyAt(quartzEndTime))
+                //    .Build();
+                //
+                //await _scheduler.ScheduleJob(jobEnd, triggerEnd);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpDelete("remove/{scheduleId}")]
+        public async Task<IActionResult> RemoveSchedule(int scheduleId)
+        {
+            try
+            {
+                _deviceService.RemoveSchedule(scheduleId);
+                //var jobKeyStart = new JobKey($"Job-{scheduleId}-On");
+                //var jobKeyEnd = new JobKey($"Job-{scheduleId}-Off");
+
+                //await _scheduler.DeleteJob(jobKeyStart);
+                //await _scheduler.DeleteJob(jobKeyEnd);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpGet("schedules/{deviceId}")]
+        public async Task<ActionResult<MessageDTO>> GetSchedules(int deviceId)
+        {
+            try
+            {
+                List<AirConditionerSchedule> data = _deviceService.GetDeviceSchedule(deviceId);
+                var response = new
+                {
+                    Schedules = data,
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
     }
 }

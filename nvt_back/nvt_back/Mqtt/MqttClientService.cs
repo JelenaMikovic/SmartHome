@@ -786,15 +786,30 @@ namespace nvt_back.Mqtt
         public async Task PublishStatusUpdate(int deviceId, string status, int userId)
         {
             string topic = GetCommandTopicForDevice(deviceId);
-            var payload = new
+            if(userId == 0)
             {
-                Type = "OnOff",
-                Sender = Sender.PLATFORM,
-                Action = status,
-                Actor = userId
-            };
-            var payloadJSON = JsonConvert.SerializeObject(payload);
-            await this.Publish(topic, payloadJSON);
+                var payload = new
+                {
+                    Type = "OnOff",
+                    Sender = Sender.PLATFORM,
+                    Action = status,
+                    Actor = "Schedule"
+                };
+                var payloadJSON = JsonConvert.SerializeObject(payload);
+                await this.Publish(topic, payloadJSON);
+            } 
+            else 
+            {
+                var payload = new
+                {
+                    Type = "OnOff",
+                    Sender = Sender.PLATFORM,
+                    Action = status,
+                    Actor = userId
+                };
+                var payloadJSON = JsonConvert.SerializeObject(payload);
+                await this.Publish(topic, payloadJSON);
+            }
 
         }
 
@@ -815,30 +830,63 @@ namespace nvt_back.Mqtt
 
         public async Task PublishModeUpdate(int deviceId, string value, int userId)
         {
-            string topic = GetCommandTopicForDevice(deviceId);
-            var payload = new
+            if(userId == 0)
             {
-                Type = "ChangeMode",
-                Sender = Sender.PLATFORM,
-                Value = value,
-                Actor = userId
-            };
-            var payloadJSON = JsonConvert.SerializeObject(payload);
-            await this.Publish(topic, payloadJSON);
+                string topic = GetCommandTopicForDevice(deviceId);
+                var payload = new
+                {
+                    Type = "ChangeMode",
+                    Sender = Sender.PLATFORM,
+                    Value = value,
+                    Actor = "Schedule"
+                };
+                var payloadJSON = JsonConvert.SerializeObject(payload);
+                await this.Publish(topic, payloadJSON);
+            }
+            else
+            {
+                string topic = GetCommandTopicForDevice(deviceId);
+                var payload = new
+                {
+                    Type = "ChangeMode",
+                    Sender = Sender.PLATFORM,
+                    Value = value,
+                    Actor = userId
+                };
+                var payloadJSON = JsonConvert.SerializeObject(payload);
+                await this.Publish(topic, payloadJSON);
+            }
+            
         }
 
         public async Task PublishTemperatureUpdate(int deviceId, string value, int userId)
         {
-            string topic = GetCommandTopicForDevice(deviceId);
-            var payload = new
+            if (userId == 0)
             {
-                Type = "ChangeTemperature",
-                Sender = Sender.PLATFORM,
-                Value = value,
-                Actor = userId
-            };
-            var payloadJSON = JsonConvert.SerializeObject(payload);
-            await this.Publish(topic, payloadJSON);
+                string topic = GetCommandTopicForDevice(deviceId);
+                var payload = new
+                {
+                    Type = "ChangeTemperature",
+                    Sender = Sender.PLATFORM,
+                    Value = value,
+                    Actor = "Schedule"
+                };
+                var payloadJSON = JsonConvert.SerializeObject(payload);
+                await this.Publish(topic, payloadJSON);
+            }
+            else
+            {
+                string topic = GetCommandTopicForDevice(deviceId);
+                var payload = new
+                {
+                    Type = "ChangeTemperature",
+                    Sender = Sender.PLATFORM,
+                    Value = value,
+                    Actor = userId
+                };
+                var payloadJSON = JsonConvert.SerializeObject(payload);
+                await this.Publish(topic, payloadJSON);
+            }
         }
 
         public async Task PublishCommandUpdate(int deviceId, string type, string value, int userId)

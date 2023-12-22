@@ -126,6 +126,22 @@ export class DeviceService {
 
     return this.http.put<any>(environment.apiHost + "/device-toggle/regime", dto, {withCredentials: true});
   }
+
+  getDeviceSchedule(deviceId: number): Observable<any> {
+    const url = `${environment.apiHost}/device/schedules/` + deviceId;
+    return this.http.get<any>(url, { withCredentials: true });
+  }
+
+  removeSchedule(deviceId: number): Observable<any> {
+    const url = `${environment.apiHost}/device/remove/` + deviceId;
+    return this.http.delete<any>(url, { withCredentials: true });
+  }
+
+  addSchedule(dto: any): Observable<any> {
+    const url = `${environment.apiHost}/device/add/`;
+    return this.http.post<any>(url, dto, { withCredentials: true });
+  }
+
 }
 
 export interface CommandDTO

@@ -32,14 +32,6 @@
                     <i class="fa-solid fa-percent"></i>
                     <span class="black">{{device.efficiency}} efficiency</span>
                 </div>
-                <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
-                    <i class="fa-solid fa-sun"></i>
-                    <span class="black">{{device.currentTemperature}} C</span>
-                </div>
-                <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'">
-                    <i class="fa-solid fa-percent"></i>
-                    <span class="black">{{device.currentHumidity}} %</span>
-                </div>
                 <div *ngIf="device.deviceType === 'LAMP'">
                     <i class="fa-solid fa-sun yellow"></i>
                     <span class="black">{{device.brightnessLevel}} lux</span>
@@ -116,7 +108,7 @@
                 </form>
             </div>
             <div *ngIf="device.deviceType == 'AC'">
-                <button mat-raised-button class="change-button">Add schedule</button>
+                <button mat-raised-button class="change-button" (click)="schedule()">Add schedule</button>
             </div>
             <div *ngIf="device.deviceType == 'LAMP'">
                 <span class="black">automatic regime: </span>
@@ -254,6 +246,67 @@
             </div>
         </div>
     </div>
+
+    <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AC'"> 
+        <div *ngIf="showAddSchedule">
+            <form [formGroup]="addScheduleForm" fxLayout="column" (ngSubmit)="addSchedule()" style="display: flex;">
+
+                <mat-form-field>
+                    <mat-label>Start Time:</mat-label>
+                    <input matInput type="number" name="startTime" formControlName="startTime" />
+                    </mat-form-field>
+                <mat-form-field>
+                    <mat-label>End Time:</mat-label>
+                    <input matInput type="number" name="endTime" formControlName="endTime" />
+                </mat-form-field>
+                <mat-form-field id="type-dd">
+                    <mat-label>Mode</mat-label>
+                    <mat-select [(value)]="this.scheduleMode" formControlName="mode">
+                        <mat-option *ngFor="let item of device.supportedModes" [value]="item">
+                            {{item}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+        
+                    <mat-form-field>
+                        <mat-label>Temperature:</mat-label>
+                        <input matInput type="number" name="temperature" formControlName="temperature" />
+                        <mat-error *ngIf="addScheduleForm.get('temperature')?.errors?.['required']">Entering temperature is required</mat-error>
+                        <mat-error *ngIf="addScheduleForm.get('temperature')?.errors?.['invalidTemperature'] && !addScheduleForm.get('temperature')?.errors?.['required']">Temperature should be between {{device.minTemperature}}-{{device.maxTemperature}}</mat-error>
+                    </mat-form-field>
+            
+                <button type="submit" class="conf-button add-prop-btn back-light-blue">Add</button>
+            </form>
+        </div>     
+        <div class="subtitle-topper">
+            <table [dataSource]="dataSchedule" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
+                        <ng-container matColumnDef="from">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>From</th>
+                          <td mat-cell *matCellDef="let element">{{ element.from }}</td>
+                        </ng-container>
+            
+                        <ng-container matColumnDef="to">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>To</th>
+                            <td mat-cell *matCellDef="let element">{{ element.to }}</td>
+                          </ng-container>
+                      
+                        <ng-container matColumnDef="temperature">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Temperature</th>
+                          <td mat-cell *matCellDef="let element">{{ element.temperature }}</td>
+                        </ng-container>
+                      
+                        <ng-container matColumnDef="mode">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Mode</th>
+                          <td mat-cell *matCellDef="let element">{{ element.mode }}</td>
+                        </ng-container>
+                      
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnSchedule"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnSchedule"></tr>
+                    </table>
+        </div>
+        <hr>
+    </div>
+
     <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AMBIENT-SENSOR' || device.deviceType == 'VEHICLE_GATE'">      
         <div class="subtitle-topper">
             <p class="subtitle">Action table</p>

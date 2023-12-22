@@ -25,7 +25,9 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   checkedOpen: boolean = false;
   selectedTimeInterval: string = "";
   isSelected: boolean = false;
+  showAddSchedule: boolean = false;
   mode: string = "";
+  scheduleMode: string = "";
   timeIntervals: string[] = [
     'Last 6h',
     'Last 12h',
@@ -34,6 +36,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     'Last month'
   ]
   displayedColumns: string[] = ['action', 'timestamp', 'user', 'state'];
+  displayedColumnSchedule: string[] = ['from', 'to', 'temperature', 'mode'];
   changeTemperatureForm = new FormGroup({
     temperature: new FormControl('', [Validators.required, this.temperatureValidator])
   })
@@ -44,6 +47,8 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<any>;
   dataSourceWithoutFilters = new MatTableDataSource<any>;
 
+  dataSchedule = new MatTableDataSource<any>;
+
   startDateControl = new FormControl();
   endDateControl = new FormControl();
   temperatureChartData: { timestamp: string; value: string }[] = [];
@@ -53,6 +58,13 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   addPlateForm = new FormGroup({
     newPlate: new FormControl('', Validators.required)
   });
+
+  addScheduleForm = new FormGroup({
+    temperature: new FormControl('', [Validators.required, this.temperatureValidator]),
+    mode: new FormControl('', [Validators.required]),
+    endTime: new FormControl('', [Validators.required]),
+    startTime: new FormControl('', [Validators.required])
+  })
 
   currentPlate = ""
 
@@ -238,6 +250,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.maxTemperature = this.device.maxTemperature;
       this.mode = this.device.currentMode;
       this.checkedOnOff = this.device.isOn;
+      this.getSchedule();
     }
   }
 
@@ -747,6 +760,67 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
      });
     }
   }
+
+  schedule(){
+    this.showAddSchedule = true;
+  }
+
+  addSchedule(){
+    const dto = {
+      startTime: this.addScheduleForm.value.startTime + ":00:00",
+      endTime: this.addScheduleForm.value.endTime + ":00:00",
+      mode: this.scheduleMode,
+      temerature: this.addScheduleForm.value.temperature
+    } 
+
+    this.deviceService.addSchedule(dto).subscribe({
+      next: (res: any) => {
+        this.snackBar.open("You added device schedule!", "", {
+        });
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+         });
+          console.log(err);
+        }
+    })
+  }
+
+  removeSchedule(id: number){
+    this.deviceService.removeSchedule(id).subscribe({
+      next: (res: any) => {
+        this.snackBar.open("You removed device schedule!", "", {
+        });
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+         });
+          console.log(err);
+        }
+    })
+  }
+
+  getSchedule(){
+    console.log("dsadad")
+    this.deviceService.getDeviceSchedule(this.device.id).subscribe({
+      next: (res: any) => {
+        console.log(res)
+        for (const schedule of res.schedules) {
+          this.dataSchedule.data.push({
+            from: schedule.startTime,
+            to: schedule.endTime,
+            temperature: schedule.temperature,
+            mode: schedule.mode
+          });
+        }
+        console.log(this.dataSchedule.data);
+        this.dataSchedule._updateChangeSubscription();
+        },
+        error: (err: any) => {
+          console.log(err);
+        }
+    })
+  }
 }
 
 export interface TableData{
@@ -754,4 +828,11 @@ export interface TableData{
   time: Date,
   user: string,
   state: string
+}
+
+export interface ScheduleData{
+  from: string,
+  to: string,
+  temperature: number,
+  mode: string
 }

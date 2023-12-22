@@ -1,5 +1,6 @@
 ﻿using InfluxDB.Client.Api.Domain;
 using Microsoft.Extensions.DependencyInjection;
+using nvt_back.DTOs;
 using nvt_back.DTOs.DeviceRegistration;
 using nvt_back.InfluxDB;
 using nvt_back.Model.Devices;
@@ -156,6 +157,26 @@ namespace nvt_back.Services
             return await _deviceRepository.GetConsumingPowerDevicesForProperty(propertyId);
         }
 
-        
+        public void AddSchedule(ScheduleItemDTO scheduleItem)
+        {
+            AirConditionerSchedule schedule = new AirConditionerSchedule();
+            schedule.DeviceId = scheduleItem.DeviceId;
+            schedule.Mode = Enum.Parse<AirConditionerMode>(scheduleItem.Mode, true);
+            schedule.Temperature = scheduleItem.Temperature;
+            schedule.EndTime = scheduleItem.EndTime;
+            schedule.StartTime = scheduleItem.StartTime;
+            _deviceRepository.AddSchedule(schedule);
+            return;
+        }
+
+        public void RemoveSchedule(int scheduleId)
+        {
+            _deviceRepository.RemoveSchedule(scheduleId);
+        }
+
+        public List<AirConditionerSchedule> GetDeviceSchedule(int deviceId)
+        {
+            return _deviceRepository.GetDeviceSchedules(deviceId).Result;
+        }
     }
 }
