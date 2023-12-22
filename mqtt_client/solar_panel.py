@@ -120,6 +120,7 @@ client.connect(mqtt_host, mqtt_port)
 def publish_heartbeat():
     global IS_ON, INITIALIZE_PARAMETERS
     while True:
+        print("HEARTBEAT")
         client.publish(PUBLISHER_HEARTBEAT_TOPIC, status_on_heartbeat_to_json(args.did, INITIALIZE_PARAMETERS))
         time.sleep(generate_heartbeat_sleep_time())
 
@@ -135,13 +136,14 @@ def publish_data():
         # time.sleep(10)
         if IS_ON and not INITIALIZE_PARAMETERS:
             # print(simulate_solar_energy_production())
+            print("DATA")
             client.publish(PUBLISHER_DATA_TOPIC, generate_data(args.did, solar_panel_initialization.propertyId))
-            time.sleep(20)
+            time.sleep(55)
 
 def generate_data(device_id, property_id):
     measurement = "solar_energy"
     tags = f"device_id={device_id},property_id={property_id}"
-    fields = "energy=" + str(round(simulate_solar_energy_production(), 0))
+    fields = "energy=" + str(simulate_solar_energy_production())
     # fields = "energy=" + str(round(10, 0))
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol

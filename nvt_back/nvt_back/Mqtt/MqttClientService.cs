@@ -128,8 +128,13 @@ namespace nvt_back.Mqtt
             Console.WriteLine(heartbeat.InitializeParameters);
             if (heartbeat.InitializeParameters)
             {
-                var payload = await _deviceSimulatorInitializationService.Initialize(heartbeat.DeviceId);
-                await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var serviceProvider = scope.ServiceProvider;
+                    var service = serviceProvider.GetRequiredService<IDeviceSimulatorInitializationService>();
+                    var payload = await service.Initialize(heartbeat.DeviceId);
+                    await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+                }
             }
         }
 
@@ -343,7 +348,8 @@ namespace nvt_back.Mqtt
             {
                 PropertyId = data.PropertyId,
                 DeviceType = "HOME_BATTERY",
-                Consumed = data.Value
+                Consumed = data.Value,
+                Timestamp = DateTime.Now
             };
 
             Console.WriteLine(message);
@@ -476,14 +482,22 @@ namespace nvt_back.Mqtt
             {
                 return;
             }
-            var homeBatteries = await _deviceService.GetAllBatteriesForPropertyId(propertyId);
+            List<HomeBattery> homeBatteries = null;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                //battery.CurrentCharge = data.Value;
+                var serviceProvider = scope.ServiceProvider;
+                var service = serviceProvider.GetRequiredService<IDeviceService>();
+                homeBatteries = await service.GetAllBatteriesForPropertyId(propertyId);
+            }
+            //var homeBatteries = await _deviceService.GetAllBatteriesForPropertyId(propertyId);
             var batteriesInitialization = homeBatteries.Select(battery => new BatteryInitializationDTO
             {
                 Id = battery.Id,
                 Capacity = battery.Capacity,
                 CurrentCharge = battery.CurrentCharge,
             }).ToList();
-            Console.Write(batteriesInitialization);
+            Console.Write(batteriesInitialization[0].CurrentCharge);
             var jsonString = JsonConvert.SerializeObject(batteriesInitialization);
 
 

@@ -124,7 +124,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           this.socketService.startConnection(this.device.id, this.device.deviceType == "HOME_BATTERY", this.device.propertyId);
           let lastCommandDTO: any | null = null;
           let lastAmbientSensorDTO: any | null = null;
-          let lastBatteryDTO: any | null = null;
+          let lastBatteryTime: any | null = null;
           this.socketService.addDataUpdateListener((dto: any) => {
             console.log(dto)
             if(dto.Measurement == "command"){
@@ -172,10 +172,14 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
             console.log(dto)
             
             if(this.device.deviceType == "HOME_BATTERY"){
-              if (lastBatteryDTO == null || (lastBatteryDTO.action != dto.value && lastBatteryDTO.timestamp != dto.timestamp)){
+              console.log((Math.abs(((new Date(dto.Timestamp)).getTime() - (new Date(lastBatteryTime)).getTime()) / 1000)));
+              if (lastBatteryTime == null || (Math.abs(((new Date(dto.Timestamp)).getTime() - (new Date(lastBatteryTime)).getTime()) / 1000) > 20.05)){
                 // this.addToTable(newData);
-                lastBatteryDTO = dto;
-                this.powerConsumptionChartData.push({ timestamp: dto.timestamp, value: dto.Consumed });
+                lastBatteryTime = dto.Timestamp;
+                const currentDate = new Date(dto.Timestamp);
+                const startDate = currentDate;
+                startDate.setHours(currentDate.getHours() - 1);
+                this.powerConsumptionChartData.push({ timestamp: startDate.toISOString(), value: dto.Consumed });
                 this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               // this.device.currentHumidity = dto.Humidity;
               // this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
@@ -375,15 +379,15 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         endDate: currentDate.toISOString(),
       };
       console.log(this.device.propertyId);
-      // this.deviceService.getBatteryReport(dto2).subscribe(
-      //   (response) => {
-      //     console.log('Response:', response);
-      //     this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
-      //   },
-      //   (error) => {
-      //     console.error('Error:', error);
-      //   }
-      // );
+      this.deviceService.getBatteryReport(dto2).subscribe(
+        (response) => {
+          console.log('Response:', response);
+          this.createPowerConsumptionChart(response.consumptionData, 'power-consumption-chart-container')
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
     }
   }
 

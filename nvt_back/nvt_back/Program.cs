@@ -149,7 +149,7 @@ app.Services.UseScheduler(scheduler =>
     scheduler
         .Schedule<DeviceActivityCheckInvocable>()
         .EverySeconds(30);
-    scheduler.Schedule<PowerConsumptionInvocable>().EverySeconds(20);
+    scheduler.Schedule<PowerConsumptionInvocable>().EverySeconds(60);
 });
 
 

@@ -116,7 +116,7 @@ def publish_data():
                     for battery in batteries:
                         consumed_mqtt = total_power_from_batteries + generated_power - consumed_power > sum(battery.capacity for battery in batteries)
                         gained = True
-                        battery.currentCharge = 100
+                        battery.currentCharge = 1
                 else:
                     for battery in batteries:
                         capacity_per_battery = battery.capacity * battery.currentCharge / total_power_from_batteries
@@ -134,14 +134,14 @@ def publish_data():
                 consumed_power = 0
                 generated_power = 0
 
-            time.sleep(20)
+            time.sleep(55)
 
             
 
 def generate_data_for_battery_level(battery):
     measurement = "battery_level"
     tags = f"device_id={battery.id},property_id={args.pid}"
-    fields = "level=" + str(round(battery.currentCharge, 2))
+    fields = "level=" + str(battery.currentCharge)
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol
@@ -149,7 +149,7 @@ def generate_data_for_battery_level(battery):
 def generate_data_for_consumed_power(consumed_power):
     measurement = "home_battery"
     tags = f"property_id={args.pid}"
-    fields = "consumed_power=" + str(round(consumed_power, 2))
+    fields = "consumed_power=" + str(consumed_power)
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol
@@ -163,7 +163,7 @@ def generate_data_for_power_distribution(consumed_mqtt, gained):
     else:
         tags = f"property_id={args.pid},gained=None"
         
-    fields = "distribution=" + str(round(consumed_mqtt, 2))
+    fields = "distribution=" + str(consumed_mqtt)
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol
