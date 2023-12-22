@@ -43,7 +43,7 @@ def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
     global INITIALIZE_PARAMETERS, batteries, total_capacity
     global consumed_power, generated_power
     data = json.loads(msg.payload)
-    print(data, INITIALIZE_PARAMETERS)
+    # print(data, INITIALIZE_PARAMETERS)
     if type(data) == list:
         for item in data:
             battery = BatteryInitialization(item)
@@ -52,7 +52,7 @@ def on_message(client: mqtt.Client, userdata: any, msg: mqtt.MQTTMessage):
         #postavi ukupne parametre baterije
         INITIALIZE_PARAMETERS = False
     elif data["Type"] == "Consumption" and not INITIALIZE_PARAMETERS:
-        print("hi")
+        # print("hi")
         global battery_lock
         with battery_lock:
             consumed_power += data["Consumed"]
@@ -116,7 +116,7 @@ def publish_data():
                     for battery in batteries:
                         consumed_mqtt = total_power_from_batteries + generated_power - consumed_power > sum(battery.capacity for battery in batteries)
                         gained = True
-                        battery.currentCharge = 100
+                        battery.currentCharge = 1
                 else:
                     for battery in batteries:
                         capacity_per_battery = battery.capacity * battery.currentCharge / total_power_from_batteries
@@ -134,14 +134,14 @@ def publish_data():
                 consumed_power = 0
                 generated_power = 0
 
-            time.sleep(20)
+            time.sleep(55)
 
             
 
 def generate_data_for_battery_level(battery):
     measurement = "battery_level"
     tags = f"device_id={battery.id},property_id={args.pid}"
-    fields = "level=" + str(round(10, 2))
+    fields = "level=" + str(battery.currentCharge)
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol
@@ -149,7 +149,7 @@ def generate_data_for_battery_level(battery):
 def generate_data_for_consumed_power(consumed_power):
     measurement = "home_battery"
     tags = f"property_id={args.pid}"
-    fields = "consumed_power=" + str(round(consumed_power, 2))
+    fields = "consumed_power=" + str(consumed_power)
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol
@@ -163,7 +163,7 @@ def generate_data_for_power_distribution(consumed_mqtt, gained):
     else:
         tags = f"property_id={args.pid},gained=None"
         
-    fields = "distribution=" + str(round(consumed_mqtt, 2))
+    fields = "distribution=" + str(consumed_mqtt)
 
     influx_line_protocol = f"{measurement},{tags} {fields}"
     return influx_line_protocol

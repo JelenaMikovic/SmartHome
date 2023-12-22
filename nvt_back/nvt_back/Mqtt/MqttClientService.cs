@@ -1,6 +1,7 @@
 ﻿using InfluxDB.Client.Api.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -127,8 +128,13 @@ namespace nvt_back.Mqtt
             Console.WriteLine(heartbeat.InitializeParameters);
             if (heartbeat.InitializeParameters)
             {
-                var payload = await _deviceSimulatorInitializationService.Initialize(heartbeat.DeviceId);
-                await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var serviceProvider = scope.ServiceProvider;
+                    var service = serviceProvider.GetRequiredService<IDeviceSimulatorInitializationService>();
+                    var payload = await service.Initialize(heartbeat.DeviceId);
+                    await this.Publish(this.GetCommandTopicForDevice(heartbeat.DeviceId), JsonConvert.SerializeObject(payload));
+                }
             }
         }
 
@@ -173,14 +179,7 @@ namespace nvt_back.Mqtt
                     {
                         var deviceID = int.Parse(measurementAndTags[1].Split('=')[1]);
                         var deviceType = measurementAndTags[2].Split('=')[1];
-                        var user = -1;
-                        try
-                        {
-                            user = int.Parse(measurementAndTags[3].Split('=')[1]);
-
-                        } catch (Exception ex)
-                        {
-                        }
+                        var user = int.Parse(measurementAndTags[3].Split('=')[1]);
                         var type = measurementAndTags[4].Split('=')[1];
                         var success = Boolean.Parse(measurementAndTags[5].Split('=')[1]);
 
@@ -246,7 +245,7 @@ namespace nvt_back.Mqtt
                             CurrentTemperature = temperature
                         };
                     }
-                    else
+                    if (measurement == "illuminance")
                     {
 
                         var illuminance = int.Parse(parts[1].Split('=')[1]);
@@ -258,6 +257,7 @@ namespace nvt_back.Mqtt
                             Value = illuminance
                         };
                     }
+                    return null;
                 }
                 else
                 {
@@ -291,9 +291,15 @@ namespace nvt_back.Mqtt
                 var serviceProvider = scope.ServiceProvider;
                 var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
                 device = await repository.GetById(data.DeviceId);
-                //var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
-                //user = await userRepository.GetById(data.UserId);
-                //Console.WriteLine(user);
+                
+            }
+
+            using (var scope = _scopeFactory.CreateScope())
+            { 
+                var serviceProvider = scope.ServiceProvider;
+                var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
+                user = await userRepository.GetById(data.User);
+                Console.WriteLine(user);
             }
 
             if (device == null)
@@ -369,13 +375,16 @@ namespace nvt_back.Mqtt
             {
                 Measurement = data.Measurement,
                 DeviceId = data.DeviceId,
-                User = data.User,
+                User = user.Name + " " + user.Surname,
                 DeviceType = data.DeviceType,
                 Action = data.Action,
-                Value = data.Value
-            };
+                Value = data.Value,
+                Guid = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.Now
+        };
             try
             {
+                Console.WriteLine("NEMANJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                 Console.WriteLine($"data/{data.DeviceId}");
                 await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
             }
@@ -392,7 +401,8 @@ namespace nvt_back.Mqtt
             {
                 PropertyId = data.PropertyId,
                 DeviceType = "HOME_BATTERY",
-                Consumed = data.Value
+                Consumed = data.Value,
+                Timestamp = DateTime.Now
             };
 
             Console.WriteLine(message);
@@ -465,7 +475,8 @@ namespace nvt_back.Mqtt
                 DeviceId = data.DeviceId,
                 DeviceType = "AMBIENT_SENSOR",
                 Temperature = data.Temperature,
-                Humidity = data.Humidity
+                Humidity = data.Humidity,
+                Timestamp = DateTime.Now
             };
 
             try
@@ -534,7 +545,7 @@ namespace nvt_back.Mqtt
                 DeviceId = data.DeviceId,
                 DeviceType = "HOME_BATTERY",
                 CurrentCharge = data.Value,
-                
+                Timestamp = DateTime.Now
             };
 
             try
@@ -559,14 +570,22 @@ namespace nvt_back.Mqtt
             {
                 return;
             }
-            var homeBatteries = await _deviceService.GetAllBatteriesForPropertyId(propertyId);
+            List<HomeBattery> homeBatteries = null;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                //battery.CurrentCharge = data.Value;
+                var serviceProvider = scope.ServiceProvider;
+                var service = serviceProvider.GetRequiredService<IDeviceService>();
+                homeBatteries = await service.GetAllBatteriesForPropertyId(propertyId);
+            }
+            //var homeBatteries = await _deviceService.GetAllBatteriesForPropertyId(propertyId);
             var batteriesInitialization = homeBatteries.Select(battery => new BatteryInitializationDTO
             {
                 Id = battery.Id,
                 Capacity = battery.Capacity,
                 CurrentCharge = battery.CurrentCharge,
             }).ToList();
-            Console.Write(batteriesInitialization);
+            Console.Write(batteriesInitialization[0].CurrentCharge);
             var jsonString = JsonConvert.SerializeObject(batteriesInitialization);
 
 
@@ -610,20 +629,31 @@ namespace nvt_back.Mqtt
                     {
                         Console.WriteLine(payloadString);
 
-                        await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
+                        using (var scope = _scopeFactory.CreateScope())
+                        {
+                            var serviceProvider = scope.ServiceProvider;
+                            var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                            await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+
+                        }
+
+                        //await _deviceRepository.ToggleState(command.DeviceId, command.Value);
+                    }
+                    else
+                    {
+                        if (command.Action == "Regime")
+                        {
+                            Console.WriteLine(payloadString);
+                            await _deviceRepository.ToggleRegime(command.DeviceId, command.Value);
+                        }
                     }
                     else
                     {
                         if (command.Action.ToLower() == "open")
                         {
                             Console.WriteLine(payloadString);
-                            await _deviceRepository.ToggleCommand(command.DeviceId, command.Action, "true");
-                        } else
-                        if (command.Action.ToLower() == "close")
-                            {
-                                Console.WriteLine(payloadString);
-                                await _deviceRepository.ToggleCommand(command.DeviceId, "open", "false");
-                            }
+                            await _deviceRepository.ToggleCommand(command.DeviceId, command.Action, command.Value);
+                        }
                         else
                         {
                             if (command.Action.ToLower() == "private")

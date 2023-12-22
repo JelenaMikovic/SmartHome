@@ -29,7 +29,7 @@ namespace nvt_back.WebSockets
 
         public async Task SubscribeToPropertyDataTopic(int propertyId)
         {
-            Console.WriteLine($"OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+            //Console.WriteLine($"OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
             await _mqttClientService.SubscribeToPropertyDataTopic(propertyId);
             await Groups.AddToGroupAsync(Context.ConnectionId, $"consumption_data/{propertyId}");
         }
