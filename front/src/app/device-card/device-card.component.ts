@@ -80,11 +80,11 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
 
   addToTable(newData: any): void {
     const dataFiltered = this.dataSource.data;
-    dataFiltered.push(newData);
+    dataFiltered.unshift(newData);
     this.dataSource.data = dataFiltered;
 
     const data = this.dataSourceWithoutFilters.data;
-    data.push(newData);
+    data.unshift(newData);
     this.dataSourceWithoutFilters.data = data;
   }
 
@@ -536,6 +536,24 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       }
     }
   }
+
+  parseAction(action: string, value: string) {
+    if (this.device.deviceType == "VEHICLE_GATE")
+    {
+      if (action == "open" && value == "false")
+        return "close"
+    }
+    return action;
+  }
+
+  // parseUser(user: any) {
+  //   if (this.device.deviceType == "VEHICLE_GATE")
+  //   {
+  //     if (user == -1)
+  //       return "self"
+  //   }
+  //   return user;
+  // }
   
 }
 

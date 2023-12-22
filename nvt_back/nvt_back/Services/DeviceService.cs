@@ -35,7 +35,8 @@ namespace nvt_back.Services
                $" |> range(start: 0)" +
                $" |> filter(fn: (r) => r[\"_measurement\"] == \"command\")" +
                $" |> filter(fn: (r) => r[\"_field\"] == \"type\" or r[\"_field\"] == \"time\" or r[\"_field\"] == \"value\")" +
-               $" |> filter(fn: (r) => r[\"device_id\"] == \"{id}\" and r[\"success\"] == \"True\")";
+               $" |> filter(fn: (r) => r[\"device_id\"] == \"{id}\" and r[\"success\"] == \"True\")" +
+               $" |> sort(columns: [\"_time\"], desc: true)";
 
                 var result = await _influxDBService.QueryAsync(query);
                 var processedData = result
