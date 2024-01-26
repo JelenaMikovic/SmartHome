@@ -82,6 +82,15 @@ namespace nvt_back.Repositories
                     await _context.SaveChangesAsync();
                 }
             }
+            else if (device.DeviceType == DeviceType.WASHING_MACHINE)
+            {
+                WashingMachine ac = (WashingMachine)device;
+                if (ac.IsOn != isTurnedOn)
+                {
+                    ac.IsOn = isTurnedOn;
+                    await _context.SaveChangesAsync();
+                }
+            }
             else
             {
                 Lamp lamp = (Lamp)device;
@@ -146,6 +155,10 @@ namespace nvt_back.Repositories
             else if (device.DeviceType == DeviceType.AC)
             {
                 return await getACDetailsById(device);
+            }
+            else if (device.DeviceType == DeviceType.WASHING_MACHINE)
+            {
+                return await getWashingMachineDetailsById(device);
             }
 
             return null;
@@ -267,7 +280,29 @@ namespace nvt_back.Repositories
                 MinTemperature = ac.MinTemperature,
             };
         }
-
+        
+        private async Task<object> getWashingMachineDetailsById(Device device)
+        {
+            WashingMachine ac = (WashingMachine)device;
+            List<string> supportedModes = new List<string>();
+            foreach (WashingMachineMode supportedMode in ac.SupportedModes)
+            {
+                supportedModes.Add(supportedMode.ToString());
+            }
+            return new ACDetailsDTO
+            {
+                Id = ac.Id,
+                IsOn = ac.IsOn,
+                IsOnline = ac.IsOnline,
+                Name = ac.Name,
+                PowerConsumption = ac.PowerConsumption,
+                PowerSource = ac.PowerSource,
+                Image = ac.Image,
+                DeviceType = ac.DeviceType.ToString(),
+                CurrentMode = ac.CurrentMode.ToString(),
+                SupportedModes = supportedModes,
+            };
+        }
         public async Task ToggleRegime(int deviceId, string value)
         {
             var device = await GetById(deviceId);

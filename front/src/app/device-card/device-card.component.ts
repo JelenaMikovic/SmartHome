@@ -53,7 +53,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   endDateControl = new FormControl();
   temperatureChartData: { timestamp: string; value: string }[] = [];
   humidityChartData: { timestamp: string; value: string }[] = [];
-  powerConsumptionChartData: {timestamp: string; value: string}[] = [];
+  powerConsumptionChartData: { timestamp: string; value: string }[] = [];
 
   addPlateForm = new FormGroup({
     newPlate: new FormControl('', Validators.required)
@@ -70,22 +70,22 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
 
   temperatureValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const value = control.value;
-  
+
     if (isNaN(value) || value < 15 || value > 30) {
       return { invalidTemperature: true };
     }
-  
+
     return null;
   }
 
   applyNameFilter(event: Event): void {
     const filter = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
     this.dataSource.filter = filter;
-  } 
+  }
 
-  applyDateFilter(){
+  applyDateFilter() {
     if (this.datesTableForm.valid)
-      this.dataSource.data = this.dataSource.data.filter(e=> {
+      this.dataSource.data = this.dataSource.data.filter(e => {
         const dateFromData = new Date(e.timestamp);
         console.log(dateFromData);
         return dateFromData >= new Date(this.datesTableForm.value.startDateTable!) && dateFromData <= new Date(this.datesTableForm.value.endDateTable!)
@@ -95,16 +95,16 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  resetTableDates(myForm: FormGroupDirective){
-      this.datesTableForm.get('startDateTable')?.setValue(null);
-      this.datesTableForm.get('endDateTable')?.setValue(null);
-      myForm.resetForm();
-      myForm.form.markAsPristine();
-      myForm.form.markAsUntouched();
-      myForm.form.updateValueAndValidity();
-      
+  resetTableDates(myForm: FormGroupDirective) {
+    this.datesTableForm.get('startDateTable')?.setValue(null);
+    this.datesTableForm.get('endDateTable')?.setValue(null);
+    myForm.resetForm();
+    myForm.form.markAsPristine();
+    myForm.form.markAsUntouched();
+    myForm.form.updateValueAndValidity();
 
-      this.dataSource = this.dataSourceWithoutFilters
+
+    this.dataSource = this.dataSourceWithoutFilters
   }
 
   addToTable(newData: any): void {
@@ -118,7 +118,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   }
 
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
-  
+
   datesForm = new FormGroup({
     startDate: new FormControl('', [Validators.required, dateAheadOfTodayValidator()]),
     endDate: new FormControl('', [Validators.required])
@@ -130,23 +130,23 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   }, [dateMatcher("startDateTable", "endDateTable")])
 
   constructor(private deviceService: DeviceService,
-    private snackBar: MatSnackBar, private socketService: SocketService, private router: Router ) {
-      this.router.events.subscribe((event) => {
-        if (event instanceof NavigationStart) {
-          this.socketService.stopConnection(); 
-        }
-      });
-     }
-  
+    private snackBar: MatSnackBar, private socketService: SocketService, private router: Router) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.socketService.stopConnection();
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     this.socketService.stopConnection();
   }
 
   ngOnInit(): void {
-    if (this.isDetails){
+    if (this.isDetails) {
       this.dataSource.filterPredicate = (data: TableData, filter: string) => {
         return data.user == filter;
-       };
+      };
       this.dataSource.sort = this.sort;
       this.deviceService.getDeviceDetailsById(this.deviceId).subscribe({
         next: (value: any) => {
@@ -157,25 +157,26 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           this.socketService.startConnection(this.device.id, this.device.deviceType == "HOME_BATTERY", this.device.propertyId);
           this.socketService.addDataUpdateListener((dto: any) => {
             console.log(dto)
-            if(dto.Measurement == "command"){
+            if (dto.Measurement == "command") {
               const newData = {
-                action: dto.Action, 
+                action: dto.Action,
                 timestamp: new Date().toISOString(),
-                user: dto.User, 
-                state: dto.Value 
+                user: dto.User,
+                state: dto.Value
               };
-        
+
               this.addToTable(newData);
             } else {
+              console.log("DTOOOOOOOOO")
               if (this.device.deviceType == "LAMP") {
                 this.device.brightnessLevel = dto["Value"];
                 return;
               }
               if (this.device.deviceType == "VEHICLE_GATE") {
-                this.currentPlate = dto["Value"] == "none"? "":  dto["Value"];
+                this.currentPlate = dto["Value"] == "none" ? "" : dto["Value"];
                 return;
               }
-              if(this.device.deviceType == "AMBIENT_SENSOR"){
+              if (this.device.deviceType == "AMBIENT_SENSOR") {
                 this.temperatureChartData.push({ timestamp: new Date().toISOString(), value: dto.Temperature });
                 this.humidityChartData.push({ timestamp: new Date().toISOString(), value: dto.Humidity });
                 this.device.currentTemperature = dto.Temperature;
@@ -183,21 +184,24 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
                 this.createTemperatureChart(this.temperatureChartData, "current-temperature-chart-container")
                 this.createHumidityChart(this.humidityChartData, 'current-humidity-chart-container')
               }
-              if(this.device.deviceType == "HOME_BATTERY"){
+              if (this.device.deviceType == "HOME_BATTERY") {
                 //this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.CurrentCharge });
                 this.device.currentCharge = dto.CurrentCharge + 1;
                 console.log(this.device.currentCharge);
                 this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               }
-              if(this.device.deviceType == "AC"){
+              if (this.device.deviceType == "AC") {
                 this.device.currentTemperature = dto.CurrentTemperature;
+                this.device.currentMode = dto.CurrentMode;
+              }
+              if (this.device.deviceType == "WASHING_MACHINE") {
                 this.device.currentMode = dto.CurrentMode;
               }
             }
           });
           this.socketService.addConsumptionUpdateListener((dto: any) => {
             console.log(dto)
-            if(this.device.deviceType == "HOME_BATTERY"){
+            if (this.device.deviceType == "HOME_BATTERY") {
               this.powerConsumptionChartData.push({ timestamp: new Date().toISOString(), value: dto.Consumed });
               this.createPowerConsumptionChart(this.powerConsumptionChartData, "current-power-consumption-chart-container")
               // this.device.currentHumidity = dto.Humidity;
@@ -213,16 +217,17 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.deviceService.getActionTable(this.deviceId).subscribe({
         next: (value: any) => {
           console.log(value);
-          this.dataSource  = new MatTableDataSource(value.tableData);
+          this.dataSource = new MatTableDataSource(value.tableData);
           this.dataSourceWithoutFilters = new MatTableDataSource(value.tableData);
           //this.dataSource = newData;
           //this.dataSource.filterPredicate = (data: Element, filter: string) => data.user.indexOf(filter) != -1;
         },
         error: (err) => {
           console.log(err);
-        },});
-        console.log(this.device.isOn);
-    } else{
+        },
+      });
+      console.log(this.device.isOn);
+    } else {
       console.log(this.device);
     }
   }
@@ -233,7 +238,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
 
   initDevice() {
     if (this.device.deviceType == "LAMP") {
-      this.checkedAutomatic = this.device.regime == "AUTOMATIC"? true: false;
+      this.checkedAutomatic = this.device.regime == "AUTOMATIC" ? true : false;
       this.checkedOnOff = this.device.isOn;
       return;
     }
@@ -242,7 +247,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.checkedOpen = this.device.isOpen;
       this.checkedPrivate = this.device.isPrivate;
     }
-    if (this.device.deviceType == "SOLAR_PANEL"){
+    if (this.device.deviceType == "SOLAR_PANEL") {
       this.checkedOnOff = this.device.isOn;
     }
     if (this.device.deviceType == "AC") {
@@ -254,27 +259,27 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleChangeOnOff(){
+  toggleChangeOnOff() {
     if (this.device.isOnline) {
       this.deviceService.toggleOnOff(this.deviceId, this.checkedOnOff).subscribe({
         next: (res: any) => {
           this.snackBar.open("You toggled device state!", "", {
-              duration: 2700, panelClass: ['snack-bar-success']
+            duration: 2700, panelClass: ['snack-bar-success']
           });
-          },
-          error: (err: any) => {
-            this.snackBar.open("Error occured on server!", "", {
-              duration: 2700, panelClass: ['snack-bar-server-error']
-           });
-            console.log(err);
-          }
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+          console.log(err);
+        }
       })
     } else {
       this.snackBar.open("Device is offline so you can't perform actions.", "", {
         duration: 2700, panelClass: ['snack-bar-server-error']
-     });
+      });
     }
-    
+
   }
 
   toggleGateOpen() {
@@ -282,46 +287,46 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.deviceService.toggleGateOptions(this.device, "open", this.checkedOpen).subscribe({
         next: (res: any) => {
           this.snackBar.open("You toggled gate open option!", "", {
-              duration: 2700, panelClass: ['snack-bar-success']
+            duration: 2700, panelClass: ['snack-bar-success']
           });
-          },
-          error: (err: any) => {
-            this.snackBar.open("Error occured on server!", "", {
-              duration: 2700, panelClass: ['snack-bar-server-error']
-           });
-            console.log(err);
-          }
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+          console.log(err);
+        }
       })
     } else {
       this.snackBar.open("Device is offline so you can't perform actions.", "", {
         duration: 2700, panelClass: ['snack-bar-server-error']
-     });
+      });
     }
   }
-  
+
   togglePrivateRegime() {
     if (this.device.isOnline) {
       this.deviceService.toggleGateOptions(this.device, "private", this.checkedPrivate).subscribe({
         next: (res: any) => {
           this.snackBar.open("You toggled gate private option!", "", {
-              duration: 2700, panelClass: ['snack-bar-success']
+            duration: 2700, panelClass: ['snack-bar-success']
           });
-          },
-          error: (err: any) => {
-            this.snackBar.open("Error occured on server!", "", {
-              duration: 2700, panelClass: ['snack-bar-server-error']
-           });
-            console.log(err);
-          }
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+          console.log(err);
+        }
       })
     } else {
       this.snackBar.open("Device is offline so you can't perform actions.", "", {
         duration: 2700, panelClass: ['snack-bar-server-error']
-     });
+      });
     }
   }
-  
-  generateByDate(){
+
+  generateByDate() {
     let startDate = new Date(this.datesForm.value.startDate!).toISOString()
     let endDate = new Date(this.datesForm.value.endDate!).toISOString()
     console.log(startDate);
@@ -335,7 +340,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       endDate: endDate,
     };
 
-    if(this.device.deviceType == "AMBIENT_SENSOR"){
+    if (this.device.deviceType == "AMBIENT_SENSOR") {
       this.deviceService.getAmbientSensorReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
@@ -349,7 +354,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
       );
     }
-    if(this.device.deviceType == "LAMP"){
+    if (this.device.deviceType == "LAMP") {
       this.deviceService.getLampReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
@@ -361,7 +366,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       );
     }
     console.log(this.device)
-    if (this.device.deviceType == "HOME_BATTERY"){
+    if (this.device.deviceType == "HOME_BATTERY") {
       const dtob = {
         deviceId: 2,
         startDate: startDate,
@@ -380,11 +385,11 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  lastHour(){
+  lastHour() {
     const currentDate = new Date();
     const startDate = new Date();
     startDate.setHours(currentDate.getHours() - 1)
- 
+
 
     const dto = {
       deviceId: this.deviceId,
@@ -392,7 +397,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       endDate: currentDate.toISOString(),
     };
 
-    if(this.device.deviceType == "AMBIENT_SENSOR"){
+    if (this.device.deviceType == "AMBIENT_SENSOR") {
       this.deviceService.getAmbientSensorReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
@@ -406,7 +411,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
       );
     }
-    if(this.device.deviceType == "LAMP"){
+    if (this.device.deviceType == "LAMP") {
       this.deviceService.getLampReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
@@ -418,7 +423,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       );
     }
     console.log(this.device)
-    if (this.device.deviceType == "HOME_BATTERY"){
+    if (this.device.deviceType == "HOME_BATTERY") {
       const dtob = {
         deviceId: 2,
         startDate: startDate.toISOString(),
@@ -437,20 +442,17 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  onIntervalSelected(){
+  onIntervalSelected() {
     console.log(this.selectedTimeInterval)
     this.isSelected = true;
     const currentDate = new Date();
     const startDate = new Date();
-    
-    if (this.selectedTimeInterval == "Last 6h")
-    {
+
+    if (this.selectedTimeInterval == "Last 6h") {
       startDate.setHours(currentDate.getHours() - 6)
-    } else if (this.selectedTimeInterval == "Last 12h")
-    {
+    } else if (this.selectedTimeInterval == "Last 12h") {
       startDate.setHours(currentDate.getHours() - 12)
-    } else if (this.selectedTimeInterval == "Yesterday")
-    {
+    } else if (this.selectedTimeInterval == "Yesterday") {
       startDate.setDate(currentDate.getDate() - 1)
     } else if (this.selectedTimeInterval == "Last 7d") {
       startDate.setDate(currentDate.getDate() - 7)
@@ -464,7 +466,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       endDate: currentDate.toISOString(),
     };
 
-    if(this.device.deviceType == "AMBIENT_SENSOR"){
+    if (this.device.deviceType == "AMBIENT_SENSOR") {
       this.deviceService.getAmbientSensorReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
@@ -476,7 +478,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
       );
     }
-    if(this.device.deviceType == "LAMP"){
+    if (this.device.deviceType == "LAMP") {
       this.deviceService.getLampReport(dto).subscribe(
         (response) => {
           console.log('Response:', response);
@@ -487,8 +489,8 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
       );
     }
-    if (this.device.deviceType == "HOME_BATTERY"){
-      const dto2= {
+    if (this.device.deviceType == "HOME_BATTERY") {
+      const dto2 = {
         deviceId: 2,
         startDate: startDate.toISOString(),
         endDate: currentDate.toISOString(),
@@ -507,7 +509,7 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
 
   reportsBy: string = "interval";
 
-  clickedReportsBy(type: string){
+  clickedReportsBy(type: string) {
     this.reportsBy = type;
     this.isSelected = false;
   }
@@ -641,20 +643,20 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
       this.deviceService.toggleAutomaticRegime(this.device, this.checkedAutomatic).subscribe({
         next: (res: any) => {
           this.snackBar.open("You toggled device regime!", "", {
-              duration: 2700, panelClass: ['snack-bar-success']
+            duration: 2700, panelClass: ['snack-bar-success']
           });
-          },
-          error: (err: any) => {
-            this.snackBar.open("Error occured on server!", "", {
-              duration: 2700, panelClass: ['snack-bar-server-error']
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
           });
-            console.log(err);
-          }
+          console.log(err);
+        }
       })
     } else {
       this.snackBar.open("Device is offline so you can't perform actions.", "", {
         duration: 2700, panelClass: ['snack-bar-server-error']
-     });
+      });
     }
   }
 
@@ -704,74 +706,74 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
             },
           })
 
-          
+
         }
-        
+
       }
     }
   }
 
-  changeTemperature(){
+  changeTemperature() {
     console.log(this.changeTemperatureForm.value.temperature)
     if (this.device.isOnline) {
       const temperatureValue = this.changeTemperatureForm.value.temperature;
       let temperatureString = "";
-      if(temperatureValue != null){
+      if (temperatureValue != null) {
         temperatureString = temperatureValue.toString();
       }
       this.deviceService.changeTemperature(this.device, temperatureString).subscribe({
         next: (res: any) => {
           this.snackBar.open("You changed device temperature!", "", {
-              duration: 2700, panelClass: ['snack-bar-success']
+            duration: 2700, panelClass: ['snack-bar-success']
           });
-          },
-          error: (err: any) => {
-            this.snackBar.open("Error occured on server!", "", {
-              duration: 2700, panelClass: ['snack-bar-server-error']
-           });
-            console.log(err);
-          }
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+          console.log(err);
+        }
       })
     } else {
       this.snackBar.open("Device is offline so you can't perform actions.", "", {
         duration: 2700, panelClass: ['snack-bar-server-error']
-     });
+      });
     }
   }
 
-  onModeSelected(){
-    if (this.device.isOnline) {
+  onModeSelected() {
+    if (this.device) {
       this.deviceService.changeMode(this.device, this.mode).subscribe({
         next: (res: any) => {
           this.snackBar.open("You changed device mode!", "", {
-              duration: 2700, panelClass: ['snack-bar-success']
+            duration: 2700, panelClass: ['snack-bar-success']
           });
-          },
-          error: (err: any) => {
-            this.snackBar.open("Error occured on server!", "", {
-              duration: 2700, panelClass: ['snack-bar-server-error']
-           });
-            console.log(err);
-          }
+        },
+        error: (err: any) => {
+          this.snackBar.open("Error occured on server!", "", {
+            duration: 2700, panelClass: ['snack-bar-server-error']
+          });
+          console.log(err);
+        }
       })
     } else {
       this.snackBar.open("Device is offline so you can't perform actions.", "", {
         duration: 2700, panelClass: ['snack-bar-server-error']
-     });
+      });
     }
   }
 
-  schedule(){
+  schedule() {
     this.showAddSchedule = true;
   }
 
-  addSchedule(){
+  addSchedule() {
     const dto = {
       startTime: this.addScheduleForm.value.startTime + ":00:00",
       endTime: this.addScheduleForm.value.endTime + ":00:00",
       mode: this.scheduleMode,
       temperature: this.addScheduleForm.value.temperature
-    } 
+    }
 
     this.deviceService.addSchedule(dto).subscribe({
       next: (res: any) => {
@@ -784,30 +786,30 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
           mode: dto.mode
         });
         this.dataSchedule._updateChangeSubscription();
-        },
-        error: (err: any) => {
-          this.snackBar.open("Error occured on server!", "", {
-         });
-          console.log(err);
-        }
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+        });
+        console.log(err);
+      }
     })
   }
 
-  removeSchedule(id: number){
+  removeSchedule(id: number) {
     this.deviceService.removeSchedule(id).subscribe({
       next: (res: any) => {
         this.snackBar.open("You removed device schedule!", "", {
         });
-        },
-        error: (err: any) => {
-          this.snackBar.open("Error occured on server!", "", {
-         });
-          console.log(err);
-        }
+      },
+      error: (err: any) => {
+        this.snackBar.open("Error occured on server!", "", {
+        });
+        console.log(err);
+      }
     })
   }
 
-  getSchedule(){
+  getSchedule() {
     console.log("dsadad")
     this.deviceService.getDeviceSchedule(this.device.id).subscribe({
       next: (res: any) => {
@@ -822,16 +824,48 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
         }
         console.log(this.dataSchedule.data);
         this.dataSchedule._updateChangeSubscription();
-        },
-        error: (err: any) => {
-          console.log(err);
-        }
+      },
+      error: (err: any) => {
+        console.log(err);
+      }
     })
   }
 
+  startWashingCycle() {
+    if (this.device.isOn) {
+      this.snackBar.open("Washing machine is in a middle of a cycle!", "", {
+        duration: 2700, panelClass: ['snack-bar-success']
+      });
+    } else if (this.mode == "") {
+      this.snackBar.open("Washing machine mode not selected!", "", {
+        duration: 2700, panelClass: ['snack-bar-success']
+      });
+    } 
+    else {
+      if (this.device.isOnline) {
+        this.deviceService.changeMode(this.device, this.mode).subscribe({
+          next: (res: any) => {
+            this.snackBar.open("You started machine cycle!", "", {
+              duration: 2700, panelClass: ['snack-bar-success']
+            });
+          },
+          error: (err: any) => {
+            this.snackBar.open("Error occured on server!", "", {
+              duration: 2700, panelClass: ['snack-bar-server-error']
+            });
+            console.log(err);
+          }
+        })
+      } else {
+        this.snackBar.open("Device is offline so you can't perform actions.", "", {
+          duration: 2700, panelClass: ['snack-bar-server-error']
+        });
+      }
+    }
+  }
+
   parseAction(action: string, value: string) {
-    if (this.device.deviceType == "VEHICLE_GATE")
-    {
+    if (this.device.deviceType == "VEHICLE_GATE") {
       if (action == "open" && value == "false")
         return "close"
     }
@@ -846,17 +880,17 @@ export class DeviceCardComponent implements OnInit, OnDestroy {
   //   }
   //   return user;
   // }
-  
+
 }
 
-export interface TableData{
+export interface TableData {
   action: string,
   time: Date,
   user: string,
   state: string
 }
 
-export interface ScheduleData{
+export interface ScheduleData {
   from: string,
   to: string,
   temperature: number,

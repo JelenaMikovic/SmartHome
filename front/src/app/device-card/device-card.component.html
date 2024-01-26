@@ -1,9 +1,9 @@
 <div [ngClass]="{'first-row': isDetails}">
-    <div class="basic-container" id="card-container" 
-    [ngClass]="{'card-container-50 transition': !isDetails}"
-    [ngStyle]="{'width': isDetails ? 'auto' : '95%'}">
+    <div class="basic-container" id="card-container" [ngClass]="{'card-container-50 transition': !isDetails}"
+        [ngStyle]="{'width': isDetails ? 'auto' : '95%'}">
         <div [ngClass]="isDetails ? 'image-container' : 'image-container-details'">
-            <img src={{device.image}} style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;"/>
+            <img src={{device.image}}
+                style="width: 100%; height: 100%; border-radius: 20px 0px 0px 20px; object-fit: cover;" />
         </div>
 
         <div id="info-container">
@@ -16,7 +16,8 @@
             </div>
             <div>
                 <i class="fa-solid fa-plug green"></i>
-                <span class="black">{{ device.powerSource == 0 ? 'Alkaline' : (device.powerSource == 1 ? 'Battery' : 'Electrical grid') }} power source</span>
+                <span class="black">{{ device.powerSource == 0 ? 'Alkaline' : (device.powerSource == 1 ? 'Battery' :
+                    'Electrical grid') }} power source</span>
             </div>
 
             <div *ngIf="isDetails">
@@ -52,13 +53,20 @@
                     <i class="fa-solid fa-percent"></i>
                     <span class="black">{{device.currentHumidity}} %</span>
                 </div>
-                <div *ngIf="device.deviceType === 'AC'">
+                <div *ngIf="device.deviceType === 'AC' || device.deviceType === 'WASHING_MACHINE'">
                     <i class="fa-solid fa-square"></i>
                     <span class="black">{{device.currentMode}}</span>
                 </div>
                 <div *ngIf="device.deviceType === 'LAMP'">
                     <i class="fa-solid fa-sun"></i>
                     <span class="black">{{device.brightnessLevel}} lux</span>
+                </div>
+                <div *ngIf="device.deviceType === 'WASHING_MACHINE'">
+                    <i class="fa-solid fa-circle"></i>
+                    <span class="black">On:</span>
+                    <mat-slide-toggle [(ngModel)]="device.isOn"
+                        [disabled]="true">
+                    </mat-slide-toggle>
                 </div>
             </div>
 
@@ -73,36 +81,52 @@
         <!-- && device.deviceType == 'SOLAR_PANEL' -->
     </div>
 
-    <div class="basic-container smaller-container" id="card-container" *ngIf="isDetails && device.deviceType != 'AMBIENT_SENSOR' && device.deviceType != 'HOME_BATTERY'">
+    <div class="basic-container smaller-container" id="card-container"
+        *ngIf="isDetails && device.deviceType != 'AMBIENT_SENSOR' && device.deviceType != 'HOME_BATTERY'">
         <div id="info-container">
             <div>
                 <h2 style="font-size: 1.2em" class="light-blue">Device actions</h2>
             </div>
-            <div *ngIf="device.deviceType != 'VEHICLE_GATE'">
+            <div *ngIf="device.deviceType != 'VEHICLE_GATE' && device.deviceType != 'WASHING_MACHINE'">
                 <span class="black">power: </span>
-                <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()" [disabled]="!device.isOnline">
+                <mat-slide-toggle [(ngModel)]="checkedOnOff" (change)="toggleChangeOnOff()"
+                    [disabled]="!device.isOnline">
                 </mat-slide-toggle>
             </div>
             <div *ngIf="device.deviceType == 'AC'">
-                <mat-form-field  id="type-dd">
+                <mat-form-field id="type-dd">
                     <mat-label>Mode</mat-label>
                     <mat-select [(value)]="this.mode" (selectionChange)="onModeSelected()">
-                      <mat-option *ngFor="let item of device.supportedModes" [value]="item" >
-                        {{item}}
-                      </mat-option>
+                        <mat-option *ngFor="let item of device.supportedModes" [value]="item">
+                            {{item}}
+                        </mat-option>
                     </mat-select>
-                  </mat-form-field>
+                </mat-form-field>
+            </div>
+            <div *ngIf="device.deviceType === 'WASHING_MACHINE'">
+                <mat-form-field id="type-dd">
+                    <mat-label>Mode</mat-label>
+                    <mat-select [(value)]="this.mode">
+                        <mat-option *ngFor="let item of device.supportedModes" [value]="item">
+                            {{item}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button class="button-19" role="button"(click)="startWashingCycle()">Start Washing Cycle</button>
             </div>
             <div *ngIf="device.deviceType == 'AC'">
                 <form id="add-device-form" [formGroup]="changeTemperatureForm" (ngSubmit)="changeTemperature()">
                     <div class="form-field-container">
                         <mat-form-field>
-                        <mat-label>Temperature:</mat-label>
-                        <input matInput type="number" name="temperature" formControlName="temperature" />
-                        <mat-error *ngIf="changeTemperatureForm.get('temperature')?.errors?.['required']">entering temperature is required</mat-error>
-                        <mat-error *ngIf="changeTemperatureForm.get('temperature')?.errors?.['invalidTemperature'] && !changeTemperatureForm.get('temperature')?.errors?.['required']">temperature should be between {{device.minTemperature}}-{{device.maxTemperature}}</mat-error>
+                            <mat-label>Temperature:</mat-label>
+                            <input matInput type="number" name="temperature" formControlName="temperature" />
+                            <mat-error *ngIf="changeTemperatureForm.get('temperature')?.errors?.['required']">entering
+                                temperature is required</mat-error>
+                            <mat-error
+                                *ngIf="changeTemperatureForm.get('temperature')?.errors?.['invalidTemperature'] && !changeTemperatureForm.get('temperature')?.errors?.['required']">temperature
+                                should be between {{device.minTemperature}}-{{device.maxTemperature}}</mat-error>
                         </mat-form-field>
-                    
+
                         <button type="submit" mat-raised-button class="change-button">Change</button>
                     </div>
                 </form>
@@ -112,27 +136,30 @@
             </div>
             <div *ngIf="device.deviceType == 'LAMP'">
                 <span class="black">automatic regime: </span>
-                <mat-slide-toggle [(ngModel)]="checkedAutomatic" (change)="toggleAutomaticRegime()" [disabled]="!device.isOnline">
+                <mat-slide-toggle [(ngModel)]="checkedAutomatic" (change)="toggleAutomaticRegime()"
+                    [disabled]="!device.isOnline">
                 </mat-slide-toggle>
             </div>
         </div>
 
-            <div *ngIf="device.deviceType == 'VEHICLE_GATE'">
-                <span class="black">private regime: </span>
-                <mat-slide-toggle [(ngModel)]="checkedPrivate" (change)="togglePrivateRegime()" [disabled]="!device.isOnline">
-                </mat-slide-toggle>
-            </div>
-            <div *ngIf="device.deviceType == 'VEHICLE_GATE'">
-                <span class="black">open gate: </span>
-                <mat-slide-toggle [(ngModel)]="checkedOpen" (change)="toggleGateOpen()" [disabled]="!device.isOnline">
-                </mat-slide-toggle>
-            </div>
-            
+        <div *ngIf="device.deviceType == 'VEHICLE_GATE'">
+            <span class="black">private regime: </span>
+            <mat-slide-toggle [(ngModel)]="checkedPrivate" (change)="togglePrivateRegime()"
+                [disabled]="!device.isOnline">
+            </mat-slide-toggle>
         </div>
+        <div *ngIf="device.deviceType == 'VEHICLE_GATE'">
+            <span class="black">open gate: </span>
+            <mat-slide-toggle [(ngModel)]="checkedOpen" (change)="toggleGateOpen()" [disabled]="!device.isOnline">
+            </mat-slide-toggle>
+        </div>
+
     </div>
+</div>
 
 <div *ngIf="isDetails" style="display: block; flex-direction: row; justify-content: space-between;">
-    <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
+    <div *ngIf="device.deviceType === 'AMBIENT_SENSOR'" class="basic-container smaller-container" style="width: 100%"
+        id="card-container">
         <div id="info-container">
             <h2>Current Values</h2>
             <div class="ambiental-sensor-container">
@@ -143,7 +170,8 @@
             </div>
         </div>
     </div>
-    <div *ngIf="device.deviceType === 'HOME_BATTERY'" class="basic-container smaller-container" style="width: 100%" id="card-container">        
+    <div *ngIf="device.deviceType === 'HOME_BATTERY'" class="basic-container smaller-container" style="width: 100%"
+        id="card-container">
         <div id="info-container">
             <h2>Current Values</h2>
             <div class="ambiental-sensor-container">
@@ -160,73 +188,93 @@
         </div>
     </div> -->
 
-    <div *ngIf="device.deviceType == 'VEHICLE_GATE'"  class="gate-details">
-        <div class="plates-container basic-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}" id="card-container">        
+    <div *ngIf="device.deviceType == 'VEHICLE_GATE'" class="gate-details">
+        <div class="plates-container basic-container"
+            [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}"
+            id="card-container">
             <div class="plates-top">
                 <h2 class="light-blue" style="font-size: 1.2em;">Manage allowed plates</h2>
                 <form [formGroup]="addPlateForm" (ngSubmit)="addAllowedPlate()" class="plates-form">
                     <mat-form-field>
                         <mat-label>New Plate</mat-label>
-                        <input matInput type="text" name="newPlate" formControlName="newPlate"/>
-                        <mat-error *ngIf="addPlateForm.get('newPlate')?.errors?.['lettersRegexError']">please input plate number</mat-error>
+                        <input matInput type="text" name="newPlate" formControlName="newPlate" />
+                        <mat-error *ngIf="addPlateForm.get('newPlate')?.errors?.['lettersRegexError']">please input
+                            plate number</mat-error>
                     </mat-form-field>
                 </form>
-    
+
             </div>
             <div id="included-container" *ngIf="device.allowedLicencePlates.length != 0" class="row">
-                <div class="included-item row back-orange" *ngFor="let item of device.allowedLicencePlates"><div>{{item}}</div><div id="img" (click)="removeAllowedPlate(item)"><i class="fa-solid fa-plus remove-plate"></i></div></div>
+                <div class="included-item row back-orange" *ngFor="let item of device.allowedLicencePlates">
+                    <div>{{item}}</div>
+                    <div id="img" (click)="removeAllowedPlate(item)"><i class="fa-solid fa-plus remove-plate"></i></div>
+                </div>
             </div>
-            
+
         </div>
         <div class="basic-container current-container">
             <h2 class="light-blue" style="font-size: 1.2em;">Currently at gate:</h2>
             <p class="current-plates green">{{currentPlate}}</p>
         </div>
     </div>
-    
 
-    <div *ngIf="device.deviceType != 'VEHICLE_GATE' && device.deviceType != 'AC'" class="basic-container smaller-container" [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}" id="card-container">        
+
+    <div *ngIf="device.deviceType != 'VEHICLE_GATE' && device.deviceType != 'AC' && device.deviceType != 'WASHING_MACHINE'"
+        class="basic-container smaller-container"
+        [ngStyle]="{'width': device.deviceType === 'AMBIENT_SENSOR' || device.deviceType === 'LAMP' ? '100%' : '100%'}"
+        id="card-container">
         <div id="info-container">
             <div class="hover-opacity" style="display: flex; flex-direction: row; justify-content: space-around;">
                 <div>
-                    <h2 (click)="clickedReportsBy('interval')" style="font-size: 1.2em; cursor: pointer;" class="light-blue">Reports by interval</h2>
+                    <h2 (click)="clickedReportsBy('interval')" style="font-size: 1.2em; cursor: pointer;"
+                        class="light-blue">Reports by interval</h2>
                 </div>
                 <div>
-                    <h2 (click)="clickedReportsBy('date')" style="font-size: 1.2em; cursor: pointer;" class="light-blue">Reports by date</h2>
+                    <h2 (click)="clickedReportsBy('date')" style="font-size: 1.2em; cursor: pointer;"
+                        class="light-blue">Reports by date</h2>
                 </div>
             </div>
-            
-            <div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="reportsBy=='interval'">
-                <mat-form-field  id="type-dd">
+
+            <div style="display: flex; flex-direction: row; justify-content: space-between;"
+                *ngIf="reportsBy=='interval'">
+                <mat-form-field id="type-dd">
                     <mat-label>Interval</mat-label>
                     <mat-select [(value)]="this.selectedTimeInterval" (selectionChange)="onIntervalSelected()">
-                      <mat-option *ngFor="let item of timeIntervals" [value]="item" >
-                        {{item}}
-                      </mat-option>
+                        <mat-option *ngFor="let item of timeIntervals" [value]="item">
+                            {{item}}
+                        </mat-option>
                     </mat-select>
-                  </mat-form-field>
-            
+                </mat-form-field>
+
             </div>
 
-            <form [formGroup]="datesForm" fxLayout="column" *ngIf="reportsBy !='interval'" (ngSubmit)="generateByDate()" style="display: flex;">
+            <form [formGroup]="datesForm" fxLayout="column" *ngIf="reportsBy !='interval'" (ngSubmit)="generateByDate()"
+                style="display: flex;">
                 <mat-form-field style="margin-right: 50px;">
                     <mat-label>Start date</mat-label>
-                    <input matInput [matDatepicker]="picker1" formControlName="startDate" >
+                    <input matInput [matDatepicker]="picker1" formControlName="startDate">
                     <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
                     <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                     <mat-datepicker #picker1></mat-datepicker>
-                    <mat-error *ngIf="datesForm.get('startDate')?.errors?.['required']">entering date is required</mat-error>
-                    <mat-error *ngIf="datesForm.get('startDate')?.errors?.['dateAheadOfToday']  && !datesForm.get('startDate')?.errors?.['required']">invalid date format</mat-error>
+                    <mat-error *ngIf="datesForm.get('startDate')?.errors?.['required']">entering date is
+                        required</mat-error>
+                    <mat-error
+                        *ngIf="datesForm.get('startDate')?.errors?.['dateAheadOfToday']  && !datesForm.get('startDate')?.errors?.['required']">invalid
+                        date format</mat-error>
                 </mat-form-field>
-        
+
                 <mat-form-field style="margin-right: 50px;">
                     <mat-label>End date</mat-label>
-                    <input matInput [matDatepicker]="picker2" formControlName="endDate" [errorStateMatcher]="confirmValidParentMatcher">
+                    <input matInput [matDatepicker]="picker2" formControlName="endDate"
+                        [errorStateMatcher]="confirmValidParentMatcher">
                     <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
                     <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                     <mat-datepicker #picker2></mat-datepicker>
-                    <mat-error *ngIf="datesForm.get('endDate')?.errors?.['required']">entering date is required</mat-error>
-                    <mat-error *ngIf="datesForm.get('endDate')?.errors?.['dateAheadOfToday']  && !datesForm.get('endDate')?.errors?.['required']">invalid date format</mat-error>
+                    <mat-error *ngIf="datesForm.get('endDate')?.errors?.['required']">entering date is
+                        required</mat-error>
+                    <mat-error
+                        *ngIf="datesForm.get('endDate')?.errors?.['dateAheadOfToday']  && !datesForm.get('endDate')?.errors?.['required']">invalid
+                        date format</mat-error>
                     <mat-error *ngIf="datesForm.errors?.['dateMismatchError']">dates don't match</mat-error>
                 </mat-form-field>
 
@@ -247,14 +295,14 @@
         </div>
     </div>
 
-    <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AC'"> 
+    <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AC'">
         <div *ngIf="showAddSchedule">
             <form [formGroup]="addScheduleForm" fxLayout="column" (ngSubmit)="addSchedule()" style="display: flex;">
 
                 <mat-form-field>
                     <mat-label>Start Time:</mat-label>
                     <input matInput type="number" name="startTime" formControlName="startTime" />
-                    </mat-form-field>
+                </mat-form-field>
                 <mat-form-field>
                     <mat-label>End Time:</mat-label>
                     <input matInput type="number" name="endTime" formControlName="endTime" />
@@ -267,104 +315,121 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-        
-                    <mat-form-field>
-                        <mat-label>Temperature:</mat-label>
-                        <input matInput type="number" name="temperature" formControlName="temperature" />
-                        <mat-error *ngIf="addScheduleForm.get('temperature')?.errors?.['required']">Entering temperature is required</mat-error>
-                        <mat-error *ngIf="addScheduleForm.get('temperature')?.errors?.['invalidTemperature'] && !addScheduleForm.get('temperature')?.errors?.['required']">Temperature should be between {{device.minTemperature}}-{{device.maxTemperature}}</mat-error>
-                    </mat-form-field>
-            
+
+                <mat-form-field>
+                    <mat-label>Temperature:</mat-label>
+                    <input matInput type="number" name="temperature" formControlName="temperature" />
+                    <mat-error *ngIf="addScheduleForm.get('temperature')?.errors?.['required']">Entering temperature is
+                        required</mat-error>
+                    <mat-error
+                        *ngIf="addScheduleForm.get('temperature')?.errors?.['invalidTemperature'] && !addScheduleForm.get('temperature')?.errors?.['required']">Temperature
+                        should be between {{device.minTemperature}}-{{device.maxTemperature}}</mat-error>
+                </mat-form-field>
+
                 <button type="submit" class="conf-button add-prop-btn back-light-blue">Add</button>
             </form>
-        </div>     
+        </div>
         <div class="subtitle-topper">
-            <table [dataSource]="dataSchedule" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
-                        <ng-container matColumnDef="from">
-                          <th mat-header-cell *matHeaderCellDef mat-sort-header>From</th>
-                          <td mat-cell *matCellDef="let element">{{ element.from }}</td>
-                        </ng-container>
-            
-                        <ng-container matColumnDef="to">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>To</th>
-                            <td mat-cell *matCellDef="let element">{{ element.to }}</td>
-                          </ng-container>
-                      
-                        <ng-container matColumnDef="temperature">
-                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Temperature</th>
-                          <td mat-cell *matCellDef="let element">{{ element.temperature }}</td>
-                        </ng-container>
-                      
-                        <ng-container matColumnDef="mode">
-                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Mode</th>
-                          <td mat-cell *matCellDef="let element">{{ element.mode }}</td>
-                        </ng-container>
-                      
-                        <tr mat-header-row *matHeaderRowDef="displayedColumnSchedule"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumnSchedule"></tr>
-                    </table>
+            <table [dataSource]="dataSchedule" mat-table matSort class="mat-elevation-z8"
+                style="width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
+                <ng-container matColumnDef="from">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>From</th>
+                    <td mat-cell *matCellDef="let element">{{ element.from }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="to">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>To</th>
+                    <td mat-cell *matCellDef="let element">{{ element.to }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="temperature">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Temperature</th>
+                    <td mat-cell *matCellDef="let element">{{ element.temperature }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="mode">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Mode</th>
+                    <td mat-cell *matCellDef="let element">{{ element.mode }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnSchedule"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnSchedule"></tr>
+            </table>
         </div>
         <hr>
     </div>
 
-    <div style="margin-top: 20px;" *ngIf="device.deviceType === 'AMBIENT-SENSOR' || device.deviceType == 'VEHICLE_GATE'">      
+    <div style="margin-top: 20px;"
+        *ngIf="device.deviceType === 'AMBIENT-SENSOR' || device.deviceType == 'VEHICLE_GATE'">
         <div class="subtitle-topper">
             <p class="subtitle">Action table</p>
-            <form [formGroup]="datesTableForm" fxLayout="column" (ngSubmit)="applyDateFilter()" #f="ngForm" style="display: flex;">
+            <form [formGroup]="datesTableForm" fxLayout="column" (ngSubmit)="applyDateFilter()" #f="ngForm"
+                style="display: flex;">
                 <mat-form-field style="margin-right: 20px;">
                     <mat-label>Search by name</mat-label>
                     <input matInput placeholder="please enter a value" (input)="applyNameFilter($event)">
-                  </mat-form-field>
+                </mat-form-field>
                 <mat-form-field style="margin-right: 20px;">
                     <mat-label>Start date</mat-label>
-                    <input matInput [matDatepicker]="picker3" formControlName="startDateTable" >
+                    <input matInput [matDatepicker]="picker3" formControlName="startDateTable">
                     <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
                     <mat-datepicker #picker3></mat-datepicker>
-                    <mat-error *ngIf="datesTableForm.get('startDateTable')?.errors?.['required']">entering date is required</mat-error>
-                    <mat-error *ngIf="datesTableForm.get('startDateTable')?.errors?.['dateAheadOfToday']  && !datesTableForm.get('startDateTable')?.errors?.['required']">invalid date format</mat-error>
+                    <mat-error *ngIf="datesTableForm.get('startDateTable')?.errors?.['required']">entering date is
+                        required</mat-error>
+                    <mat-error
+                        *ngIf="datesTableForm.get('startDateTable')?.errors?.['dateAheadOfToday']  && !datesTableForm.get('startDateTable')?.errors?.['required']">invalid
+                        date format</mat-error>
                 </mat-form-field>
-        
+
                 <mat-form-field style="margin-right: 20px;">
                     <mat-label>End date</mat-label>
-                    <input matInput [matDatepicker]="picker4" formControlName="endDateTable" [errorStateMatcher]="confirmValidParentMatcher">
+                    <input matInput [matDatepicker]="picker4" formControlName="endDateTable"
+                        [errorStateMatcher]="confirmValidParentMatcher">
                     <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
                     <mat-datepicker #picker4></mat-datepicker>
-                    <mat-error *ngIf="datesTableForm.get('endDateTable')?.errors?.['required']">entering date is required</mat-error>
-                    <mat-error *ngIf="datesTableForm.get('endDateTable')?.errors?.['dateAheadOfToday']  && !datesTableForm.get('endDateTable')?.errors?.['required']">invalid date format</mat-error>
+                    <mat-error *ngIf="datesTableForm.get('endDateTable')?.errors?.['required']">entering date is
+                        required</mat-error>
+                    <mat-error
+                        *ngIf="datesTableForm.get('endDateTable')?.errors?.['dateAheadOfToday']  && !datesTableForm.get('endDateTable')?.errors?.['required']">invalid
+                        date format</mat-error>
                     <mat-error *ngIf="datesTableForm.errors?.['dateMismatchError']">dates don't match</mat-error>
                 </mat-form-field>
-                <button  class="conf-button add-prop-btn" style="margin-right: 10px; background-color: #F5F5F5 !important; color: #A9A9A9;" (click)="resetTableDates(f)">Reset dates</button>
-                <button  class="conf-button add-prop-btn back-light-blue" type="submit">Filter by dates</button>
+                <button class="conf-button add-prop-btn"
+                    style="margin-right: 10px; background-color: #F5F5F5 !important; color: #A9A9A9;"
+                    (click)="resetTableDates(f)">Reset dates</button>
+                <button class="conf-button add-prop-btn back-light-blue" type="submit">Filter by dates</button>
             </form>
         </div>
         <hr>
     </div>
-    
-    <div style="margin-top: 20px;">      
-        <table [hidden]="device.deviceType=='HOME_BATTERY' || device.deviceType == 'AMBIENT_SENSOR'" [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
-    <!-- <div style="margin-top: 20px;" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">       -->
-        <!-- <table [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;"> -->
+
+    <div style="margin-top: 20px;">
+        <table [hidden]="device.deviceType=='HOME_BATTERY' || device.deviceType == 'AMBIENT_SENSOR'"
+            [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8"
+            style="width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;">
+            <!-- <div style="margin-top: 20px;" *ngIf="device.deviceType != 'AMBIENT_SENSOR'">       -->
+            <!-- <table [dataSource]="dataSource" mat-table matSort class="mat-elevation-z8" style = "width: 100%; justify-content: space-between; margin-top: 15px; margin-left: 5px;"> -->
 
             <ng-container matColumnDef="action">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
-              <td mat-cell *matCellDef="let element">{{ parseAction(element.action, element.value) }}</td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
+                <td mat-cell *matCellDef="let element">{{ parseAction(element.action, element.value) }}</td>
             </ng-container>
 
             <ng-container matColumnDef="state">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>State</th>
                 <td mat-cell *matCellDef="let element">{{ element.state }}</td>
-              </ng-container>
+            </ng-container>
 
             <ng-container matColumnDef="timestamp">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Time</th>
-              <td mat-cell *matCellDef="let element">{{ element.timestamp | date: 'medium'}}</td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Time</th>
+                <td mat-cell *matCellDef="let element">{{ element.timestamp | date: 'medium'}}</td>
             </ng-container>
-          
+
             <ng-container matColumnDef="user">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>By Who</th>
-              <td mat-cell *matCellDef="let element">{{ element.user }}</td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>By Who</th>
+                <td mat-cell *matCellDef="let element">{{ element.user }}</td>
             </ng-container>
-          
+
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>

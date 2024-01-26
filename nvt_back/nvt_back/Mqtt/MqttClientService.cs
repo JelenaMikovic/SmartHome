@@ -246,6 +246,16 @@ namespace nvt_back.Mqtt
                             CurrentTemperature = temperature
                         };
                     }
+                    if (measurement == "washing_machine")
+                    {
+                        var mode = parts[1].Split('=')[1];
+                        return new
+                        {
+                            Measurement = measurement,
+                            DeviceId = deviceId,
+                            CurrentMode = mode
+                        };
+                    }
                     else
                     {
 
@@ -327,6 +337,9 @@ namespace nvt_back.Mqtt
                     break;
                 case DeviceType.AC:
                     await sendAcUpdate(data, device);
+                    break;
+                case DeviceType.WASHING_MACHINE:
+                    await sendWashingMachineUpdate(data, device);
                     break;
             }
 
@@ -513,6 +526,34 @@ namespace nvt_back.Mqtt
             }
         }
 
+        private async Task sendWashingMachineUpdate(dynamic data, Device device)
+        {
+            WashingMachine sensor = (WashingMachine)device;
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                sensor.CurrentMode = Enum.Parse<WashingMachineMode>(data.CurrentMode.Replace("\"", ""));
+                var serviceProvider = scope.ServiceProvider;
+                var repository = serviceProvider.GetRequiredService<IDeviceRepository>();
+                await repository.SaveChanges(sensor);
+            }
+
+            var message = new
+            {
+                DeviceId = data.DeviceId,
+                DeviceType = "WASHING_MACHINE",
+                CurrentMode = data.CurrentMode.Replace("\"", ""),
+            };
+            try
+            {
+                Console.WriteLine($"data/{data.DeviceId}");
+                await _hubContext.Clients.Group($"data/{data.DeviceId}").SendAsync("DataUpdate", JsonConvert.SerializeObject(message));
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
 
         private async Task sendBatteryUpdate(dynamic data, Device device)
         {

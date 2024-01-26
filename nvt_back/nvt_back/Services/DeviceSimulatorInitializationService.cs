@@ -36,6 +36,8 @@ namespace nvt_back.Services
                 return initializeBattery(device);
             if (device.DeviceType == DeviceType.AC)
                 return initializeAC(device);
+            if (device.DeviceType == DeviceType.WASHING_MACHINE)
+                return initializeWashingMachine(device);
             return null;
         }
 
@@ -129,6 +131,26 @@ namespace nvt_back.Services
                 CurrentTemperature = ac.CurrentTemperature,
                 CurrentMode = ac.CurrentMode.ToString(),
                 IsOn = ac.IsOn
+            };
+
+        }
+
+        private WashingMachineInitializationDTO initializeWashingMachine(Device device)
+        {
+            WashingMachine wm = (WashingMachine)device;
+
+            List<string> supportedModes = new List<string>();
+            foreach (WashingMachineMode supportedMode in wm.SupportedModes)
+            {
+                supportedModes.Add(supportedMode.ToString());
+            }
+
+            return new WashingMachineInitializationDTO
+            {
+                Type = "Initialization",
+                SupportedModes = supportedModes,
+                CurrentMode = wm.CurrentMode.ToString(),
+                IsOn = wm.IsOn
             };
 
         }

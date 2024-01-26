@@ -186,10 +186,46 @@ namespace nvt_back.Services
             if (type == DeviceType.AC)
             {
                 return await ChangeAcMode(dto, id);
-            } else
+            } 
+            else if (type == DeviceType.WASHING_MACHINE)
+            {
+                return await ChangeWashingMachineMode(dto, id);
+            } 
+            else
             {
                 throw new Exception("The device type doesnt support the given regime");
             }
+        }
+
+        private async Task<bool> ChangeWashingMachineMode(CommandDTO dto, int userId)
+        {
+            var ac = (WashingMachine)(await _deviceRepository.GetById(dto.DeviceId));
+
+            if (ac == null)
+                throw new Exception("The ac with given id doesn't exist.");
+
+            WashingMachineMode mode;
+            try
+            {
+                mode = (WashingMachineMode)Enum.Parse(typeof(WashingMachineMode), dto.Value, true);
+            }
+            catch (ArgumentException)
+            {
+                throw new Exception("The ac doesnt support the given regime: " + dto.Value);
+            }
+
+            if (!ac.SupportedModes.Contains(mode))
+            {
+                throw new Exception("The air conditioner doesn't support the given mode: " + dto.Value);
+            }
+
+            if (mode != ac.CurrentMode)
+            {
+                await _mqttClientService.PublishModeUpdate(dto.DeviceId, mode.ToString(), userId);
+                return true;
+            }
+
+            return false;
         }
 
         private async Task<bool> ChangeAcMode(CommandDTO dto, int userId)
