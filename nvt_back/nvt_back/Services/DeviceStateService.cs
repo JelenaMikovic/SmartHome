@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNet.SignalR.Messaging;
-using nvt_back.DTOs;
+﻿using nvt_back.DTOs;
 using nvt_back.Model.Devices;
 using nvt_back.Mqtt;
 using nvt_back.Repositories.Interfaces;
