@@ -38,6 +38,10 @@ import { AmbientalSensorComponent } from './ambiental-sensor/ambiental-sensor.co
 import { PropertyDetailsComponent } from './property-details/property-details.component';
 import { DeviceCardComponent } from './device-card/device-card.component';
 import { DeviceDetailsComponent } from './device-details/device-details.component';
+import { ShareDialogComponent } from './share-dialog/share-dialog.component';
+import { SharedTableComponent } from './shared-table/shared-table.component';
+import { SharedDevicesComponent } from './shared-devices/shared-devices.component';
+import { ShareRequestsDialogComponent } from './share-requests-dialog/share-requests-dialog.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +63,11 @@ import { DeviceDetailsComponent } from './device-details/device-details.componen
     AmbientalSensorComponent,
     PropertyDetailsComponent,
     DeviceCardComponent,
-    DeviceDetailsComponent
+    DeviceDetailsComponent,
+    ShareDialogComponent,
+    SharedTableComponent,
+    SharedDevicesComponent,
+    ShareRequestsDialogComponent
   ],
   imports: [
     BrowserModule,

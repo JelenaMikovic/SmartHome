@@ -15,14 +15,16 @@ namespace nvt_back.Services
         private readonly IDeviceRepository _deviceRepository;
         private readonly InfluxDBService _influxDBService;
         private readonly IUserRepository _userRepository;
+        private readonly IPropertyRepository _propertyRepository;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public DeviceService(IDeviceRepository deviceRepository, InfluxDBService influxDBService, IUserRepository userRepository, IServiceScopeFactory scopeFactory)
+        public DeviceService(IDeviceRepository deviceRepository, InfluxDBService influxDBService, IUserRepository userRepository, IServiceScopeFactory scopeFactory, IPropertyRepository propertyService)
         {
             _deviceRepository = deviceRepository;
             _influxDBService = influxDBService;
             _userRepository = userRepository;
             _scopeFactory = scopeFactory;
+            _propertyRepository = propertyService;
         }
 
         public async Task<List<Device>> GetAll()
@@ -178,6 +180,56 @@ namespace nvt_back.Services
         public List<AirConditionerSchedule> GetDeviceSchedule(int deviceId)
         {
             return _deviceRepository.GetDeviceSchedules(deviceId).Result;
+        }
+
+        public async void AddSharedDevice(SharedDeviceDTO dto, int id)
+        {
+            User user = _userRepository.GetByEmail(dto.Email).Result;
+            if (user == null)
+            {
+                throw new Exception("User not found");
+
+            }
+            User owner = _userRepository.GetById(id).Result;
+            if (owner == null)
+            {
+                throw new Exception("User not found");
+
+            }
+            Property property = null;
+            Device device = null;
+            SharedType type = SharedType.PROPERTY;
+            if (dto.SharedType.ToLower() == "property")
+            {
+                property = _propertyRepository.GetById(dto.PropertyId);
+                if (property == null)
+                {
+                    throw new Exception("Property not found");
+                };
+            } 
+            else
+            {
+                device = _deviceRepository.GetById(dto.DeviceId).Result;
+                if (device == null)
+                {
+                    throw new Exception("Property not found");
+                };
+                type = SharedType.DEVICE;
+            }
+            SharedStatus status = SharedStatus.PENDING;
+            SharedDevices devices = new SharedDevices();
+            devices.PropertyId = property?.Id;
+            devices.Status = status;
+            devices.DeviceId = device?.Id;
+            devices.SharedType = type;
+            devices.UserId = user.Id;
+            devices.OwnerId = owner.Id;
+            _deviceRepository.AddSharedDevice(devices);
+        }
+
+        public void UpdateSharedDevice(int id, SharedStatus status)
+        {
+            _deviceRepository.UpdateSharedDevices(id, status);
         }
     }
 }

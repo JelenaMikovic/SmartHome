@@ -51,7 +51,7 @@ namespace nvt_back.Repositories
 
         public async Task<Property> GetDetailsById(int id)
         {
-            return await this._context.Properties.Include(x => x.Address).Include(x => x.Address.City).Include(x => x.Address.City.Country).FirstOrDefaultAsync(x => x.Id == id);
+            return await this._context.Properties.Include(x => x.Owner).Include(x => x.Address).Include(x => x.Address.City).Include(x => x.Address.City.Country).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public void Update(Property property)

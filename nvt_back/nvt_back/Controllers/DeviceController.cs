@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using Quartz;
 using static Quartz.Logging.OperationName;
 using nvt_back.Model.Devices;
+using System.Security.Cryptography.X509Certificates;
+using nvt_back.DTOs.DeviceDetailsDTO;
+using nvt_back.Services;
+using System.Collections.Generic;
 
 namespace nvt_back.Controllers
 {
@@ -15,12 +19,14 @@ namespace nvt_back.Controllers
     public class DeviceController : Controller
     {
         private readonly IDeviceService _deviceService;
+        private readonly IDeviceDetailsService _deviceDetailsService;
         //private readonly IScheduler _scheduler;
 
-        public DeviceController(IDeviceService deviceService) //IScheduler scheduler)
+        public DeviceController(IDeviceService deviceService, IDeviceDetailsService deviceDetailsService) //IScheduler scheduler)
         {
-           // _scheduler = scheduler;
+            // _scheduler = scheduler;
             _deviceService = deviceService;
+            _deviceDetailsService = deviceDetailsService;
         }
 
         [HttpPost]
@@ -189,7 +195,108 @@ namespace nvt_back.Controllers
             {
                 return StatusCode(500, "Internal Server Error: " + ex.Message);
             }
+
         }
 
+        [HttpPost("shared")]
+        public async Task<ActionResult<MessageDTO>> AddSharedDevice(SharedDeviceDTO dto)
+        {
+            try
+            {
+                _deviceService.AddSharedDevice(dto, _user.Id);
+                var response = new
+                {
+
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPut("shared/accept/{id}")]
+        public async Task<ActionResult<MessageDTO>> AcceptSharedDevice(int id)
+        {
+            try
+            {
+                _deviceService.UpdateSharedDevice(id, SharedStatus.ACCEPTED);
+                return Ok(id);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpPut("shared/deny/{id}")]
+        public async Task<ActionResult<MessageDTO>> DenySharedDevice(int id)
+        {
+            try
+            {
+                _deviceService.UpdateSharedDevice(id, SharedStatus.DENIED);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex.Message);
+            }
+        }
+
+        [HttpGet("shared/properties")]
+        public async Task<ActionResult<List<PropertyDTO>>> GetUserSharedProperties()
+        {
+            try
+            {
+                List<PropertyDTO> res = await _deviceDetailsService.GetSharedPropertyDetails(_user.Id);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error. " + ex.Message);
+            }
+        }
+
+        [HttpGet("shared/devices")]
+        public async Task<ActionResult<List<DeviceDetailsDTO>>> GetUserSharedDevices()
+        {
+            try
+            {
+                List<DeviceDetailsDTO> res = await _deviceDetailsService.GetSharedDevicesDetails(_user.Id);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error. " + ex.Message);
+            }
+        }
+
+        [HttpGet("shared")]
+        public async Task<ActionResult<List<SharedDevicesDTO>>> GetSharedDevice()
+        {
+            try
+            {
+                return Ok(await _deviceDetailsService.GetSharedDevice(_user.Id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error. " + ex.Message);
+            }
+        }
+
+        [HttpGet("shared/requests")]
+        public async Task<ActionResult<List<SharedDevicesDTO>>> GetSharedRequests()
+        {
+            try
+            {
+                //TO DO:
+                return Ok(await _deviceDetailsService.GetSharedDeviceRequests(_user.Id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error. " + ex.Message);
+            }
+        }
     }
 }

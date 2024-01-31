@@ -2,6 +2,7 @@
     <div class="title-container">
         <div class="title-topper">
             <p class="title">Device details</p>
+            <button *ngIf="owner" (click)="openShareProperty()" class="conf-button add-prop-btn back-light-blue"><i class="fa fa-share"></i>Share</button>
             <!-- <button *ngIf="loggedUser.role == 'USER'" class="conf-button add-prop-btn back-light-blue" (click)="openAddPropertyDialog()"><i class="fa fa-circle-plus"></i>Request a new property</button> -->
         </div>
         <hr>

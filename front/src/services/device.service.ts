@@ -142,6 +142,38 @@ export class DeviceService {
     return this.http.post<any>(url, dto, { withCredentials: true });
   }
 
+  addSharedDevice(dto: any): Observable<any> {
+    return this.http.post<any>(environment.apiHost + "/device/shared", dto, { withCredentials: true });
+  }
+
+  acceptSharedDevice(id: number): Observable<any> {
+    return this.http.put<any>(environment.apiHost + `/device/shared/accept/${id}`, null, { withCredentials: true });
+  }
+
+  denySharedDevice(id: number): Observable<any> {
+    return this.http.put<any>(environment.apiHost + `/device/shared/deny/${id}`, null, { withCredentials: true });
+  }
+
+  getUserSharedDevice(): Observable<any> {
+    return this.http.get<any>(environment.apiHost + "/device/shared/user", { withCredentials: true });
+  }
+  
+  getSharedProperties(): Observable<any> {
+    return this.http.get<any>(environment.apiHost + "/device/shared/properties", { withCredentials: true });
+  }
+
+  getSharedDevices(): Observable<any> {
+    return this.http.get<any>(environment.apiHost + "/device/shared/devices", { withCredentials: true });
+  }
+
+  getSharedDevice(): Observable<any> {
+    return this.http.get<any>(environment.apiHost + "/device/shared", { withCredentials: true });
+  }
+
+  getSharedRequests(): Observable<any> {
+    return this.http.get<any>(environment.apiHost + "/device/shared/requests", { withCredentials: true });
+  }
+
 }
 
 export interface CommandDTO

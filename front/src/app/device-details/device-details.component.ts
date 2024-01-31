@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PropertyDetailsService } from 'src/services/property-details.service';
 import { DeviceService } from 'src/services/device.service';
 import { AddDeviceDialogComponent } from '../add-device-dialog/add-device-dialog.component';
+import { ShareDialogComponent } from '../share-dialog/share-dialog.component';
 @Component({
   selector: 'app-device-details',
   templateUrl: './device-details.component.html',
@@ -17,6 +18,9 @@ import { AddDeviceDialogComponent } from '../add-device-dialog/add-device-dialog
 export class DeviceDetailsComponent implements OnInit {
 
   deviceId: any = {};
+  owner: boolean = true;
+  device: any;
+
   constructor(private dialog: MatDialog, private propertyService: PropertyService, 
     private authService: AuthService, private snackBar: MatSnackBar,
     private router: Router,
@@ -25,7 +29,17 @@ export class DeviceDetailsComponent implements OnInit {
     private deviceService: DeviceService) { }
 
   ngOnInit(): void {
-    this.deviceId = this.route.snapshot.paramMap.get('id')!;
+    this.deviceId = this.route.snapshot.paramMap.get('id')!;  
+    if(this.route.snapshot.paramMap.get('shared')!){
+      this.owner = false;
+    }  
+  }
+
+  openShareProperty(){
+    const dialogRef = this.dialog.open(ShareDialogComponent, {
+      data: { deviceId: this.deviceId, type: "DEVICE"
+      }
+    });
   }
 
 }

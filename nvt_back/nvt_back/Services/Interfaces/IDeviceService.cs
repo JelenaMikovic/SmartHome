@@ -18,5 +18,7 @@ namespace nvt_back.Services.Interfaces
         void AddSchedule(ScheduleItemDTO scheduleItem);
         void RemoveSchedule(int scheduleId);
         List<AirConditionerSchedule> GetDeviceSchedule(int deviceId);
+        void AddSharedDevice(SharedDeviceDTO dto, int id);
+        void UpdateSharedDevice(int id, SharedStatus status);
     }
 }

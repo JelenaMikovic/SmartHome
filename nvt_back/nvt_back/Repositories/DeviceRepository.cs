@@ -128,6 +128,42 @@ namespace nvt_back.Repositories
             return details;
         }
 
+        public async Task<DeviceDetailsDTO> GetSharedDeviceDetails(int id)
+        {
+            Device device =  _context.Devices.Where(x => x.Id == id).FirstOrDefault();
+
+            DeviceDetailsDTO details = new DeviceDetailsDTO
+            {
+                Id = device.Id,
+                Name = device.Name,
+                PowerConsumption = device.PowerConsumption,
+                PowerSource = device.PowerSource,
+                Image = device.Image,
+                IsOnline = device.IsOnline,
+            };
+
+            Console.WriteLine(details);
+            return details;
+        }
+
+        public async Task<IEnumerable<DeviceDetailsDTO>> GetPropertyDeviceDetails(int propertyId)
+        {
+            List<Device> devices = await _context.Devices.Where(x => x.PropertyId == propertyId).OrderByDescending(x => x.Id).ToListAsync();
+
+            IEnumerable<DeviceDetailsDTO> details = devices.Select(device => new DeviceDetailsDTO
+            {
+                Id = device.Id,
+                Name = device.Name,
+                PowerConsumption = device.PowerConsumption,
+                PowerSource = device.PowerSource,
+                Image = device.Image,
+                IsOnline = device.IsOnline,
+            });
+
+            Console.WriteLine(details);
+            return details;
+        }
+
         public async Task<object> GetDetailsById(int id)
         {
             var device = await GetById(id);
@@ -417,22 +453,66 @@ namespace nvt_back.Repositories
             return workingDevices;
         }
 
-        public async void AddSchedule(AirConditionerSchedule schedule)
+        public async Task AddSchedule(AirConditionerSchedule schedule)
         {
-           await _context.AirConditionerSchedules.AddAsync(schedule);
-            _context.SaveChangesAsync();
+            var devices = await _context.AirConditionerSchedules.ToListAsync();
+            devices.Add(schedule);
+            await _context.SaveChangesAsync();
         }
 
-        public async void RemoveSchedule(int scheduleId)
+        public async Task RemoveSchedule(int scheduleId)
         {
-            var schedule = await _context.AirConditionerSchedules.FirstOrDefaultAsync(schedule => schedule.Id ==  scheduleId);
-            _context.AirConditionerSchedules.Remove(schedule);
-            _context.SaveChangesAsync();
+            var devices = await _context.AirConditionerSchedules.ToListAsync();
+            var scheduleToRemove = await _context.AirConditionerSchedules.FindAsync(scheduleId);
+            devices.Remove(scheduleToRemove);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<AirConditionerSchedule>> GetDeviceSchedules(int deviceId)
         {
             return await _context.AirConditionerSchedules.Where(s => s.DeviceId == deviceId).ToListAsync();
+        }
+
+        public async Task AddSharedDevice(SharedDevices device)
+        {
+            var devices = await _context.SharedDevices.ToListAsync();
+            devices.Add(device);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateSharedDevices(int id, SharedStatus status)
+        {
+            SharedDevices devices = await GetSharedDeviceById(id);
+            if (devices == null)
+            {
+                throw new Exception("Shared devices not found");
+            }
+            devices.Status = status;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<SharedDevices> GetSharedDeviceById(int id)
+        {
+            try
+            {
+                return await _context.SharedDevices.FirstOrDefaultAsync(device => device.Id == id);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                return null;
+            }
+        }
+
+        public async Task<List<SharedDevices>> GetSharedDevces(int userId)
+        {
+            return await _context.SharedDevices.Where(s => s.UserId == userId).ToListAsync();
+        }
+
+        public async Task<List<SharedDevices>> GetSharedDevicesOwner(int id)
+        {
+            return await _context.SharedDevices.Where(s => s.OwnerId == id).ToListAsync();
         }
     }
 }

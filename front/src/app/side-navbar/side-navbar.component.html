@@ -24,13 +24,21 @@
         <p>Properties</p>
     </div>
     <div class="nav-item" [routerLink]="['/registerAdmin']" [ngClass]="url == '/registerAdmin' ? 'selected-option': ''">
-        <i class="fa-solid fa-home" style="cursor: pointer"></i>
+        <i class="fa-solid fa-user-circle " style="cursor: pointer"></i>
         <p>Register admin</p>
     </div>
     <!-- <div class="nav-item" [routerLink]="['/xyz']" [ngClass]="url == '/xyz' ? 'selected-option': ''">
         <i class="fa-solid fa-home" style="cursor: pointer"></i>
         <p>test</p>
     </div> -->
+    <div class="nav-item" [routerLink]="['/sharedTable']" [ngClass]="url == '/sharedTable' ? 'selected-option': ''">
+        <i class="fa-solid fa-share" style="cursor: pointer"></i>
+        <p>Shared with others</p>
+    </div>
+    <div class="nav-item" [routerLink]="['/sharedDevices']" [ngClass]="url == '/sharedDevices' ? 'selected-option': ''">
+        <i class="fa-solid fa-retweet" style="cursor: pointer"></i>
+        <p>Shared with me</p>
+    </div>
     <div id="logout-container">
         <button id="logout-btn" class="outline-btn" (click)="logout()">Logout</button>
     </div>

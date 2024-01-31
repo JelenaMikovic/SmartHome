@@ -9,6 +9,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PropertyDetailsService } from 'src/services/property-details.service';
 import { DeviceService } from 'src/services/device.service';
 import { AddDeviceDialogComponent } from '../add-device-dialog/add-device-dialog.component';
+import { ShareDialogComponent } from '../share-dialog/share-dialog.component';
+import { E } from 'chart.js/dist/chunks/helpers.core';
 
 
 
@@ -30,6 +32,7 @@ export class PropertyDetailsComponent implements OnInit {
   property: any = {};
   propertyId: any = {};
   devices: DeviceDetailsDTO[] = [];
+  owner: boolean = false
 
   selectedDeviceType: string = "";
 
@@ -65,12 +68,19 @@ export class PropertyDetailsComponent implements OnInit {
     this.propertyService.getDetails(id).subscribe({
       next: (value) => {
         this.property = value;
+        console.log(value);
       }, 
       error: (err) => {
         console.log(err);
       }
     });
     this.loadItems();
+  }
+
+  checkOwnership(){
+    if(this.loggedUser.id == this.property.owner.id){
+      this.owner = true;
+    }
   }
 
   loadItems() {
@@ -85,6 +95,7 @@ export class PropertyDetailsComponent implements OnInit {
         console.log(err);
       }
     });
+    this.checkOwnership();
   }
 
   details(){
@@ -110,7 +121,18 @@ export class PropertyDetailsComponent implements OnInit {
   openDeviceDetails(index: number){
     console.log(this.devices[index]);
     //this.propertyDetailsService.setSelectedProperty(this.properties[index]);
-    this.router.navigate(['/device-details', {id: this.devices[index].id}])
+    if(this.owner){
+      this.router.navigate(['/device-details', {id: this.devices[index].id}])
+    } else {
+      this.router.navigate(['/device-details', {id: this.devices[index].id, shared: "x"}])
+    }
+  }
+
+  openShareProperty(){
+    const dialogRef = this.dialog.open(ShareDialogComponent, {
+      data: { propertyId: this.propertyId, type: "PROPERTY"
+      }
+    });
   }
 
 }

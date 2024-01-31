@@ -98,7 +98,7 @@ namespace nvt_back.Services
                         Id = property.Address.Id,
                         Lat = property.Address.Lat,
                         Lng = property.Address.Lng,
-                        Name = property.Address.Name,
+                        Name = property.Address .Name,
                         City = property.Address.City.Name, 
                         Country = property.Address.City.Country.Name,
                     },
@@ -231,7 +231,15 @@ namespace nvt_back.Services
                 Name = property.Name,
                 NumOfFloors = property.NumOfFloors,
                 Status = property.Status.ToString(),
-                Owner = null
+                Owner = new UserDTO 
+                { 
+                    Email = property.Owner.Email, 
+                    Name = property.Owner.Name, 
+                    Id = property.Owner.Id, 
+                    IsActivated = property.Owner.IsActivated,
+                    Surname = property.Owner.Surname,
+                    Role = property.Owner.Role.ToString()
+                },
             };
         }
 

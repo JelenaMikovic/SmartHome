@@ -23,7 +23,7 @@ namespace nvt_back
         public DbSet<VehicleGate> VehicleGates { get; set; }
         public DbSet<WashingMachine> WashingMachines { get; set; }
         public DbSet<ActivationCode> ActivationCodes { get; set; }
-
+        public DbSet<SharedDevices> SharedDevices { get; internal set; }
 
         public DatabaseContext(DbContextOptions options) : base(options)
         {
@@ -44,6 +44,7 @@ namespace nvt_back
             modelBuilder.Entity<WashingMachine>().ToTable("WashingMachines");
             modelBuilder.Entity<Lamp>().ToTable("Lamps");
             modelBuilder.Entity<AirConditionerSchedule>().ToTable("AirConditionerSchedules");
+            modelBuilder.Entity<SharedDevices>().ToTable("SharedDevices");
 
             /*modelBuilder.Entity<Device>()
               .HasKey(x => new { x.Id, x.PropertyId });*/

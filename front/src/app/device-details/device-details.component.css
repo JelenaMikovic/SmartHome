@@ -13,3 +13,17 @@
     font-weight: bolder !important;
     font-size: 1.8em !important;
 }
+
+.add-prop-btn {
+    border: none;
+    border-radius: 10px;
+    font-weight: bold !important;
+    font-size: 0.9em;
+    padding: 10px 15px !important;
+    margin-top: 0px !important;
+    margin-left: auto;
+    cursor: pointer;
+}
+.add-prop-btn i {
+    margin-right: 5px;
+}

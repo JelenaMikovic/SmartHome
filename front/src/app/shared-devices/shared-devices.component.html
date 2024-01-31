@@ -1,0 +1,30 @@
+<!-- <button class="conf-button add-prop-btn back-light-blue" (click)="openAddPropertyDialog()"><i class="fa fa-circle-plus"></i>Request a new property</button> -->
+<!-- <button class="conf-button add-prop-btn back-light-blue" (click)="openChooseDeviceTypeDialog()"><i class="fa fa-circle-plus"></i>Add new device</button> -->
+<div class="homepage-container">
+    <div class="title-container">
+        <div class="title-topper">
+            <p class="title">Properties</p>
+            <button class="conf-button add-prop-btn back-light-blue" (click)="openRequests()"><i class="fa fa-bell"></i>Requests ({{this.notifications}})</button>
+        </div>
+        <hr>
+        <div class="card-holder">
+            <div *ngFor="let property of properties; let i = index">
+                <app-property-card [property]="property" [enableClick]="true" (click)="openPropertyDetails(i)"></app-property-card>
+                <!-- <p>{{ property.name }}</p> -->
+            </div> 
+        </div>
+    </div>
+    <div class="title-container">
+        <div class="title-topper">
+            <p class="title">Devices</p>
+        </div>
+        <hr>
+    </div>
+    <div class="card-holder" style="display: flex;">
+        <div *ngFor="let device of devices; let i = index">
+            <app-device-card [device]="device" (click)="openDeviceDetails(i)"></app-device-card>
+        </div> 
+      </div>
+</div>
+
+
