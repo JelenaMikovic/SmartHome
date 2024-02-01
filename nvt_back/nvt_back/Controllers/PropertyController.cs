@@ -35,15 +35,15 @@ namespace nvt_back.Controllers
 
         [HttpGet]
         [Route("paginated")]
-        [Authorize(Roles = "USER, ADMIN, SUPERADMIN")]
+        //[Authorize(Roles = "USER, ADMIN, SUPERADMIN")]
         public async Task<ActionResult<IEnumerable<Property>>> GetPropertyPaginated(int page, int size)
         {
-            Console.WriteLine(_user.Id);
+            //Console.WriteLine(_user.Id);
 
             try
             {
-                PageResultDTO<PropertyDTO> res;
-                if (_user.Role == UserRole.USER)
+                PageResultDTO<PropertyDTO> res=null;
+                /*if (_user.Role == UserRole.USER)
                 {
                     res = this._propertyService.GetAllPaginated(page, size, _user.Id);
                 }
@@ -51,7 +51,7 @@ namespace nvt_back.Controllers
                 {
                     res = this._propertyService.GetAllPaginated(page, size);
 
-                }
+                }*/
                 return Ok(res);
             }
             catch (Exception ex)

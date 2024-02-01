@@ -5,8 +5,8 @@
 export const environment = {
   production: false,
   // apiHost: 'http://localhost:5184/api',
-  apiHost: 'http://localhost:5184/api',
-  host: 'http://localhost:5184',
+  apiHost: 'http://localhost:9080/api',
+  host: 'http://localhost:9080',
   googleApiKey: 'AIzaSyC1Os-rcJH8sYXJJxuJnPuogv-N289nF-g'
 };
 

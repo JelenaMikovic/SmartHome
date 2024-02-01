@@ -20,7 +20,7 @@ namespace nvt_back.Controllers
 
         [HttpGet]
         [Route("paginated")]
-        [Authorize(Roles = "USER, ADMIN, SUPERADMIN")]
+        //[Authorize(Roles = "USER, ADMIN, SUPERADMIN")]
         public async Task<ActionResult<PageResultDTO<DeviceDetailsDTO>>> GetPropertyDeviceDetails(
             [FromQuery] int propertyId,
             [FromQuery] int page, [FromQuery] int size)

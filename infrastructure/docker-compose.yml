@@ -42,12 +42,26 @@ services:
       - nvt-network
     env_file:
       - .env   
+      
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+     - "9080:80"
+    volumes:
+     - ../nvt_back/nvt_back/images:/data/images
+     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+    networks:
+      - nvt-network
+
 
 volumes:
   config:
   data:
   log:
   influxdb:
+
 
 networks:
   nvt-network:

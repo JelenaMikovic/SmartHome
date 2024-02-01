@@ -16,7 +16,7 @@ export class AuthService {
   constructor(private http: HttpClient, public jwtHelper: JwtHelperService) {}
 
   login(credentials: any): Observable<any> {
-    return this.http.post<any>(environment.apiHost + '/user/login', credentials, { withCredentials: true })
+    return this.http.post<any>(environment.apiHost + '/user/login', credentials)
       .pipe(
         tap(response => {
           this.loggedInSubject.next(response.email ? true : false);
